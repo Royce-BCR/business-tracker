@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1f22;
+    --paper: #f4f2ed;
+    --card: #ffffff;
+    --stone: #e8e5df;
+    --stone-deep: #d8d3c8;
+    --line: #e7e3db;
+    --muted: #8b867c;
+    --oak: #a8763e;
+    --slate: #5b6470;
+    --green: #3f6b4f;
+
+    --g-command: #8b95a3;
+    --g-growth: #6fae86;
+    --g-finance: #d09a5e;
+    --g-operations: #c6b89d;
+
+    --sans: 'Inter', 'Segoe UI', system-ui, Arial, sans-serif;
+    --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 1px 3px rgba(28,31,34,0.06), 0 1px 2px rgba(28,31,34,0.04);
+    --shadow-lift: 0 4px 14px rgba(28,31,34,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 13.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 244px;
+    height: 100vh;
+    background: var(--ink);
+    color: #d9d5cc;
+    padding: 22px 14px 30px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    z-index: 20;
+  }
+  .brand { padding: 4px 10px 18px 10px; }
+  .brand h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 24px;
+    margin: 0;
+    letter-spacing: -0.2px;
+    color: #fff;
+    letter-spacing: 0.2px;
+  }
+  .brand .sub {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7c766b;
+    margin-top: 3px;
+  }
+  .nav-group { margin-top: 14px; }
+  .nav-label {
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0 10px 7px 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .nav-label::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    opacity: 0.9;
+  }
+  .g-command  .nav-label, .tab.g-command  { --accent: var(--g-command); }
+  .g-growth   .nav-label, .tab.g-growth   { --accent: var(--g-growth); }
+  .g-finance  .nav-label, .tab.g-finance  { --accent: var(--g-finance); }
+  .g-operations .nav-label, .tab.g-operations { --accent: var(--g-operations); }
+  .g-system .nav-label, .tab.g-system { --accent: #9aa0a6; }
+  .nav-label { color: var(--accent); }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 11px;
+    margin: 1px 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    color: #cfcabf;
+    border-left: 2.5px solid transparent;
+    transition: background 0.12s ease, color 0.12s ease;
+    user-select: none;
+  }
+  .tab:hover { background: rgba(255,255,255,0.05); color: #fff; }
+  .tab.active {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    color: #fff;
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+  .tab .soon {
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a847a;
+    border: 1px solid #3a3d41;
+    padding: 1px 5px;
+    border-radius: 20px;
+  }
+  .save-status {
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    z-index: 30;
+    font-size: 10.5px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 4px 12px;
+    min-height: 0;
+    pointer-events: none;
+    opacity: 0.9;
+  }
+  .save-status:empty { display: none; }
+
+  /* ---------------- Main ---------------- */
+  .main {
+    margin-left: 244px;
+    padding: 32px 44px 120px 44px;
+    max-width: 1520px;
+  }
+  .panel { display: none; animation: fade 0.18s ease; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none; } }
+
+  .page-head { margin-bottom: 22px; }
+  .page-head h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 29px;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.3px;
+  }
+  .page-head .desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 7px;
+    max-width: 720px;
+    line-height: 1.5;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    margin-bottom: 20px;
+  }
+  .card > h3:first-child, .section-label:first-child { margin-top: 0; }
+  .section-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--oak);
+    font-weight: 600;
+    margin: 26px 0 10px 0;
+  }
+
+  /* KPI cards */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(178px,1fr)); gap: 14px; margin-bottom: 22px; }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background: var(--accent, var(--oak)); opacity: 0.85; }
+  .kpi .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+  .kpi .value { font-family: var(--serif); font-weight: 600; font-size: 26px; margin-top: 5px; color: var(--ink); line-height: 1.1; letter-spacing: -0.3px; }
+  .kpi .value.flag { color: #b3453f; }
+  .kpi .sub { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+
+  /* Tables */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--card);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+  th, td {
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    background: #faf8f4;
+    color: #6c675e;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: relative;
+    white-space: nowrap;
+  }
+  thead th { border-bottom: 1.5px solid var(--stone-deep); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #faf9f6; }
+  .col-handle {
+    position: absolute; top: 0; right: 0; width: 8px; height: 100%;
+    cursor: col-resize; user-select: none;
+  }
+  .col-handle:hover { background: linear-gradient(to right, transparent, rgba(168,118,62,0.35)); }
+
+  input, select, textarea {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: 12.5px;
+    font-family: inherit;
+    color: var(--ink);
+    padding: 4px 5px;
+    border-radius: 6px;
+  }
+  input:hover, select:hover, textarea:hover { border-color: var(--stone-deep); background: #fff; }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--oak); background: #fffdf9;
+    box-shadow: 0 0 0 3px rgba(168,118,62,0.1);
+  }
+  input[type="date"] { min-width: 118px; }
+  .computed { color: var(--slate); font-weight: 600; background: #f6f4ef !important; border-radius: 6px; }
+  textarea { resize: vertical; min-height: 54px; line-height: 1.5; }
+
+  .btn {
+    background: var(--ink); color: #fff; border: none;
+    padding: 8px 15px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border-radius: 8px; font-family: inherit;
+    transition: transform 0.08s ease, background 0.12s ease;
+  }
+  .btn:hover { background: #33383d; }
+  .btn:active { transform: translateY(1px); }
+  .btn.secondary { background: #fff; color: var(--ink); border: 1px solid var(--stone-deep); }
+  .btn.secondary:hover { background: #f6f4ef; }
+  .btn.danger { background: transparent; color: #b3453f; border: 1px solid #e3c4c1; padding: 3px 9px; font-size: 14px; line-height: 1; border-radius: 6px; }
+  .btn.danger:hover { background: #fbeeed; }
+  .btn-row { margin-bottom: 14px; display: flex; gap: 9px; flex-wrap: wrap; }
+
+  .callout {
+    background: linear-gradient(0deg, #fff, #fffdf9);
+    border: 1px solid #eadfce;
+    border-left: 3px solid var(--oak);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px; font-size: 12.5px; line-height: 1.55;
+    margin: 6px 0 4px 0;
+  }
+  .flag-row td { background: #fdf3ee !important; }
+
+  /* Accountability: complete checkbox + archive */
+  .cbx {
+    width: 19px; height: 19px; border: 2px solid var(--stone-deep); border-radius: 6px;
+    cursor: pointer; display: grid; place-items: center; background: #fff; margin: 0 auto;
+    transition: all 0.12s;
+  }
+  .cbx svg { width: 12px; height: 12px; opacity: 0; }
+  .cbx.checked { background: var(--green); border-color: var(--green); }
+  .cbx.checked svg { opacity: 1; }
+  tr.done-row td { color: var(--muted); }
+  tr.done-row .acc-action-text { text-decoration: line-through; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    width: 30px; height: 28px; border-radius: 7px; display: grid; place-items: center; padding: 0;
+    transition: all 0.12s;
+  }
+  .icon-btn:hover { background: #f2efe9; color: var(--ink); }
+  .icon-btn svg { width: 16px; height: 16px; }
+  .icon-btn.restore:hover { color: var(--green); }
+
+  .archived-section { margin-top: 18px; }
+  .archived-toggle {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    font-size: 12px; color: var(--muted); font-weight: 500;
+    padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: #faf8f4; user-select: none;
+  }
+  .archived-toggle:hover { background: #f4f1ea; }
+  .archived-toggle svg.tray { width: 15px; height: 15px; }
+  .archived-toggle .chev { margin-left: auto; width: 15px; height: 15px; flex-shrink: 0; transition: transform 0.15s; }
+  .archived-toggle .tray { flex-shrink: 0; }
+  .archived-toggle.open .chev { transform: rotate(90deg); }
+  .archived-body { margin-top: 10px; }
+  .archived-body[hidden] { display: none; }
+
+  /* table width control */
+  .table-tools { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .width-toggle { display: inline-flex; background: #efece6; border-radius: 8px; padding: 2px; gap: 2px; }
+  .width-toggle button { border: none; background: none; font-family: inherit; font-size: 11px; font-weight: 500; padding: 4px 11px; border-radius: 6px; cursor: pointer; color: var(--muted); }
+  .width-toggle button.active { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .table-scroll.fitmode > table { min-width: 0 !important; width: 100% !important; }
+
+  /* status/lead pills */
+  .lead-status-Not.Contacted {}
+  .promote-btn {
+    background: var(--green); color: #fff; border: none; font-family: inherit;
+    font-size: 11.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .promote-btn:hover { background: #345a41; }
+  .promote-btn:disabled { background: #dcd7cd; color: #9a958b; cursor: not-allowed; }
+  .promote-btn svg { width: 14px; height: 14px; }
+  .qual-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 640px; margin-bottom: 14px; }
+  .qual-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .qual-field input { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; }
+  .qual-field.missing label { color: #b3453f; }
+  .qual-field.missing input { border-color: #e3c4c1; background: #fdf3ee; }
+  .gate-msg { font-size: 12px; color: #b3453f; margin-bottom: 10px; }
+  .gate-msg.ok { color: var(--green); }
+  .milestone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px; max-width: 760px; margin-bottom: 14px; }
+  .milestone-grid label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .milestone-grid input { border: 1px solid var(--line); background: #fff; padding: 6px 8px; border-radius: 7px; }
+  .progress-pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: #eef1ee; color: var(--green); }
+
+  .fc-cell:hover { background: #f3efe7 !important; outline: 1px solid var(--stone-deep); }
+  .breakdown-hint { font-size: 12px; color: var(--muted); padding: 4px 2px; }
+  .breakdown-box { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; margin-top: 6px; }
+  .breakdown-title { font-size: 12.5px; font-weight: 600; margin-bottom: 10px; }
+  .breakdown-box table { width: 100%; font-size: 12px; }
+  .breakdown-box th { background: none; border: none; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 8px; }
+  .breakdown-box td { border: none; border-top: 1px solid var(--line); padding: 6px 8px; }
+  .lyr { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .lyr.committed { background: #e4f0e6; color: #4f8a5b; }
+  .lyr.weighted { background: #fbf1cf; color: #c9822f; }
+
+  /* dashboard */
+  .stagebar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 11px; }
+  .stagebar-row:last-child { margin-bottom: 0; }
+  .stagebar-label { width: 120px; font-size: 12.5px; flex-shrink: 0; }
+  .stagebar-track { flex: 1; height: 10px; background: #efece6; border-radius: 6px; overflow: hidden; }
+  .stagebar-fill { height: 100%; background: linear-gradient(90deg, var(--g-growth), var(--green)); border-radius: 6px; min-width: 2px; }
+  .stagebar-val { width: 76px; text-align: right; font-size: 12.5px; font-weight: 600; color: var(--slate); flex-shrink: 0; }
+  .fs-block { margin-bottom: 16px; }
+  .fs-block:last-child { margin-bottom: 0; }
+  .fs-head { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .fs-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .fs-row:last-child { border-bottom: none; }
+  .fs-row.total { font-weight: 700; border-top: 1.5px solid var(--stone-deep); margin-top: 2px; }
+  .fs-row.total span:last-child { font-family: var(--serif); font-size: 15px; }
+
+  /* view toggle */
+  .view-toggle { display: inline-flex; background: #efece6; border-radius: 9px; padding: 3px; margin-bottom: 14px; gap: 2px; }
+  .view-toggle button {
+    border: none; background: none; font-family: inherit; font-size: 12.5px; font-weight: 500;
+    padding: 6px 15px; border-radius: 7px; cursor: pointer; color: var(--muted);
+  }
+  .view-toggle button.active { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+
+  /* code cell */
+  .code-cell { font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--slate); letter-spacing: 0.03em; white-space: nowrap; }
+
+  /* expand chevron */
+  .icon-btn.expand svg { transition: transform 0.15s; }
+  .icon-btn.expand.open svg { transform: rotate(90deg); }
+
+  /* project detail (expanded) */
+  tr.detail-row > td { background: #faf8f4 !important; padding: 0; }
+  .detail-box { padding: 16px 18px 18px; border-left: 3px solid var(--oak); margin: 2px 0; }
+  .detail-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .detail-code { font-family: var(--sans); font-size: 11px; font-weight: 700; color: #fff; background: var(--slate); padding: 3px 9px; border-radius: 20px; }
+  .detail-head > span:nth-child(2) { font-weight: 600; font-size: 14px; }
+  .detail-meta { font-size: 11.5px; color: var(--muted); }
+  .detail-notes { margin-bottom: 12px; max-width: 640px; }
+  .detail-notes label { display:block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+  .detail-notes input { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; }
+  .stage-label-row { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--oak); font-weight: 600; margin-bottom: 8px; }
+
+  /* Gantt */
+  .gantt-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; font-size: 11.5px; color: var(--slate); }
+  .gantt-legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .gantt-legend .lg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .gantt-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
+  .gantt { }
+  .gantt-headrow { display: flex; border-bottom: 1.5px solid var(--stone-deep); background: #faf8f4; position: sticky; top: 0; }
+  .gantt-label { padding: 10px 14px; font-size: 12.5px; flex-shrink: 0; border-right: 1px solid var(--line); display: flex; align-items: center; gap: 6px; }
+  .gantt-label.head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6c675e; font-weight: 600; }
+  .gantt-months { position: relative; height: 38px; }
+  .gantt-month { position: absolute; top: 0; height: 38px; line-height: 38px; font-size: 11px; color: var(--muted); border-left: 1px solid var(--line); padding-left: 6px; box-sizing: border-box; }
+  .gantt-row { display: flex; border-bottom: 1px solid var(--line); }
+  .gantt-row:last-child { border-bottom: none; }
+  .gantt-row:hover { background: #faf9f6; }
+  .gantt-track { position: relative; height: 40px; flex-shrink: 0; }
+  .gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 6px; display: flex; align-items: center; padding: 0 7px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+  .gantt-bar span { font-size: 10.5px; color: #fff; white-space: nowrap; font-weight: 500; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
+
+  /* archiving fade */
+  tr.archiving { opacity: 0.38; transition: opacity 1.8s ease; pointer-events: none; }
+  tr.archiving td { background: #f0eee9 !important; }
+
+  /* modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(28,31,34,0.42); display: grid; place-items: center; z-index: 100; animation: fade 0.15s ease; }
+  .modal-overlay[hidden] { display: none; }
+  .modal { background: #fff; border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,0.22); padding: 24px 26px; max-width: 380px; width: calc(100% - 40px); }
+  .modal-title { font-family: var(--serif); font-weight: 600; font-size: 20px; margin-bottom: 8px; }
+  .modal-msg { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+  .assumptions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 18px; }
+  .assumptions-grid.two { grid-template-columns: repeat(2, 1fr); max-width: 520px; }
+  .assumptions-grid label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+  .assumptions-grid input { border: 1px solid var(--line); background: #fff; padding: 7px 8px; }
+
+  /* Placeholder empty-states */
+  .placeholder {
+    text-align: center;
+    padding: 46px 30px;
+    border: 1.5px dashed var(--stone-deep);
+    border-radius: var(--radius);
+    background: repeating-linear-gradient(135deg, #faf8f4, #faf8f4 10px, #f6f3ee 10px, #f6f3ee 20px);
+    color: var(--muted);
+  }
+  .placeholder .tag {
+    display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--oak); border: 1px solid #e3d4bd; background: #fff;
+    padding: 4px 11px; border-radius: 20px; margin-bottom: 14px; font-weight: 600;
+  }
+  .placeholder h3 { font-family: var(--serif); font-weight: 600; font-size: 23px; color: var(--ink); margin: 0 0 8px 0; }
+  .placeholder p { max-width: 520px; margin: 0 auto 6px auto; font-size: 13px; line-height: 1.6; }
+  .placeholder ul { text-align: left; max-width: 460px; margin: 14px auto 0 auto; font-size: 12.5px; line-height: 1.9; color: #6f6a60; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px){ .two-col { grid-template-columns: 1fr; } .main { padding: 24px 18px 110px 18px; } }
+
+  .field-block { margin-bottom: 16px; }
+  .field-block label { display:block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-bottom: 5px; }
+  .field-block textarea { border: 1px solid var(--line); background: #fff; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">
+    <h1>Business Tracker</h1>
+    <div class="sub">Live System</div>
+  </div>
+
+  <div class="nav-group g-command">
+    <div class="nav-label">Command</div>
+    <div class="tab g-command active" data-tab="dashboard">Dashboard</div>
+    <div class="tab g-command" data-tab="businessplan">Business Plan</div>
+  </div>
+
+  <div class="nav-group g-growth">
+    <div class="nav-label">Growth</div>
+    <div class="tab g-growth" data-tab="leads">Leads</div>
+    <div class="tab g-growth" data-tab="salespipeline">Sales Pipeline</div>
+    <div class="tab g-growth" data-tab="projectpipeline">Project Pipeline</div>
+  </div>
+
+  <div class="nav-group g-finance">
+    <div class="nav-label">Finance</div>
+    <div class="tab g-finance" data-tab="pricing">Pricing Model</div>
+    <div class="tab g-finance" data-tab="revenue">Revenue Forecast</div>
+    <div class="tab g-finance" data-tab="cashflow">Cash Flow Forecast</div>
+    <div class="tab g-finance" data-tab="transactions">Transactions</div>
+  </div>
+
+  <div class="nav-group g-operations">
+    <div class="nav-label">Operations</div>
+    <div class="tab g-operations" data-tab="admin">Setup &amp; Admin</div>
+    <div class="tab g-operations" data-tab="actions">Accountability</div>
+    <div class="tab g-operations" data-tab="suppliers">Suppliers <span class="soon">Soon</span></div>
+  </div>
+
+  <div class="nav-group g-system">
+    <div class="nav-label">System</div>
+    <div class="tab g-system" data-tab="settings">Settings</div>
+  </div>
+
+</div>
+
+<div class="save-status" id="saveStatus"></div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="page-head">
+      <h2>Dashboard</h2>
+      <div class="desc">The board view — everything in one screen. Weighted pipeline, work in progress, bank balance and open actions up top; the projected cash-flow curve, the pipeline by stage, and the forecast-vs-actuals summary below.</div>
+    </div>
+    <div class="kpi-row" id="kpiRow"></div>
+    <div id="overviewFlags"></div>
+    <div class="section-label">Projected cash-flow balance</div>
+    <div class="card" id="cashChart"></div>
+    <div class="two-col">
+      <div>
+        <div class="section-label">Sales pipeline by stage</div>
+        <div class="card" id="stageBars"></div>
+      </div>
+      <div>
+        <div class="section-label">Forecast &amp; actuals</div>
+        <div class="card" id="forecastSummary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUSINESS PLAN -->
+  <div class="panel" id="panel-businessplan">
+    <div class="page-head">
+      <h2>Business Plan</h2>
+      <div class="desc">The stable core — who we are, where we're going, what we can do, and who we know. Revisited occasionally, not daily.</div>
+    </div>
+
+    <div class="section-label">Identity</div>
+    <div class="card">
+      <div class="field-block">
+        <label>Vision — where this is going</label>
+        <textarea data-tab="businessPlan" data-field="vision"></textarea>
+      </div>
+      <div class="field-block">
+        <label>Mission — what we do, for whom</label>
+        <textarea data-tab="businessPlan" data-field="mission"></textarea>
+      </div>
+      <div class="field-block" style="margin-bottom:0;">
+        <label>Core values</label>
+        <textarea data-tab="businessPlan" data-field="values"></textarea>
+      </div>
+    </div>
+
+    <div class="section-label">Medium–to–Long Term Goal</div>
+    <div class="callout">Grow into a premium, design-led outdoor timber structures business — affluent homeowners first, mainstream second, commercial a distant third. <em>(Name and branding paused for now — this is the direction, not a fixed identity yet.)</em></div>
+
+    <div class="section-label">Goals Ladder</div>
+    <div class="btn-row"><button class="btn secondary" data-action="add-row" data-tab="goals">+ Add goal</button></div>
+    <div class="table-scroll" id="goalsTableWrap"></div>
+
+    <div class="section-label">Trade Capability Map</div>
+    <div class="btn-row"><button class="btn secondary" data-action="add-row" data-tab="capability">+ Add row</button></div>
+    <div class="table-scroll" id="capabilityTableWrap"></div>
+
+    <div class="section-label">Network &amp; Contacts</div>
+    <div class="btn-row"><button class="btn secondary" data-action="add-row" data-tab="network">+ Add contact</button></div>
+    <div class="table-scroll" id="networkTableWrap"></div>
+
+    <div class="section-label">Setup Milestones</div>
+    <div class="btn-row"><button class="btn secondary" data-action="add-row" data-tab="milestones">+ Add stage</button></div>
+    <div class="table-scroll" id="milestonesTableWrap"></div>
+  </div>
+
+  <!-- LEADS -->
+  <div class="panel" id="panel-leads">
+    <div class="page-head">
+      <h2>Leads</h2>
+      <div class="desc">The CRM database — one row per business, from cold contact to qualified opportunity. Click the chevron to open a lead's qualification detail. A lead can only be <strong>promoted into the Sales Pipeline</strong> once budget, decision-maker, timeline and competition are all filled — the gate that separates a lead from a real opportunity to quote. Promoting carries the record forward and switches its code from <strong>L-</strong> to <strong>S-</strong>.</div>
+    </div>
+    <div class="btn-row"><button class="btn" data-action="add-lead">+ Add lead</button></div>
+    <div class="table-scroll" id="leadsTableWrap"></div>
+  </div>
+
+  <!-- SALES PIPELINE -->
+  <div class="panel" id="panel-salespipeline">
+    <div class="page-head">
+      <h2>Sales Pipeline</h2>
+      <div class="desc">Live inquiry → quotable → quote sent → closed-won &amp; signed. Click the chevron on any project to expand its stages — each stage carries its own dates and cost, and the project timeline &amp; cost roll up from them. Switch to Timeline for the Gantt view. Only rows marked <strong>Real</strong> feed the forecast.</div>
+    </div>
+    <div class="view-toggle" id="pipelineViewToggle">
+      <button data-action="set-pipeline-view" data-view="table" class="active">Table</button>
+      <button data-action="set-pipeline-view" data-view="gantt">Timeline (Gantt)</button>
+    </div>
+    <div class="btn-row"><button class="btn" data-action="add-row" data-tab="pipeline">+ Add project</button></div>
+    <div class="table-scroll" id="pipelineTableWrap"></div>
+    <div id="pipelineGanttWrap"></div>
+  </div>
+
+  <!-- PROJECT PIPELINE -->
+  <div class="panel" id="panel-projectpipeline">
+    <div class="page-head">
+      <h2>Project Pipeline</h2>
+      <div class="desc">Delivery, from signed contract to sign-off and testimonial. A won deal is promoted here from the Sales Pipeline (once its contract is marked signed) and becomes a live project — code <strong>P-</strong>. Expand a project to track its delivery milestones, budgeted vs actual cost, and testimonial. Payment lines &amp; margin variance come in the finance pass.</div>
+    </div>
+    <div class="table-scroll" id="projectsTableWrap"></div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="panel" id="panel-pricing">
+    <div class="page-head">
+      <h2>Pricing Model</h2>
+      <div class="desc">Assumptions drive every tier. Change the day rate, markup, margin or overheads and all tiers recalculate. This is the only place the day rate lives.</div>
+    </div>
+    <div class="section-label">Assumptions</div>
+    <div class="card"><div class="assumptions-grid" id="assumptionsGrid"></div></div>
+    <div class="section-label">Tier Calculator</div>
+    <div class="table-scroll" id="pricingTableWrap"></div>
+    <div class="btn-row"><button class="btn secondary" data-action="add-row" data-tab="pricingTiers">+ Add tier</button></div>
+  </div>
+
+  <!-- REVENUE -->
+  <div class="panel" id="panel-revenue">
+    <div class="page-head">
+      <h2>Revenue Forecast</h2>
+      <div class="desc">Two layers: <strong>Committed</strong> is real dated money from live projects' payment lines (100%). <strong>Weighted pipeline</strong> is sales deals at quote × their stage probability. Tap any figure to see exactly which records make it up.</div>
+    </div>
+    <div class="table-scroll" id="revenueTableWrap"></div>
+    <div id="revenueBreakdown"></div>
+  </div>
+
+  <!-- CASH FLOW -->
+  <div class="panel" id="panel-cashflow">
+    <div class="page-head">
+      <h2>Cash Flow Forecast</h2>
+      <div class="desc">Money in from committed project payment lines (real due dates) plus weighted pipeline (sales × probability), less materials and fixed overhead, giving a running closing balance. Terms are set in Settings.</div>
+    </div>
+    <div class="card"><div class="assumptions-grid two" id="cashflowAssumptionsGrid"></div></div>
+    <div class="table-scroll" id="cashflowTableWrap"></div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="panel" id="panel-transactions">
+    <div class="page-head">
+      <h2>Transactions</h2>
+      <div class="desc">The actual line — real money in and out, logged and reconciled. Link a transaction to a project or invoice code (e.g. P-103-INV1) so it ties back to the forecast. This is the source of month-end actuals; full forecast-vs-actual variance builds on top of it next.</div>
+    </div>
+    <div class="kpi-row" id="txnKpis"></div>
+    <div class="btn-row"><button class="btn" data-action="add-row" data-tab="transactions">+ Add transaction</button></div>
+    <div class="table-scroll" id="transactionsTableWrap"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel" id="panel-settings">
+    <div class="page-head">
+      <h2>Settings</h2>
+      <div class="desc">Central configuration — the knobs that drive the rest of the system. Change them here and everything downstream re-calculates.</div>
+    </div>
+
+    <div class="section-label">Sales stage → probability</div>
+    <div class="card">
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;">Each sales stage carries a default win probability, used to weight the forecast. A deal inherits its stage's probability automatically — you can override a single deal in its Sales Pipeline detail if it's unusually hot or cold.</p>
+      <div class="assumptions-grid" id="stageProbGrid"></div>
+    </div>
+
+    <div class="section-label">Cash &amp; payment terms</div>
+    <div class="card">
+      <div class="assumptions-grid" id="financeSettingsGrid"></div>
+    </div>
+
+    <div class="section-label">Data &amp; backup</div>
+    <div class="card">
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;">Your changes save automatically to <strong>this browser on this device</strong>. They stay put when you close and reopen — but they don't yet sync across devices (that's the next upgrade). Export a backup regularly so nothing can be lost; Import restores a backup or moves your data to another device.</p>
+      <div class="btn-row" style="margin-bottom:0;">
+        <button class="btn" data-action="export-data">↓ Export backup (.json)</button>
+        <button class="btn secondary" data-action="import-data">↑ Import backup</button>
+        <button class="btn secondary" data-action="reset-data" style="margin-left:auto;color:#b3453f;border-color:#e3c4c1;">Reset to sample data</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    </div>
+  </div>
+
+  <!-- SUPPLIERS (placeholder) -->
+  <div class="panel" id="panel-suppliers">
+    <div class="page-head">
+      <h2>Suppliers &amp; Supply Chain</h2>
+      <div class="desc">Relationships, not just purchasing.</div>
+    </div>
+    <div class="placeholder">
+      <div class="tag">Coming soon</div>
+      <h3>Supplier &amp; supply-chain management</h3>
+      <p>A handle on the merchants and trades the business depends on — reliability, terms, and backups.</p>
+      <ul>
+        <li>Supplier · what they supply · account terms · reliability notes</li>
+        <li>Primary vs backup for each material line</li>
+        <li>Trade-account status (credit checks, limits, lead times)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SETUP & ADMIN -->
+  <div class="panel" id="panel-admin">
+    <div class="page-head">
+      <h2>Setup &amp; Admin Checklist</h2>
+      <div class="desc">The temporary setup list — registration, insurance, and purchases needed to start taking on paid work. Retires once complete.</div>
+    </div>
+    <div class="btn-row"><button class="btn" data-action="add-row" data-tab="admin">+ Add item</button></div>
+    <div class="table-scroll" id="adminTableWrap"></div>
+  </div>
+
+  <!-- ACCOUNTABILITY -->
+  <div class="panel" id="panel-actions">
+    <div class="page-head">
+      <h2>Accountability</h2>
+      <div class="desc">The action log from the weekly catch-up. Click any cell to edit. Drag the edge of a column header to resize it. Owner fields suggest from the team but accept anyone. Overdue items (deadline passed, not Done) highlight automatically.</div>
+    </div>
+    <div class="btn-row"><button class="btn" data-action="add-row" data-tab="actions">+ Add action</button></div>
+    <datalist id="ownersList">
+      <option value="Royce"><option value="Lynton"><option value="Gerry"><option value="Peter"><option value="Mike"><option value="TBC">
+    </datalist>
+    <div class="table-scroll" id="actionsTableWrap"></div>
+    <div id="archivedWrap"></div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-msg" id="modalMsg"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-modal="cancel">Cancel</button>
+      <button class="btn" data-modal="confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- date helpers ---------- */
+function toDate(s){ return s ? new Date(s+'T00:00:00') : null; }
+function fmt(d){ if(!d) return ''; const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return y+'-'+m+'-'+day; }
+function fmtDisplay(d){ if(!d) return '—'; return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function addCalendarDays(d, n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function completionDate(start, buildDays){
+  if(!start || !buildDays) return null;
+  let d = new Date(start), count = 0, guard = 0;
+  while(guard < 400){
+    const dow = d.getDay();
+    if(dow!==0 && dow!==6){ count++; if(count >= buildDays) return new Date(d); }
+    d.setDate(d.getDate()+1); guard++;
+  }
+  return d;
+}
+function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(d){ return d.toLocaleDateString('en-GB',{month:'short',year:'numeric'}); }
+function money(n){ if(n===null||n===undefined||isNaN(n)) return '£0'; return '£'+Math.round(n).toLocaleString('en-GB'); }
+function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+/* ---------- default state ---------- */
+function defaultState(){
+  return {
+    startingCash: 2000,
+    settings: {
+      stageProbability: { 'Inquiry': 0.1, 'Tabled': 0.25, 'Quoted': 0.5, 'Confirmed': 1.0 },
+      tradeAccountDays: 30,
+      paymentTermsDays: 7,
+      startingCash: 2000,
+      forecastMonths: 6
+    },
+    transactions: [
+      { date: '2026-08-28', description: 'Okereke — final payment received', category: 'Income', moneyIn: 4600, moneyOut: 0, linkedCode: 'P-201-INV1' },
+      { date: '2026-08-12', description: 'Timber merchant — Okereke materials', category: 'Materials', moneyIn: 0, moneyOut: 2750, linkedCode: 'P-201' },
+      { date: '2026-08-01', description: 'Public liability insurance (annual)', category: 'Overhead', moneyIn: 0, moneyOut: 320, linkedCode: '' }
+    ],
+    businessPlan: {
+      vision: 'To be the go-to name for premium, design-led outdoor timber structures — the builder affluent homeowners recommend to their neighbours.',
+      mission: 'Design and build beautiful, lasting oak-framed outdoor structures — pergolas, covered seating, outdoor kitchens and garden rooms — for homeowners who value craft over price.',
+      values: 'Craft over cut corners · Design-led, not trade-led · Straight talking with clients · Premium finish, every time · Reliable, tidy, professional on site.'
+    },
+    goals: [
+      { longTerm: 'Establish a profitable premium structures business', focus: 'Complete setup and win first paid jobs', target: '2–3 signature projects landed before spring', actual: '', onTrack: 'At risk' },
+      { longTerm: '£100k annual profit (Year 1 milestone)', focus: 'Build a qualified pipeline', target: '£100k+ weighted pipeline value', actual: '', onTrack: '—' },
+      { longTerm: '6 projects delivered (Year 1)', focus: 'Deliver first projects to build proof', target: 'First project completed with testimonial', actual: '', onTrack: '—' }
+    ],
+    assumptions: {
+      dayRate: 260, materialsMarkup: 0.15, profitMargin: 0.15, workingDaysPerYear: 180,
+      ohInsurance: 450, ohAccounting: 300, ohVehicle: 1500, ohTools: 1200, ohMarketing: 500
+    },
+    pricingTiers: [
+      { name: 'Tier 1: Garden Pergola', buildDays: 3, materialsCost: 2600 },
+      { name: 'Tier 2: Covered Seating / Entertainment Shelter', buildDays: 8, materialsCost: 8500 },
+      { name: 'Tier 3: Outdoor Kitchen Shelter', buildDays: 15, materialsCost: 19000 }
+    ],
+    pipeline: [
+      { id: 1, name: 'Joe Brewer — Decking subbase', type: 'real', tier: 'Needs re-scoping', stage: 'Tabled', probability: 0, quoteValue: 0, notes: 'Predates the pivot — general decking work, not yet re-scoped against the oak-framed offer.', stages: [ { label: 'Scope & cost', kind: 'scope', start: '', end: '', cost: 0 } ] },
+      { id: 2, name: 'Russell Gardiner — Patio', type: 'real', tier: 'Needs re-scoping', stage: 'Tabled', probability: 0, quoteValue: 0, notes: 'Predates the pivot — timing tbc, not yet re-scoped.', stages: [ { label: 'Scope & cost', kind: 'scope', start: '', end: '', cost: 0 } ] },
+      { id: 3, name: 'Ashcroft — Garden Pergola', type: 'example', tier: 'Tier 1', stage: 'Confirmed', probability: 1, quoteValue: 4400, notes: 'Worked example — not a real lead.', stages: [
+        { label: 'Scope & cost', kind: 'scope', start: '2026-10-01', end: '2026-10-02', cost: 0 },
+        { label: 'Materials lead time', kind: 'materials', start: '2026-10-02', end: '2026-10-05', cost: 2600 },
+        { label: 'Works on site', kind: 'onsite', start: '2026-10-05', end: '2026-10-07', cost: 0 }
+      ] },
+      { id: 4, name: 'Whitfield — Covered Seating Area', type: 'example', tier: 'Tier 2', stage: 'Confirmed', probability: 1, quoteValue: 13800, notes: 'Worked example — not a real lead.', stages: [
+        { label: 'Scope & cost', kind: 'scope', start: '2026-10-05', end: '2026-10-08', cost: 0 },
+        { label: 'Materials lead time', kind: 'materials', start: '2026-10-08', end: '2026-10-16', cost: 8500 },
+        { label: 'Works on site', kind: 'onsite', start: '2026-10-19', end: '2026-10-28', cost: 0 }
+      ] },
+      { id: 5, name: 'Doyle — Garden Pergola', type: 'example', tier: 'Tier 1', stage: 'Quoted', probability: 0.5, quoteValue: 4400, notes: 'Worked example — not a real lead.', stages: [
+        { label: 'Scope & cost', kind: 'scope', start: '2026-11-02', end: '2026-11-04', cost: 0 },
+        { label: 'Materials lead time', kind: 'materials', start: '2026-11-04', end: '2026-11-09', cost: 2600 },
+        { label: 'Works on site', kind: 'onsite', start: '2026-11-09', end: '2026-11-11', cost: 0 }
+      ] },
+      { id: 6, name: 'Renner — Outdoor Kitchen Shelter', type: 'example', tier: 'Tier 3', stage: 'Quoted', probability: 0.5, quoteValue: 30000, notes: 'Worked example — not a real lead.', stages: [
+        { label: 'Scope & cost', kind: 'scope', start: '2026-11-20', end: '2026-11-27', cost: 0 },
+        { label: 'Materials lead time', kind: 'materials', start: '2026-11-27', end: '2026-12-01', cost: 19000 },
+        { label: 'Works on site — visit 1', kind: 'onsite', start: '2026-12-01', end: '2026-12-11', cost: 0 },
+        { label: 'Works on site — visit 2', kind: 'onsite', start: '2026-12-15', end: '2026-12-19', cost: 0 }
+      ] }
+    ],
+    nextPipelineId: 7,
+    nextRecordId: 300,
+    tableModes: {},
+    leads: [
+      { id: 101, business: 'Meadow View Estate', contact: '', phone: '', email: '', source: 'Cold outreach', lastContacted: '', status: 'Not Contacted', notes: 'Large rural property — potential for multiple structures.', budget: '', decisionMaker: '', timeline: '', competition: '' },
+      { id: 102, business: 'Bramley Residence', contact: 'Sarah Bramley', phone: '', email: '', source: 'Facebook group', lastContacted: '2026-09-02', status: 'Contacted', notes: 'Asked about pergola pricing — awaiting reply.', budget: '', decisionMaker: '', timeline: '', competition: '' },
+      { id: 103, business: 'Hargreaves', contact: 'Tom Hargreaves', phone: '', email: '', source: 'Referral', lastContacted: '2026-09-04', status: 'Qualified – Ready to Quote', notes: 'Wants a garden room, keen to proceed.', budget: '£15–20k', decisionMaker: 'Tom & wife (joint)', timeline: 'Spring 2027', competition: 'Getting one other quote' },
+      { id: 104, business: 'Mark Davis Ltd', contact: 'Mark Davis', phone: '', email: '', source: 'Network (Gary)', lastContacted: '2026-09-05', status: 'Possible Opportunity', notes: 'Workplace fit-out, wants it done quickly. Follow up after holiday.', budget: '', decisionMaker: 'Mark (owner)', timeline: 'ASAP', competition: '' },
+      { id: 105, business: 'Fenwick', contact: '', source: 'Facebook group', phone: '', email: '', lastContacted: '2026-08-20', status: 'No Current Opportunity', notes: 'Enquired but no budget this year — keep warm.', budget: '', decisionMaker: '', timeline: '', competition: '' }
+    ],
+    projects: [
+      { id: 201, name: 'Okereke — Garden Pergola', type: 'example', agreedValue: 4600, budgetedCost: 2600, actualCost: 2750, notes: 'Completed example — shows the delivery view.',
+        milestones: { contractSigned: '2026-08-01', designSigned: '2026-08-05', materialsOrdered: '2026-08-06', materialsDelivered: '2026-08-12', onSiteStart: '2026-08-15', buildComplete: '2026-08-22', invoiced: '2026-08-22', paid: '2026-08-28', signOff: '2026-08-28' },
+        testimonial: 'Delighted with the pergola — beautiful work, tidy and on time.',
+        stages: [],
+        paymentLines: [ { desc: 'On completion', dueDate: '2026-08-22', amount: 4600, invoicedDate: '2026-08-22', paidDate: '2026-08-28' } ] }
+    ],
+    capability: [
+      { area: 'Oak-frame carpentry & joinery', status: 'Core strength', notes: 'The specialism — pergolas, covered seating, outdoor kitchens, garden rooms.' },
+      { area: 'Groundworks (bases for structures)', status: 'Happy to do', notes: 'Comfortable operating plant; needed for most structure foundations.' },
+      { area: 'Electrics (outdoor kitchens)', status: 'Needs partner', notes: 'Partner with a certified electrician for sign-off work.' },
+      { area: 'General handyman / repair work', status: 'Parked — off-brand', notes: 'Deliberately outside this business\'s premium positioning.' }
+    ],
+    network: [
+      { name: 'Gerry Leflaive', role: 'Project costings / technical', category: 'Team', notes: 'Costings and carpentry expertise.' },
+      { name: 'Lynton Devenish', role: 'Sales & marketing / execution', category: 'Team', notes: 'Owns sales and marketing, hands-on delivery.' },
+      { name: 'Peter Small', role: 'Entrepreneurial steer', category: 'Team', notes: 'Limited availability (~6 months).' },
+      { name: 'Mike Farr', role: 'Finance / cash / motivation', category: 'Team — pending', notes: 'Pending confirmation. Arrange a group call.' },
+      { name: 'Joe Brewer', role: 'Client — tabled project', category: 'Client', notes: 'Decking subbase; needs re-scoping against the pivoted offer.' },
+      { name: 'Russell Gardiner', role: 'Client — tabled project', category: 'Client', notes: 'Patio project; timing tbc, needs re-scoping.' }
+    ],
+    milestones: [
+      { stage: 'Groundwork (remote/prep)', status: 'In Progress', actions: 'Pricing model, forecast, insurance research.' },
+      { stage: 'Registration & insurance', status: 'Not Started', actions: 'Register as sole trader, get insurance quotes moving.' },
+      { stage: 'Full setup push', status: 'Not Started', actions: 'Finalise registration/insurance, re-scope tabled leads.' },
+      { stage: 'First jobs delivered', status: 'Not Started', actions: 'Deliver first 1–2 signature projects for case studies.' },
+      { stage: 'Ongoing growth', status: 'Not Started', actions: 'Build referral loop; revisit capability map periodically.' }
+    ],
+    admin: [
+      { item: 'Register as sole trader (HMRC)', category: 'Legal', status: 'Not Started', notes: 'Register by 5 Oct following the end of the tax year trading started — best practice to register as soon as trading starts.' },
+      { item: 'Public liability insurance', category: 'Insurance', status: 'Not Started', notes: '£150–500/yr, essential for on-site work.' },
+      { item: "Employer's liability insurance", category: 'Insurance', status: 'Not Started', notes: '£100–300/yr, legally required if hiring anyone.' },
+      { item: 'Tools / tools-in-transit insurance', category: 'Insurance', status: 'Not Started', notes: 'Separate covers — tools at rest vs tools in transit.' },
+      { item: 'Business-use cover on vehicle (Jeep)', category: 'Insurance', status: 'Not Started', notes: 'Declare business use — small add-on, not a full commercial policy.' },
+      { item: 'Business bank account', category: 'Admin', status: 'Not Started', notes: 'Starling, Monzo or Tide for low-volume, occasional-large-payment work.' },
+      { item: 'RAMS template', category: 'Health & Safety', status: 'Not Started', notes: 'Free templates from HSE — job-specific, share simplified version with quotes.' },
+      { item: 'Safe access equipment (podium steps etc.)', category: 'Health & Safety', status: 'Not Started', notes: 'Research options and cost.' },
+      { item: 'FMB template contract', category: 'Legal', status: 'Not Started', notes: 'Staged, deposit-based work contract template — cheaper than a solicitor draft.' },
+      { item: 'Trade account with timber merchant', category: 'Financing', status: 'Not Started', notes: '30-day terms preferred — check credit / trading-history requirements.' }
+    ],
+    actions: [
+      { dateRaised: '2026-09-05', action: 'Transfer Sweden project payment into business bank account', owner: 'TBC', owner2: '', deadline: '', priority: 1, status: 'Not Started', notes: 'Seed funds into new business account' },
+      { dateRaised: '2026-09-05', action: 'Transfer Nick & Chloe project payment into business bank account', owner: 'TBC', owner2: '', deadline: '', priority: 1, status: 'Not Started', notes: 'Seed funds into new business account' },
+      { dateRaised: '2026-09-05', action: 'Draft one-page business plan anchored to Lynton\'s personal goals (house, marriage)', owner: 'TBC', owner2: '', deadline: '', priority: 1, status: 'Not Started', notes: 'Include Year 1/2/3 milestones: £100k profit, 6 projects, £30k installs' },
+      { dateRaised: '2026-09-05', action: 'Message Mike Farr to arrange a group call', owner: 'TBC', owner2: '', deadline: '', priority: 1, status: 'Not Started', notes: 'Strong potential addition — young, energetic, experienced via Gary\'s projects' },
+      { dateRaised: '2026-09-05', action: 'Confirm final team roles: Lynton (sales & marketing), Gerry (costings), Mike (banking)', owner: 'Royce', owner2: '', deadline: '', priority: 1, status: 'Not Started', notes: 'Pete\'s role to reflect limited capacity (~6 months)' },
+      { dateRaised: '2026-09-05', action: 'Send poll for best weekly team call time slot', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: '' },
+      { dateRaised: '2026-09-05', action: 'Set up Teams workspace with channels: general, ideas, expenses, receipts', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: '' },
+      { dateRaised: '2026-09-05', action: 'Follow up with Mark Davis to qualify workplace fit-out job', owner: 'TBC', owner2: '', deadline: '', priority: 1, status: 'Not Started', notes: 'Wants it done quickly — back from holiday Mon/Tue' },
+      { dateRaised: '2026-09-05', action: 'Catch up with Gary Herbert on his current leads', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: '' },
+      { dateRaised: '2026-09-05', action: 'Build a running pipeline list', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Progress while Lynton is in Sweden' },
+      { dateRaised: '2026-09-01', action: 'Collect finished project photos for marketing flyer', owner: 'Lynton', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Include host photos and Lynton\'s own shots' },
+      { dateRaised: '2026-09-01', action: 'Start next project: roof over the hosts\' entrance', owner: 'Lynton', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Concrete slab already done' },
+      { dateRaised: '2026-09-01', action: 'Prioritise outdoor structure / BBQ area leads in the pipeline', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Strong niche — suits higher-end clients and Lynton\'s creative style' }
+    ],
+    archivedActions: []
+  };
+}
+
+let state = null;
+const STORAGE_KEY = 'business-tracker-state-v7';
+
+/* ---------- persistence with merge ---------- */
+function mergeDefaults(loaded){
+  const d = defaultState();
+  const out = Object.assign({}, d, loaded);
+  out.assumptions = Object.assign({}, d.assumptions, loaded.assumptions || {});
+  out.businessPlan = Object.assign({}, d.businessPlan, loaded.businessPlan || {});
+  out.tableModes = Object.assign({}, loaded.tableModes || {});
+  out.settings = Object.assign({}, d.settings, loaded.settings || {});
+  out.settings.stageProbability = Object.assign({}, d.settings.stageProbability, (loaded.settings||{}).stageProbability || {});
+  ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions'].forEach(k => {
+    if(!Array.isArray(out[k])) out[k] = d[k];
+  });
+  return out;
+}
+/* ---------- storage layer: localStorage-first (for hosting), window.storage fallback (Claude preview) ---------- */
+const Store = {
+  async get(key){
+    try{ const v = localStorage.getItem(key); if(v !== null) return v; }catch(e){}
+    try{ if(window.storage){ const r = await window.storage.get(key, false); return r ? r.value : null; } }catch(e){}
+    return null;
+  },
+  async set(key, val){
+    try{ localStorage.setItem(key, val); return true; }catch(e){}
+    try{ if(window.storage){ const r = await window.storage.set(key, val, false); return !!r; } }catch(e){}
+    return false;
+  }
+};
+async function loadState(){
+  try{
+    const value = await Store.get(STORAGE_KEY);
+    if(value){ state = mergeDefaults(JSON.parse(value)); setSaveStatus('Loaded your saved data'); return; }
+  }catch(e){}
+  state = defaultState();
+  setSaveStatus('Starting from sample data');
+}
+let saveTimer = null;
+function saveState(){
+  setSaveStatus('Saving…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const ok = await Store.set(STORAGE_KEY, JSON.stringify(state));
+    setSaveStatus(ok ? 'All changes saved' : 'Save failed — export a backup to be safe');
+  }, 400);
+}
+function setSaveStatus(msg){ const el = document.getElementById('saveStatus'); if(el) el.textContent = msg; }
+
+/* ---------- backup: export / import / reset ---------- */
+function exportData(){
+  try{
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'business-tracker-backup-' + fmt(new Date()) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setSaveStatus('Backup downloaded');
+  }catch(e){ setSaveStatus('Export failed'); }
+}
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const loaded = JSON.parse(e.target.result);
+      state = mergeDefaults(loaded);
+      ensurePipelineIds();
+      render();
+      saveState();
+      setSaveStatus('Backup imported');
+    }catch(err){ setSaveStatus('Could not read that file'); alert('That file could not be read as a valid backup.'); }
+  };
+  reader.readAsText(file);
+}
+function resetData(){
+  state = defaultState();
+  ensurePipelineIds();
+  render();
+  saveState();
+  setSaveStatus('Reset to sample data');
+}
+
+/* ---------- derived pipeline fields ---------- */
+const STAGE_KINDS = {
+  scope:     { label: 'Scope & cost',   color: '#5b6470' },
+  materials: { label: 'Materials',      color: '#a8763e' },
+  onsite:    { label: 'Works on site',  color: '#3f6b4f' },
+  other:     { label: 'Other',          color: '#8b867c' }
+};
+function projectRollup(p){
+  const stages = (p.stages || []);
+  const starts = stages.map(s => s.start).filter(Boolean).map(toDate);
+  const ends = stages.map(s => s.end || s.start).filter(Boolean).map(toDate);
+  const start = starts.length ? new Date(Math.min(...starts.map(d=>d.getTime()))) : null;
+  const end = ends.length ? new Date(Math.max(...ends.map(d=>d.getTime()))) : null;
+  const totalCost = stages.reduce((s,x) => s + (Number(x.cost)||0), 0);
+  const materialsCost = stages.filter(s=>s.kind==='materials').reduce((s,x)=>s+(Number(x.cost)||0),0);
+  const durationDays = (start && end) ? Math.round((end-start)/86400000)+1 : 0;
+  return { start, end, totalCost, materialsCost, durationDays };
+}
+function effectiveProb(r){
+  if(r.probOverride !== undefined && r.probOverride !== null && r.probOverride !== '') return Number(r.probOverride);
+  const sp = (state.settings && state.settings.stageProbability) || {};
+  return sp[r.stage] !== undefined ? Number(sp[r.stage]) : 0;
+}
+function derivePipelineRow(row){
+  const roll = projectRollup(row);
+  const completion = roll.end;
+  const termDays = (state.settings && state.settings.paymentTermsDays) || 7;
+  const tradeDays = (state.settings && state.settings.tradeAccountDays) || 30;
+  const paymentDue = completion ? addCalendarDays(completion, termDays) : null;
+  const matStage = (row.stages||[]).find(s => s.kind==='materials' && s.start);
+  const materialsOrder = matStage ? toDate(matStage.start) : roll.start;
+  const materialsPaymentDue = materialsOrder ? addCalendarDays(materialsOrder, tradeDays) : null;
+  return { completion, invoice: completion, paymentDue, materialsOrder, materialsPaymentDue, rollup: roll, materialsCost: roll.materialsCost };
+}
+function getMonthRange(){
+  const dates = [];
+  state.pipeline.forEach(r => {
+    const d = derivePipelineRow(r);
+    [d.invoice, d.paymentDue, d.materialsPaymentDue, d.materialsOrder].forEach(x => { if(x) dates.push(x); });
+  });
+  state.projects.forEach(p => {
+    (p.paymentLines||[]).forEach(pl => { if(pl.dueDate) dates.push(toDate(pl.dueDate)); if(pl.paidDate) dates.push(toDate(pl.paidDate)); });
+  });
+  if(dates.length === 0){
+    const today = new Date(); const months = [];
+    const n = (state.settings && state.settings.forecastMonths) || 6;
+    for(let i=0;i<n;i++) months.push(new Date(today.getFullYear(), today.getMonth()+i, 1));
+    return months;
+  }
+  const times = dates.map(d => new Date(d.getFullYear(), d.getMonth(), 1).getTime());
+  const min = Math.min(...times), max = Math.max(...times);
+  const months = []; let cur = new Date(min); let guard = 0;
+  while(cur.getTime() <= max && guard < 36){ months.push(new Date(cur)); cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1); guard++; }
+  return months;
+}
+
+/* ---------- dashboard ---------- */
+function cashFlowChartSVG(cf){
+  if(!cf.length) return '<div class="breakdown-hint">No dated cash movements yet — add project payment lines or dated pipeline work.</div>';
+  const W=780, H=210, padL=58, padR=14, padT=14, padB=36;
+  const vals = cf.map(c=>c.closing);
+  const maxV = Math.max(0, ...vals), minV = Math.min(0, ...vals);
+  const span = (maxV-minV)||1;
+  const x = i => padL + (cf.length===1 ? (W-padL-padR)/2 : (i/(cf.length-1))*(W-padL-padR));
+  const y = v => padT + (1-(v-minV)/span)*(H-padT-padB);
+  const line = cf.map((c,i)=>`${x(i).toFixed(1)},${y(c.closing).toFixed(1)}`).join(' ');
+  const area = `${x(0).toFixed(1)},${y(minV).toFixed(1)} ` + line + ` ${x(cf.length-1).toFixed(1)},${y(minV).toFixed(1)}`;
+  const zeroY = y(0).toFixed(1);
+  const dots = cf.map((c,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(c.closing).toFixed(1)}" r="3.5" fill="${c.closing<0?'#b3453f':'var(--green)'}"/>`).join('');
+  const labels = cf.map((c,i)=>`<text x="${x(i).toFixed(1)}" y="${H-12}" font-size="10" fill="#8b867c" text-anchor="middle">${c.label.split(' ')[0]}</text>`).join('');
+  const yLabels = [maxV, (maxV+minV)/2, minV].map(v=>`<text x="${padL-8}" y="${(y(v)+3).toFixed(1)}" font-size="9.5" fill="#8b867c" text-anchor="end">${money(v)}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3f6b4f" stop-opacity="0.18"/><stop offset="100%" stop-color="#3f6b4f" stop-opacity="0.01"/></linearGradient></defs>
+    <line x1="${padL}" y1="${zeroY}" x2="${W-padR}" y2="${zeroY}" stroke="#cfc9bd" stroke-width="1" stroke-dasharray="3 3"/>
+    <polygon points="${area}" fill="url(#cfg)"/>
+    <polyline points="${line}" fill="none" stroke="#3f6b4f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${labels}${yLabels}
+  </svg>`;
+}
+function renderDashboard(){
+  const sales = state.pipeline;
+  const weightedPipeline = sales.reduce((s,r)=> s + (Number(r.quoteValue)||0)*effectiveProb(r), 0);
+  const totalPipeline = sales.reduce((s,r)=> s + (Number(r.quoteValue)||0), 0);
+  const projectsValue = state.projects.reduce((s,p)=> s + (Number(p.agreedValue)||0), 0);
+  const startCash = (state.settings && Number(state.settings.startingCash)) || 0;
+  const totIn = state.transactions.reduce((a,t)=>a+(Number(t.moneyIn)||0),0);
+  const totOut = state.transactions.reduce((a,t)=>a+(Number(t.moneyOut)||0),0);
+  const bank = startCash + totIn - totOut;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const openActions = state.actions.filter(a=>a.status!=='Done').length;
+  const overdue = state.actions.filter(a=>a.deadline && a.status!=='Done' && toDate(a.deadline)<today).length;
+  const contactedWeek = state.leads.filter(l=>{ if(!l.lastContacted) return false; const diff=(today-toDate(l.lastContacted))/86400000; return diff>=0 && diff<=7; }).length;
+
+  const kpis = [
+    { label:'Weighted pipeline', value: money(weightedPipeline), sub:`of ${money(totalPipeline)} total`, accent:'var(--g-growth)' },
+    { label:'Work in progress', value: money(projectsValue), sub:`${state.projects.length} live project${state.projects.length!==1?'s':''}`, accent:'var(--green)' },
+    { label:'Bank balance', value: money(bank), sub:'actual, from transactions', accent:'var(--g-finance)', flag: bank<0 },
+    { label:'Open actions', value: openActions, sub: overdue>0?`${overdue} overdue`:(contactedWeek?`${contactedWeek} lead${contactedWeek!==1?'s':''} contacted this week`:'none overdue'), accent:'var(--slate)', flag: overdue>0 }
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(k =>
+    `<div class="kpi" style="--accent:${k.accent}"><div class="label">${k.label}</div><div class="value${k.flag?' flag':''}">${k.value}</div>${k.sub?`<div class="sub">${k.sub}</div>`:''}</div>`
+  ).join('');
+
+  const flaggedRows = sales.filter(r => r.type === 'real' && (r.tier === 'Needs re-scoping' || !r.quoteValue));
+  document.getElementById('overviewFlags').innerHTML = flaggedRows.length
+    ? `<div class="callout"><strong>Needs attention:</strong> ${flaggedRows.map(r=>r.name).join(', ')} — real leads not yet re-scoped or priced against the pivoted offer. See Sales Pipeline.</div>`
+    : '';
+
+  const months = getMonthRange();
+  const cf = computeCashFlow(months);
+  document.getElementById('cashChart').innerHTML = cashFlowChartSVG(cf);
+
+  // pipeline by stage
+  const stages = ['Inquiry','Tabled','Quoted','Confirmed'];
+  const byStage = stages.map(st => {
+    const rows = sales.filter(r=>r.stage===st);
+    return { st, count: rows.length, val: rows.reduce((s,r)=>s+(Number(r.quoteValue)||0),0) };
+  });
+  const maxVal = Math.max(1, ...byStage.map(b=>b.val));
+  document.getElementById('stageBars').innerHTML = byStage.map(b => `
+    <div class="stagebar-row">
+      <div class="stagebar-label">${b.st} <span style="color:var(--muted)">(${b.count})</span></div>
+      <div class="stagebar-track"><div class="stagebar-fill" style="width:${Math.round(b.val/maxVal*100)}%"></div></div>
+      <div class="stagebar-val">${money(b.val)}</div>
+    </div>`).join('') || '<div class="breakdown-hint">No pipeline yet.</div>';
+
+  // forecast & actuals
+  const rev = computeRevenue(months);
+  const committed = rev.reduce((s,r)=>s+r.committed,0);
+  const weighted = rev.reduce((s,r)=>s+r.weighted,0);
+  const net = totIn - totOut;
+  document.getElementById('forecastSummary').innerHTML = `
+    <div class="fs-block"><div class="fs-head">Forecast over next ${months.length} month${months.length!==1?'s':''}</div>
+      <div class="fs-row"><span>Committed (projects)</span><span>${money(committed)}</span></div>
+      <div class="fs-row"><span>Weighted pipeline (sales)</span><span>${money(weighted)}</span></div>
+      <div class="fs-row total"><span>Total expected</span><span>${money(committed+weighted)}</span></div>
+    </div>
+    <div class="fs-block"><div class="fs-head">Actuals to date (transactions)</div>
+      <div class="fs-row"><span>Money in</span><span>${money(totIn)}</span></div>
+      <div class="fs-row"><span>Money out</span><span>-${money(totOut)}</span></div>
+      <div class="fs-row total"><span>Net movement</span><span style="${net<0?'color:#b3453f;':''}">${money(net)}</span></div>
+    </div>`;
+}
+
+/* ---------- business plan sections ---------- */
+function renderBusinessPlan(){
+  const bp = state.businessPlan;
+  ['vision','mission','values'].forEach(f => {
+    const el = document.querySelector(`textarea[data-tab="businessPlan"][data-field="${f}"]`);
+    if(el && el.value !== bp[f]) el.value = bp[f] || '';
+  });
+  // goals
+  let g = `<table><thead><tr>
+    <th style="width:200px">Long-term goal</th><th style="width:180px">This period's focus</th>
+    <th style="width:180px">Target (measurable)</th><th style="width:150px">Actual / progress</th>
+    <th style="width:110px">On track?</th><th style="width:34px"></th></tr></thead><tbody>`;
+  state.goals.forEach((r,i) => {
+    g += `<tr>
+      <td><input data-tab="goals" data-idx="${i}" data-field="longTerm" value="${escAttr(r.longTerm)}"></td>
+      <td><input data-tab="goals" data-idx="${i}" data-field="focus" value="${escAttr(r.focus)}"></td>
+      <td><input data-tab="goals" data-idx="${i}" data-field="target" value="${escAttr(r.target)}"></td>
+      <td><input data-tab="goals" data-idx="${i}" data-field="actual" value="${escAttr(r.actual)}"></td>
+      <td><select data-tab="goals" data-idx="${i}" data-field="onTrack">
+        ${['—','On track','At risk','Off track'].map(o=>`<option${r.onTrack===o?' selected':''}>${o}</option>`).join('')}
+      </select></td>
+      <td><button class="btn danger" data-action="delete-row" data-tab="goals" data-idx="${i}">✕</button></td>
+    </tr>`;
+  });
+  g += '</tbody></table>';
+  document.getElementById('goalsTableWrap').innerHTML = g;
+
+  renderSimpleTable('capability', [ {field:'area',label:'Trade Area',w:220}, {field:'status',label:'Status',w:150}, {field:'notes',label:'Notes'} ], 'capabilityTableWrap');
+  renderSimpleTable('network', [ {field:'name',label:'Name',w:150}, {field:'role',label:'Role / Connection',w:180}, {field:'category',label:'Category',w:120}, {field:'notes',label:'Notes'} ], 'networkTableWrap');
+  renderSimpleTable('milestones', [ {field:'stage',label:'Stage',w:200}, {field:'status',label:'Status',type:'select',w:130}, {field:'actions',label:'Key Actions'} ], 'milestonesTableWrap', ['Not Started','In Progress','Done']);
+}
+
+/* ---------- sales pipeline ---------- */
+const expandedProjects = new Set();
+let pipelineView = 'table';
+
+function recordCode(id, phase){ const p = phase==='lead'?'L':(phase==='project'?'P':'S'); return p + '-' + String(id||0).padStart(3,'0'); }
+function projectCode(r){ return recordCode(r.id, 'sales'); }
+
+function renderPipeline(){
+  // view toggle
+  const toggle = document.getElementById('pipelineViewToggle');
+  if(toggle){
+    toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.view === pipelineView));
+  }
+  document.getElementById('pipelineTableWrap').style.display = pipelineView==='table' ? '' : 'none';
+  document.getElementById('pipelineGanttWrap').style.display = pipelineView==='gantt' ? '' : 'none';
+  if(pipelineView === 'table') renderPipelineTable();
+  else renderGantt();
+}
+
+function renderPipelineTable(){
+  const salesStages = ['Inquiry','Tabled','Quoted','Confirmed'];
+  const tiers = ['Needs re-scoping','Tier 1','Tier 2','Tier 3'];
+  const kinds = Object.keys(STAGE_KINDS);
+  let html = `<table style="min-width:1120px"><thead><tr>
+    <th style="width:34px"></th><th style="width:66px">Code</th><th style="min-width:180px">Project / Client</th>
+    <th style="width:88px">Type</th><th style="width:120px">Tier</th><th style="width:108px">Sales Stage</th>
+    <th style="width:60px">Prob.</th><th style="width:96px">Quote (£)</th>
+    <th style="width:104px">Start</th><th style="width:104px">Complete</th><th style="width:96px">Cost (£)</th>
+    <th style="width:34px"></th></tr></thead><tbody>`;
+  state.pipeline.forEach((r, i) => {
+    const d = derivePipelineRow(r);
+    const roll = d.rollup;
+    const flag = r.type === 'real' && (!r.quoteValue || r.tier === 'Needs re-scoping');
+    const isOpen = expandedProjects.has(r.id);
+    html += `<tr${flag ? ' class="flag-row"' : ''}>
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-project" data-id="${r.id}" title="Expand stages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td class="code-cell">${projectCode(r)}</td>
+      <td><input data-tab="pipeline" data-idx="${i}" data-field="name" value="${escAttr(r.name)}"></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="type">
+        <option value="real"${r.type==='real'?' selected':''}>Real</option>
+        <option value="example"${r.type==='example'?' selected':''}>Example</option></select></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="tier">${tiers.map(t=>`<option${r.tier===t?' selected':''}>${t}</option>`).join('')}</select></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="stage">${salesStages.map(s=>`<option${r.stage===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td class="computed" title="From sales stage">${Math.round(effectiveProb(r)*100)}%${(r.probOverride!==undefined&&r.probOverride!==null&&r.probOverride!=='')?'*':''}</td>
+      <td><input type="number" step="1" data-tab="pipeline" data-idx="${i}" data-field="quoteValue" value="${r.quoteValue}"></td>
+      <td class="computed">${fmtDisplay(roll.start)}</td>
+      <td class="computed">${fmtDisplay(roll.end)}</td>
+      <td class="computed">${money(roll.totalCost)}</td>
+      <td><button class="icon-btn" data-action="delete-row" data-tab="pipeline" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+    if(isOpen){
+      html += `<tr class="detail-row"><td colspan="12"><div class="detail-box">
+        <div class="detail-head">
+          <span class="detail-code">${projectCode(r)}</span>
+          <span>${escAttr(r.name)}</span>
+          <span class="detail-meta">${roll.start?fmtDisplay(roll.start):'—'} → ${roll.end?fmtDisplay(roll.end):'—'} · ${roll.durationDays||0} days span · total cost ${money(roll.totalCost)}</span>
+        </div>
+        <div class="detail-notes"><label>Notes</label><input data-tab="pipeline" data-idx="${i}" data-field="notes" value="${escAttr(r.notes||'')}"></div>
+        <div class="stage-label-row">Stages — each carries its own dates &amp; cost; the project rolls up from these</div>
+        <div class="table-scroll" style="box-shadow:none;border-radius:9px;">
+        <table style="min-width:760px"><thead><tr>
+          <th style="min-width:170px">Stage</th><th style="width:140px">Kind</th><th style="width:128px">Start</th>
+          <th style="width:128px">End</th><th style="width:64px">Days</th><th style="width:100px">Cost (£)</th><th style="width:34px"></th>
+        </tr></thead><tbody>`;
+      (r.stages||[]).forEach((s, si) => {
+        const sDays = (s.start && (s.end||s.start)) ? Math.round((toDate(s.end||s.start)-toDate(s.start))/86400000)+1 : 0;
+        html += `<tr>
+          <td><input data-tab="stages" data-proj="${i}" data-sidx="${si}" data-field="label" value="${escAttr(s.label||'')}"></td>
+          <td><select data-tab="stages" data-proj="${i}" data-sidx="${si}" data-field="kind" style="border-left:3px solid ${STAGE_KINDS[s.kind]?STAGE_KINDS[s.kind].color:'#8b867c'};">
+            ${kinds.map(k=>`<option value="${k}"${s.kind===k?' selected':''}>${STAGE_KINDS[k].label}</option>`).join('')}</select></td>
+          <td><input type="date" data-tab="stages" data-proj="${i}" data-sidx="${si}" data-field="start" value="${s.start||''}"></td>
+          <td><input type="date" data-tab="stages" data-proj="${i}" data-sidx="${si}" data-field="end" value="${s.end||''}"></td>
+          <td class="computed">${sDays||'—'}</td>
+          <td><input type="number" step="1" data-tab="stages" data-proj="${i}" data-sidx="${si}" data-field="cost" value="${s.cost||0}"></td>
+          <td><button class="icon-btn" data-action="del-stage" data-proj="${i}" data-sidx="${si}" title="Delete stage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn secondary" data-action="add-stage" data-proj="${i}">+ Add stage</button>
+          <button class="btn secondary" data-action="add-visit" data-proj="${i}">+ Add site visit</button>
+        </div>
+        <div class="stage-label-row" style="margin-top:8px;">Forecast weighting</div>
+        <div class="qual-grid" style="grid-template-columns:1fr 1fr;max-width:520px;">
+          <div class="qual-field"><label>Effective probability</label><input class="computed" disabled value="${Math.round(effectiveProb(r)*100)}% (${r.stage} stage)"></div>
+          <div class="qual-field"><label>Override (optional, 0–1)</label><input type="number" step="0.05" min="0" max="1" data-tab="pipeline" data-idx="${i}" data-field="probOverride" value="${(r.probOverride!==undefined&&r.probOverride!==null)?r.probOverride:''}" placeholder="blank = use stage default"></div>
+        </div>
+        <div class="stage-label-row" style="margin-top:8px;">Close &amp; hand to delivery</div>
+        <div class="qual-grid" style="grid-template-columns:1fr;max-width:320px;">
+          <div class="qual-field"><label>Contract signed date</label><input type="date" data-tab="pipeline" data-idx="${i}" data-field="contractSigned" value="${r.contractSigned||''}"></div>
+        </div>
+        ${r.contractSigned
+          ? `<div class="gate-msg ok">✓ Contract signed — ready to promote to a live project.</div>
+             <button class="promote-btn" data-action="promote-project" data-id="${r.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Project Pipeline</button>`
+          : `<div class="gate-msg">Set the contract signed date to unlock promotion to Project Pipeline.</div>
+             <button class="promote-btn" disabled>Promote to Project Pipeline</button>`}
+      </div></td></tr>`;
+    }
+  });
+  html += '</tbody></table>';
+  document.getElementById('pipelineTableWrap').innerHTML = html;
+}
+
+/* ---------- Gantt ---------- */
+function renderGantt(){
+  const wrap = document.getElementById('pipelineGanttWrap');
+  const projects = state.pipeline.filter(p => projectRollup(p).start && projectRollup(p).end);
+  if(projects.length === 0){
+    wrap.innerHTML = `<div class="placeholder"><div class="tag">No dated projects</div><h3>Nothing to plot yet</h3><p>Add start &amp; end dates to project stages (in Table view) and they'll appear here as a timeline.</p></div>`;
+    return;
+  }
+  let min = null, max = null;
+  projects.forEach(p => { const r = projectRollup(p); if(!min||r.start<min) min=r.start; if(!max||r.end>max) max=r.end; });
+  // pad to month boundaries
+  min = new Date(min.getFullYear(), min.getMonth(), 1);
+  max = new Date(max.getFullYear(), max.getMonth()+1, 0);
+  const totalDays = Math.round((max-min)/86400000)+1;
+  const pxPerDay = 13;
+  const timelineW = totalDays * pxPerDay;
+  const labelW = 210;
+  // month headers
+  let monthHeads = '';
+  let cur = new Date(min);
+  while(cur <= max){
+    const mStart = new Date(cur.getFullYear(), cur.getMonth(), 1);
+    const daysIn = new Date(cur.getFullYear(), cur.getMonth()+1, 0).getDate();
+    const left = Math.round((mStart-min)/86400000)*pxPerDay;
+    monthHeads += `<div class="gantt-month" style="left:${left}px;width:${daysIn*pxPerDay}px;">${cur.toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</div>`;
+    cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+  }
+  // rows
+  let rows = '';
+  projects.forEach(p => {
+    let bars = '';
+    (p.stages||[]).forEach(s => {
+      if(!s.start) return;
+      const st = toDate(s.start), en = toDate(s.end||s.start);
+      const left = Math.round((st-min)/86400000)*pxPerDay;
+      const w = Math.max(pxPerDay, (Math.round((en-st)/86400000)+1)*pxPerDay);
+      const c = STAGE_KINDS[s.kind] ? STAGE_KINDS[s.kind].color : '#8b867c';
+      bars += `<div class="gantt-bar" style="left:${left}px;width:${w}px;background:${c};" title="${escAttr(s.label)} · ${fmtDisplay(st)}–${fmtDisplay(en)}"><span>${escAttr(s.label)}</span></div>`;
+    });
+    rows += `<div class="gantt-row">
+      <div class="gantt-label" style="width:${labelW}px;"><span class="code-cell">${projectCode(p)}</span> ${escAttr(p.name)}</div>
+      <div class="gantt-track" style="width:${timelineW}px;">${bars}</div>
+    </div>`;
+  });
+  // legend
+  const legend = Object.keys(STAGE_KINDS).map(k => `<span class="lg"><i style="background:${STAGE_KINDS[k].color}"></i>${STAGE_KINDS[k].label}</span>`).join('');
+  wrap.innerHTML = `<div class="gantt-legend">${legend}</div>
+    <div class="gantt-scroll"><div class="gantt" style="min-width:${labelW+timelineW}px;">
+      <div class="gantt-headrow"><div class="gantt-label head" style="width:${labelW}px;">Project</div>
+        <div class="gantt-months" style="width:${timelineW}px;">${monthHeads}</div></div>
+      ${rows}
+    </div></div>`;
+}
+
+/* ---------- Leads ---------- */
+const LEAD_STATUSES = ['Not Contacted','Contacted','No Current Opportunity','Possible Opportunity','Qualified – Ready to Quote','Closed – No Fit'];
+const expandedLeads = new Set();
+function leadStatusStyle(s){
+  if(s==='Qualified – Ready to Quote') return 'background:#e4f0e6;color:#4f8a5b;';
+  if(s==='Possible Opportunity') return 'background:#fbf1cf;color:#c9822f;';
+  if(s==='Contacted') return 'background:#e6ecf5;color:#4a6b8a;';
+  if(s==='Closed – No Fit') return 'background:#f0eae9;color:#a08a87;';
+  return '';
+}
+function leadQualified(l){ return !!(l.budget && l.decisionMaker && l.timeline && l.competition); }
+function renderLeads(){
+  let html = `<table style="min-width:960px"><thead><tr>
+    <th style="width:34px"></th><th style="width:60px">Code</th><th style="min-width:170px">Business</th>
+    <th style="width:150px">Contact</th><th style="width:130px">Source</th><th style="width:120px">Last Contacted</th>
+    <th style="width:200px">Lead Status</th><th style="width:34px"></th></tr></thead><tbody>`;
+  state.leads.forEach((l,i) => {
+    const isOpen = expandedLeads.has(l.id);
+    const qualified = leadQualified(l);
+    html += `<tr>
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Qualification detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td class="code-cell">${recordCode(l.id,'lead')}</td>
+      <td><input data-tab="leads" data-idx="${i}" data-field="business" value="${escAttr(l.business)}"></td>
+      <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="—"></td>
+      <td><input data-tab="leads" data-idx="${i}" data-field="source" value="${escAttr(l.source||'')}"></td>
+      <td><input type="date" data-tab="leads" data-idx="${i}" data-field="lastContacted" value="${l.lastContacted||''}"></td>
+      <td><select data-tab="leads" data-idx="${i}" data-field="status" style="${leadStatusStyle(l.status)}font-weight:600;border-radius:6px;">${LEAD_STATUSES.map(s=>`<option${l.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td><button class="icon-btn" data-action="delete-lead" data-idx="${i}" title="Delete lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+    if(isOpen){
+      const miss = f => l[f] ? '' : ' missing';
+      html += `<tr class="detail-row"><td colspan="8"><div class="detail-box">
+        <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(l.business)}</span></div>
+        <div class="stage-label-row">Qualification — all four needed before this lead can be promoted to quote</div>
+        <div class="qual-grid">
+          <div class="qual-field${miss('budget')}"><label>Budget indication</label><input data-tab="leads" data-idx="${i}" data-field="budget" value="${escAttr(l.budget||'')}" placeholder="e.g. £15–20k"></div>
+          <div class="qual-field${miss('decisionMaker')}"><label>Decision-maker</label><input data-tab="leads" data-idx="${i}" data-field="decisionMaker" value="${escAttr(l.decisionMaker||'')}" placeholder="Who signs off?"></div>
+          <div class="qual-field${miss('timeline')}"><label>Desired timeline</label><input data-tab="leads" data-idx="${i}" data-field="timeline" value="${escAttr(l.timeline||'')}" placeholder="When?"></div>
+          <div class="qual-field${miss('competition')}"><label>Competition</label><input data-tab="leads" data-idx="${i}" data-field="competition" value="${escAttr(l.competition||'')}" placeholder="Other quotes?"></div>
+        </div>
+        <div class="detail-notes"><label>Contact details &amp; notes</label><input data-tab="leads" data-idx="${i}" data-field="notes" value="${escAttr(l.notes||'')}"></div>
+        ${qualified
+          ? `<div class="gate-msg ok">✓ Qualified — ready to promote into the Sales Pipeline.</div>
+             <button class="promote-btn" data-action="promote-lead" data-id="${l.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Sales Pipeline</button>`
+          : `<div class="gate-msg">Fill all four qualification fields to unlock promotion.</div>
+             <button class="promote-btn" disabled>Promote to Sales Pipeline</button>`}
+      </div></td></tr>`;
+    }
+  });
+  html += '</tbody></table>';
+  document.getElementById('leadsTableWrap').innerHTML = html;
+}
+
+/* ---------- Project Pipeline ---------- */
+const expandedProjectsP = new Set();
+const MILESTONE_ORDER = [
+  ['contractSigned','Contract signed'], ['designSigned','Design & costs signed'], ['materialsOrdered','Materials ordered'],
+  ['materialsDelivered','Materials delivered'], ['onSiteStart','On-site start'], ['buildComplete','Build complete'],
+  ['invoiced','Invoiced'], ['paid','Paid'], ['signOff','Sign-off']
+];
+function projectProgress(p){
+  const m = p.milestones || {};
+  let last = 'Not started';
+  MILESTONE_ORDER.forEach(([k,label]) => { if(m[k]) last = label; });
+  return last;
+}
+function renderProjects(){
+  if(state.projects.length === 0){
+    document.getElementById('projectsTableWrap').innerHTML = `<div class="placeholder" style="border:none;background:none;"><div class="tag">No live projects yet</div><h3>Nothing here yet</h3><p>When a Sales Pipeline deal has its contract marked signed, promote it here and it becomes a live project.</p></div>`;
+    return;
+  }
+  let html = `<table style="min-width:920px"><thead><tr>
+    <th style="width:34px"></th><th style="width:60px">Code</th><th style="min-width:190px">Project</th>
+    <th style="width:120px">Agreed value</th><th style="width:180px">Progress</th>
+    <th style="width:120px">Budget vs actual</th><th style="width:34px"></th></tr></thead><tbody>`;
+  state.projects.forEach((p,i) => {
+    const isOpen = expandedProjectsP.has(p.id);
+    const m = p.milestones || {};
+    const costFlag = (Number(p.actualCost)||0) > (Number(p.budgetedCost)||0);
+    html += `<tr>
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-projrec" data-id="${p.id}" title="Delivery detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td class="code-cell">${recordCode(p.id,'project')}</td>
+      <td><input data-tab="projects" data-idx="${i}" data-field="name" value="${escAttr(p.name)}"></td>
+      <td><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="agreedValue" value="${p.agreedValue||0}"></td>
+      <td><span class="progress-pill">${projectProgress(p)}</span></td>
+      <td class="${costFlag?'':''}" style="${costFlag?'color:#b3453f;font-weight:600;':''}">${money(p.budgetedCost)} / ${money(p.actualCost)}</td>
+      <td><button class="icon-btn" data-action="delete-projrec" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+    if(isOpen){
+      html += `<tr class="detail-row"><td colspan="7"><div class="detail-box">
+        <div class="detail-head"><span class="detail-code" style="background:var(--green);">${recordCode(p.id,'project')}</span><span>${escAttr(p.name)}</span><span class="detail-meta">Progress: ${projectProgress(p)}</span></div>
+        <div class="stage-label-row">Delivery milestones</div>
+        <div class="milestone-grid">
+          ${MILESTONE_ORDER.map(([k,label]) => `<div><label>${label}</label><input type="date" data-tab="projmilestone" data-idx="${i}" data-field="${k}" value="${m[k]||''}"></div>`).join('')}
+        </div>
+        <div class="qual-grid">
+          <div class="qual-field"><label>Budgeted cost (£)</label><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="budgetedCost" value="${p.budgetedCost||0}"></div>
+          <div class="qual-field"><label>Actual cost (£)</label><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="actualCost" value="${p.actualCost||0}"></div>
+        </div>
+        <div class="stage-label-row">Payment lines — each is a dated money-in event feeding the forecast &amp; cash flow</div>
+        <div class="table-scroll" style="box-shadow:none;border-radius:9px;">
+        <table style="min-width:640px"><thead><tr>
+          <th style="width:90px">Code</th><th style="min-width:150px">Description</th><th style="width:128px">Due date</th>
+          <th style="width:100px">Amount (£)</th><th style="width:128px">Invoiced</th><th style="width:128px">Paid</th><th style="width:34px"></th>
+        </tr></thead><tbody>`;
+      (p.paymentLines||[]).forEach((pl, pli) => {
+        html += `<tr>
+          <td class="code-cell">${recordCode(p.id,'project')}-INV${pli+1}</td>
+          <td><input data-tab="payline" data-idx="${i}" data-pli="${pli}" data-field="desc" value="${escAttr(pl.desc||'')}"></td>
+          <td><input type="date" data-tab="payline" data-idx="${i}" data-pli="${pli}" data-field="dueDate" value="${pl.dueDate||''}"></td>
+          <td><input type="number" step="1" data-tab="payline" data-idx="${i}" data-pli="${pli}" data-field="amount" value="${pl.amount||0}"></td>
+          <td><input type="date" data-tab="payline" data-idx="${i}" data-pli="${pli}" data-field="invoicedDate" value="${pl.invoicedDate||''}"></td>
+          <td><input type="date" data-tab="payline" data-idx="${i}" data-pli="${pli}" data-field="paidDate" value="${pl.paidDate||''}"></td>
+          <td><button class="icon-btn" data-action="del-payline" data-idx="${i}" data-pli="${pli}" title="Delete line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>
+        <div class="btn-row" style="margin-top:8px;"><button class="btn secondary" data-action="add-payline" data-idx="${i}">+ Add payment line</button></div>
+        <div class="detail-notes"><label>Testimonial</label><input data-tab="projects" data-idx="${i}" data-field="testimonial" value="${escAttr(p.testimonial||'')}" placeholder="Capture the client's words at sign-off"></div>
+        <div class="detail-notes"><label>Notes</label><input data-tab="projects" data-idx="${i}" data-field="notes" value="${escAttr(p.notes||'')}"></div>
+      </div></td></tr>`;
+    }
+  });
+  html += '</tbody></table>';
+  document.getElementById('projectsTableWrap').innerHTML = html;
+}
+
+/* ---------- promote mechanics ---------- */
+function renderSettings(){
+  const s = state.settings;
+  const stages = ['Inquiry','Tabled','Quoted','Confirmed'];
+  document.getElementById('stageProbGrid').innerHTML = stages.map(st =>
+    `<div><label>${st} (%)</label><input type="number" step="1" min="0" max="100" data-tab="stageprob" data-field="${st}" value="${Math.round((s.stageProbability[st]||0)*100)}"></div>`
+  ).join('');
+  document.getElementById('financeSettingsGrid').innerHTML =
+    `<div><label>Starting cash balance (£)</label><input type="number" step="1" data-tab="settings" data-field="startingCash" value="${s.startingCash}"></div>
+     <div><label>Trade account terms (days)</label><input type="number" step="1" data-tab="settings" data-field="tradeAccountDays" value="${s.tradeAccountDays}"></div>
+     <div><label>Client payment terms (days)</label><input type="number" step="1" data-tab="settings" data-field="paymentTermsDays" value="${s.paymentTermsDays}"></div>
+     <div><label>Forecast horizon (months, if no dated work)</label><input type="number" step="1" data-tab="settings" data-field="forecastMonths" value="${s.forecastMonths}"></div>`;
+}
+function renderTransactions(){
+  const txns = state.transactions;
+  const totalIn = txns.reduce((a,t)=>a+(Number(t.moneyIn)||0),0);
+  const totalOut = txns.reduce((a,t)=>a+(Number(t.moneyOut)||0),0);
+  document.getElementById('txnKpis').innerHTML = [
+    { label:'Total in', value: money(totalIn), accent:'var(--green)' },
+    { label:'Total out', value: money(totalOut), accent:'var(--oak)' },
+    { label:'Net movement', value: money(totalIn-totalOut), accent:'var(--slate)', flag:(totalIn-totalOut)<0 }
+  ].map(k=>`<div class="kpi" style="--accent:${k.accent}"><div class="label">${k.label}</div><div class="value${k.flag?' flag':''}">${k.value}</div></div>`).join('');
+  const cats = ['Income','Materials','Overhead','Equipment','Other'];
+  const sorted = state.transactions.map((t,i)=>({t,i})).sort((a,b)=> (b.t.date||'').localeCompare(a.t.date||''));
+  let html = `<table style="min-width:840px"><thead><tr>
+    <th style="width:128px">Date</th><th style="min-width:200px">Description</th><th style="width:130px">Category</th>
+    <th style="width:100px">In (£)</th><th style="width:100px">Out (£)</th><th style="width:120px">Linked code</th><th style="width:34px"></th>
+  </tr></thead><tbody>`;
+  sorted.forEach(({t,i}) => {
+    html += `<tr>
+      <td><input type="date" data-tab="transactions" data-idx="${i}" data-field="date" value="${t.date||''}"></td>
+      <td><input data-tab="transactions" data-idx="${i}" data-field="description" value="${escAttr(t.description||'')}"></td>
+      <td><select data-tab="transactions" data-idx="${i}" data-field="category">${cats.map(c=>`<option${t.category===c?' selected':''}>${c}</option>`).join('')}</select></td>
+      <td><input type="number" step="1" data-tab="transactions" data-idx="${i}" data-field="moneyIn" value="${t.moneyIn||0}"></td>
+      <td><input type="number" step="1" data-tab="transactions" data-idx="${i}" data-field="moneyOut" value="${t.moneyOut||0}"></td>
+      <td><input data-tab="transactions" data-idx="${i}" data-field="linkedCode" value="${escAttr(t.linkedCode||'')}" placeholder="e.g. P-201-INV1"></td>
+      <td><button class="icon-btn" data-action="delete-row" data-tab="transactions" data-idx="${i}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('transactionsTableWrap').innerHTML = html;
+}
+
+function promoteLead(id){
+  const idx = state.leads.findIndex(l => l.id === id);
+  if(idx < 0) return;
+  const l = state.leads[idx];
+  const rec = {
+    id: l.id, name: l.business + (l.contact ? ' — ' + l.contact : ''), type: 'real',
+    tier: 'Needs re-scoping', stage: 'Inquiry', probability: 0.3, quoteValue: 0,
+    notes: (l.notes||'') + `  [From lead: budget ${l.budget||'?'}; decision-maker ${l.decisionMaker||'?'}; timeline ${l.timeline||'?'}; competition ${l.competition||'?'}]`,
+    contact: l.contact||'', phone: l.phone||'', email: l.email||'', source: l.source||'',
+    budget: l.budget||'', decisionMaker: l.decisionMaker||'', timeline: l.timeline||'', competition: l.competition||'',
+    contractSigned: '',
+    stages: [ { label: 'Scope & cost', kind: 'scope', start: '', end: '', cost: 0 } ]
+  };
+  state.leads.splice(idx, 1);
+  state.pipeline.push(rec);
+  expandedProjects.add(rec.id);
+  render(); saveState();
+}
+function promoteToProject(id){
+  const idx = state.pipeline.findIndex(p => p.id === id);
+  if(idx < 0) return;
+  const s = state.pipeline[idx];
+  const proj = {
+    id: s.id, name: s.name, type: s.type, agreedValue: Number(s.quoteValue)||0,
+    budgetedCost: projectRollup(s).totalCost, actualCost: 0, notes: s.notes||'',
+    milestones: { contractSigned: s.contractSigned||'', designSigned:'', materialsOrdered:'', materialsDelivered:'', onSiteStart:'', buildComplete:'', invoiced:'', paid:'', signOff:'' },
+    testimonial: '', stages: s.stages || [],
+    paymentLines: [ { desc: 'On completion', dueDate: projectRollup(s).end ? fmt(projectRollup(s).end) : '', amount: Number(s.quoteValue)||0, invoicedDate: '', paidDate: '' } ]
+  };
+  state.pipeline.splice(idx, 1);
+  state.projects.push(proj);
+  expandedProjectsP.add(proj.id);
+  render(); saveState();
+}
+
+/* ---------- pricing ---------- */
+function totalOverhead(){ const a=state.assumptions; return Number(a.ohInsurance)+Number(a.ohAccounting)+Number(a.ohVehicle)+Number(a.ohTools)+Number(a.ohMarketing); }
+function overheadPerDay(){ return totalOverhead() / (Number(state.assumptions.workingDaysPerYear)||1); }
+function renderAssumptionsGrid(){
+  const a = state.assumptions;
+  const fields = [
+    ['dayRate','Day rate (£/day)'], ['materialsMarkup','Materials markup (0–1)'], ['profitMargin','Profit margin (0–1)'],
+    ['workingDaysPerYear','Working days / year'], ['ohInsurance','Overhead: insurance (£/yr)'], ['ohAccounting','Overhead: accounting (£/yr)'],
+    ['ohVehicle','Overhead: vehicle (£/yr)'], ['ohTools','Overhead: tools (£/yr)'], ['ohMarketing','Overhead: marketing (£/yr)']
+  ];
+  document.getElementById('assumptionsGrid').innerHTML = fields.map(([k,l]) =>
+    `<div><label>${l}</label><input type="number" step="0.01" data-tab="assumptions" data-field="${k}" value="${a[k]}"></div>`
+  ).join('') +
+    `<div><label>Total overhead (£/yr)</label><input class="computed" disabled value="${money(totalOverhead())}"></div>
+     <div><label>Overhead per working day (£)</label><input class="computed" disabled value="${overheadPerDay().toFixed(2)}"></div>`;
+}
+function renderPricing(){
+  renderAssumptionsGrid();
+  const a = state.assumptions, ohDay = overheadPerDay();
+  let html = `<table style="min-width:1000px"><thead><tr>
+    <th>Tier</th><th style="width:70px">Days</th><th style="width:100px">Materials (£)</th><th style="width:96px">Labour (£)</th>
+    <th style="width:120px">Materials +markup</th><th style="width:96px">Overhead (£)</th><th style="width:100px">Full cost (£)</th>
+    <th style="width:90px">Profit (£)</th><th style="width:118px">Recommended quote</th><th style="width:34px"></th></tr></thead><tbody>`;
+  state.pricingTiers.forEach((t,i) => {
+    const labour = Number(t.buildDays)*Number(a.dayRate);
+    const materialsIncl = Number(t.materialsCost)*(1+Number(a.materialsMarkup));
+    const oh = Number(t.buildDays)*ohDay;
+    const fullCost = labour+materialsIncl+oh;
+    const profit = fullCost*Number(a.profitMargin);
+    const quote = fullCost+profit;
+    html += `<tr>
+      <td><input data-tab="pricingTiers" data-idx="${i}" data-field="name" value="${escAttr(t.name)}"></td>
+      <td><input type="number" step="1" data-tab="pricingTiers" data-idx="${i}" data-field="buildDays" value="${t.buildDays}"></td>
+      <td><input type="number" step="1" data-tab="pricingTiers" data-idx="${i}" data-field="materialsCost" value="${t.materialsCost}"></td>
+      <td class="computed">${money(labour)}</td><td class="computed">${money(materialsIncl)}</td><td class="computed">${money(oh)}</td>
+      <td class="computed">${money(fullCost)}</td><td class="computed">${money(profit)}</td><td class="computed">${money(quote)}</td>
+      <td><button class="btn danger" data-action="delete-row" data-tab="pricingTiers" data-idx="${i}">✕</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('pricingTableWrap').innerHTML = html;
+}
+
+/* ---------- revenue ---------- */
+/* committed = project payment lines (100%, real due dates); weighted = sales quote × effective prob at expected invoice */
+function revenueContributors(key){
+  const items = [];
+  state.projects.forEach(p => {
+    (p.paymentLines||[]).forEach((pl,li) => {
+      if(pl.dueDate && monthKey(toDate(pl.dueDate))===key && (Number(pl.amount)||0)>0)
+        items.push({ layer:'committed', code: recordCode(p.id,'project')+'-INV'+(li+1), name: p.name, detail: pl.desc||'Payment', amount: Number(pl.amount)||0 });
+    });
+  });
+  state.pipeline.forEach(r => {
+    const d = derivePipelineRow(r);
+    if(d.invoice && monthKey(d.invoice)===key){
+      const amt = (Number(r.quoteValue)||0)*effectiveProb(r);
+      if(amt>0) items.push({ layer:'weighted', code: recordCode(r.id,'sales'), name: r.name, detail: r.stage+' · '+Math.round(effectiveProb(r)*100)+'%', amount: amt });
+    }
+  });
+  return items;
+}
+function computeRevenue(months){
+  return months.map(m => {
+    const key = monthKey(m); let committed=0, weighted=0;
+    revenueContributors(key).forEach(it => { if(it.layer==='committed') committed+=it.amount; else weighted+=it.amount; });
+    return { key, label: monthLabel(m), committed, weighted, total: committed+weighted };
+  });
+}
+let revenueBreakdownMonth = null;
+function renderRevenue(){
+  const months = getMonthRange(); const rev = computeRevenue(months); let cum = 0;
+  const cell = (val, key, cls) => `<td class="fc-cell${cls||''}" data-fcmonth="${key}" style="cursor:pointer;">${money(val)}</td>`;
+  let html = `<table style="min-width:${180+rev.length*96}px"><thead><tr><th>Month</th>${rev.map(r=>`<th>${r.label}</th>`).join('')}</tr></thead><tbody>
+    <tr><td>Committed (projects · 100%)</td>${rev.map(r=>cell(r.committed,r.key)).join('')}</tr>
+    <tr><td>Weighted pipeline (sales × prob.)</td>${rev.map(r=>cell(r.weighted,r.key)).join('')}</tr>
+    <tr><td><strong>Total expected</strong></td>${rev.map(r=>`<td class="fc-cell" data-fcmonth="${r.key}" style="cursor:pointer;"><strong>${money(r.total)}</strong></td>`).join('')}</tr>
+    <tr><td>Cumulative</td>${rev.map(r=>{cum+=r.total; return `<td>${money(cum)}</td>`;}).join('')}</tr>
+    </tbody></table>`;
+  document.getElementById('revenueTableWrap').innerHTML = html;
+  renderRevenueBreakdown();
+}
+function renderRevenueBreakdown(){
+  const wrap = document.getElementById('revenueBreakdown');
+  if(!wrap) return;
+  if(!revenueBreakdownMonth){ wrap.innerHTML = `<div class="breakdown-hint">Tap any figure above to see exactly which records make it up.</div>`; return; }
+  const items = revenueContributors(revenueBreakdownMonth);
+  const label = monthLabel(toDate(revenueBreakdownMonth+'-01'));
+  if(items.length===0){ wrap.innerHTML = `<div class="breakdown-hint">No revenue in ${label}.</div>`; return; }
+  wrap.innerHTML = `<div class="breakdown-box"><div class="breakdown-title">${label} — where the number comes from</div>
+    <table><thead><tr><th>Code</th><th>Record</th><th>Layer</th><th>Detail</th><th style="text-align:right">Amount</th></tr></thead><tbody>
+    ${items.map(it=>`<tr><td class="code-cell">${it.code}</td><td>${escAttr(it.name)}</td><td>${it.layer==='committed'?'<span class="lyr committed">Committed</span>':'<span class="lyr weighted">Weighted</span>'}</td><td>${escAttr(it.detail)}</td><td style="text-align:right;font-weight:600;">${money(it.amount)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+/* ---------- cash flow ---------- */
+function computeCashFlow(months){
+  const fixedMonthly = totalOverhead()/12;
+  let closing = (state.settings && Number(state.settings.startingCash)) || Number(state.startingCash) || 0;
+  const tradeDays = (state.settings && state.settings.tradeAccountDays) || 30;
+  return months.map(m => {
+    const key = monthKey(m); let committedIn=0, weightedIn=0, materialsOut=0;
+    state.projects.forEach(p => {
+      (p.paymentLines||[]).forEach(pl => { if(pl.dueDate && monthKey(toDate(pl.dueDate))===key) committedIn += Number(pl.amount)||0; });
+      (p.stages||[]).filter(s=>s.kind==='materials'&&s.start).forEach(s => {
+        const due = addCalendarDays(toDate(s.start), tradeDays);
+        if(monthKey(due)===key) materialsOut += Number(s.cost)||0;
+      });
+    });
+    state.pipeline.forEach(r => {
+      const d = derivePipelineRow(r);
+      if(d.paymentDue && monthKey(d.paymentDue)===key) weightedIn += (Number(r.quoteValue)||0)*effectiveProb(r);
+      if(d.materialsPaymentDue && monthKey(d.materialsPaymentDue)===key) materialsOut += (Number(d.materialsCost)||0)*effectiveProb(r);
+    });
+    const net = committedIn + weightedIn - materialsOut - fixedMonthly; closing += net;
+    return { label: monthLabel(m), committedIn, weightedIn, materialsOut, fixedMonthly, net, closing };
+  });
+}
+function renderCashflow(){
+  const start = (state.settings && Number(state.settings.startingCash)) || Number(state.startingCash) || 0;
+  document.getElementById('cashflowAssumptionsGrid').innerHTML =
+    `<div><label>Starting cash balance (£)</label><input type="number" step="1" data-tab="settings" data-field="startingCash" value="${start}"></div>
+     <div><label>Fixed monthly overhead (£)</label><input class="computed" disabled value="${money(totalOverhead()/12)}"></div>`;
+  const months = getMonthRange(); const cf = computeCashFlow(months);
+  let html = `<table style="min-width:${200+cf.length*96}px"><thead><tr><th>Month</th>${cf.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead><tbody>
+    <tr><td>Cash in — committed (projects)</td>${cf.map(c=>`<td>${money(c.committedIn)}</td>`).join('')}</tr>
+    <tr><td>Cash in — weighted pipeline</td>${cf.map(c=>`<td>${money(c.weightedIn)}</td>`).join('')}</tr>
+    <tr><td>Cash out — materials</td>${cf.map(c=>`<td>-${money(c.materialsOut)}</td>`).join('')}</tr>
+    <tr><td>Cash out — fixed overhead</td>${cf.map(c=>`<td>-${money(c.fixedMonthly)}</td>`).join('')}</tr>
+    <tr><td><strong>Net cash flow</strong></td>${cf.map(c=>`<td><strong>${c.net<0?'-':''}${money(Math.abs(c.net))}</strong></td>`).join('')}</tr>
+    <tr><td>Closing balance</td>${cf.map(c=>`<td${c.closing<0?' style="color:#b3453f;font-weight:700;"':''}>${money(c.closing)}</td>`).join('')}</tr>
+    </tbody></table>`;
+  document.getElementById('cashflowTableWrap').innerHTML = html;
+}
+
+/* ---------- generic simple tables ---------- */
+function renderSimpleTable(tabKey, columns, wrapId, statusOptions){
+  let html = '<table><thead><tr>' + columns.map(c=>`<th${c.w?` style="width:${c.w}px"`:''}>${c.label}</th>`).join('') + '<th style="width:34px"></th></tr></thead><tbody>';
+  state[tabKey].forEach((row,i) => {
+    html += '<tr>' + columns.map(c => {
+      if(c.type==='select'){
+        return `<td><select data-tab="${tabKey}" data-idx="${i}" data-field="${c.field}">${(statusOptions||[]).map(o=>`<option${row[c.field]===o?' selected':''}>${o}</option>`).join('')}</select></td>`;
+      }
+      return `<td><input data-tab="${tabKey}" data-idx="${i}" data-field="${c.field}" value="${escAttr(row[c.field]||'')}"></td>`;
+    }).join('') + `<td><button class="btn danger" data-action="delete-row" data-tab="${tabKey}" data-idx="${i}">✕</button></td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById(wrapId).innerHTML = html;
+}
+function renderAdmin(){ renderSimpleTable('admin', [ {field:'item',label:'Item',w:240}, {field:'category',label:'Category',w:130}, {field:'status',label:'Status',type:'select',w:130}, {field:'notes',label:'Notes'} ], 'adminTableWrap', ['Not Started','In Progress','Done']); }
+
+/* ---------- accountability ---------- */
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>';
+const TRAY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>';
+const RESTORE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 8"/></svg>';
+const CHEV_SVG = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+/* ---------- archive flow ---------- */
+const archiving = new Set();
+function beginArchive(actionObj){
+  if(archiving.has(actionObj)) return;
+  archiving.add(actionObj);
+  renderActions();
+  setTimeout(() => {
+    const idx = state.actions.indexOf(actionObj);
+    if(idx > -1) state.archivedActions.unshift(state.actions.splice(idx,1)[0]);
+    archiving.delete(actionObj);
+    render(); saveState();
+  }, 2000);
+}
+/* custom confirm modal → Promise<boolean> */
+let _confirmResolver = null;
+function showConfirm(title, message){
+  return new Promise(resolve => {
+    _confirmResolver = resolve;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMsg').textContent = message || '';
+    document.getElementById('modalOverlay').hidden = false;
+  });
+}
+function resolveConfirm(val){
+  document.getElementById('modalOverlay').hidden = true;
+  if(_confirmResolver){ _confirmResolver(val); _confirmResolver = null; }
+}
+
+function statusStyle(s){
+  if(s==='Done') return 'background:#e4f0e6;color:#4f8a5b;';
+  if(s==='In Progress') return 'background:#fbf1cf;color:#c9822f;';
+  if(s==='Waiting') return 'background:#e6ecf5;color:#4a6b8a;';
+  return '';
+}
+function renderActions(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const statuses = ['Not Started','In Progress','Waiting','Done'];
+  let html = `<table style="min-width:1210px"><thead><tr>
+    <th style="width:44px"></th><th style="width:118px">Date Raised</th><th style="min-width:260px">Action</th><th style="width:104px">Owner</th>
+    <th style="width:104px">+ Owner</th><th style="width:132px">Deadline</th><th style="width:74px">Priority</th>
+    <th style="width:128px">Status</th><th style="min-width:180px">Notes</th><th style="width:34px"></th></tr></thead><tbody>`;
+  state.actions.forEach((r,i) => {
+    const done = r.status === 'Done';
+    const isArchiving = archiving.has(r);
+    const overdue = r.deadline && !done && toDate(r.deadline) < today;
+    const pBg = Number(r.priority)<=1 ? (Number(r.priority)===0?'#b3453f':'#c9822f') : (Number(r.priority)===2 ? '#fbf1cf' : '#e4f0e6');
+    const pFg = Number(r.priority)<=1 ? '#fff' : (Number(r.priority)===2 ? '#c9a227' : '#4f8a5b');
+    const rowClass = [overdue?'flag-row':'', isArchiving?'archiving':''].filter(Boolean).join(' ');
+    html += `<tr${rowClass?` class="${rowClass}"`:''}>
+      <td><div class="cbx${isArchiving?' checked':''}" data-action="toggle-done" data-idx="${i}" title="Complete &amp; archive">${CHECK_SVG}</div></td>
+      <td><input type="date" data-tab="actions" data-idx="${i}" data-field="dateRaised" value="${r.dateRaised||''}"></td>
+      <td><input class="acc-action-text" data-tab="actions" data-idx="${i}" data-field="action" value="${escAttr(r.action)}"></td>
+      <td><input list="ownersList" data-tab="actions" data-idx="${i}" data-field="owner" value="${escAttr(r.owner||'')}"></td>
+      <td><input list="ownersList" data-tab="actions" data-idx="${i}" data-field="owner2" value="${escAttr(r.owner2||'')}" placeholder="optional"></td>
+      <td><input type="date" data-tab="actions" data-idx="${i}" data-field="deadline" value="${r.deadline||''}"></td>
+      <td><select data-tab="actions" data-idx="${i}" data-field="priority" style="background:${pBg};color:${pFg};font-weight:700;text-align:center;border-radius:6px;">
+        ${[0,1,2,3].map(p=>`<option value="${p}"${Number(r.priority)===p?' selected':''}>${p}</option>`).join('')}</select></td>
+      <td><select data-tab="actions" data-idx="${i}" data-field="status" style="${statusStyle(r.status)}font-weight:600;border-radius:6px;">${statuses.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td><input data-tab="actions" data-idx="${i}" data-field="notes" value="${escAttr(r.notes||'')}"></td>
+      <td><button class="icon-btn" data-action="archive-action" data-idx="${i}" title="Archive without completing">${TRAY_SVG}</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('actionsTableWrap').innerHTML = html;
+  renderArchived();
+}
+
+function renderArchived(){
+  const arr = state.archivedActions || [];
+  const wrap = document.getElementById('archivedWrap');
+  if(!wrap) return;
+  if(arr.length === 0){ wrap.innerHTML = ''; return; }
+  const open = wrap.dataset.open === '1';
+  let rows = arr.map((r,i) => `<tr>
+      <td style="width:118px">${r.dateRaised||''}</td>
+      <td>${escAttr(r.action)}</td>
+      <td style="width:110px">${escAttr(r.owner||'')}</td>
+      <td style="width:120px">${escAttr(r.status||'')}</td>
+      <td style="width:40px"><button class="icon-btn restore" data-action="restore-action" data-idx="${i}" title="Restore">${RESTORE_SVG}</button></td>
+    </tr>`).join('');
+  wrap.innerHTML = `<div class="archived-section">
+      <div class="archived-toggle${open?' open':''}" data-action="toggle-archived">
+        <svg class="tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>
+        <span>Archived (${arr.length})</span>${CHEV_SVG}
+      </div>
+      <div class="archived-body table-scroll" ${open?'':'hidden'}>
+        <table><thead><tr><th>Date</th><th>Action</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+}
+
+/* ---------- column resize ---------- */
+function applyResizable(){
+  document.querySelectorAll('.main table thead th').forEach(th => {
+    if(th.querySelector('.col-handle') || th.style.width==='34px') return;
+    const handle = document.createElement('div');
+    handle.className = 'col-handle';
+    th.appendChild(handle);
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const startX = e.pageX, startW = th.offsetWidth;
+      const move = ev => { th.style.width = Math.max(46, startW + (ev.pageX-startX)) + 'px'; };
+      const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); document.body.style.cursor=''; };
+      document.body.style.cursor = 'col-resize';
+      document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
+    });
+  });
+}
+
+/* ---------- master render ---------- */
+function render(){
+  renderDashboard();
+  renderBusinessPlan();
+  renderLeads();
+  renderPipeline();
+  renderProjects();
+  renderPricing();
+  renderRevenue();
+  renderCashflow();
+  renderTransactions();
+  renderSettings();
+  renderAdmin();
+  renderActions();
+  applyResizable();
+}
+
+/* ---------- add-row templates ---------- */
+function newRowFor(tab){
+  switch(tab){
+    case 'goals': return { longTerm:'New goal', focus:'', target:'', actual:'', onTrack:'—' };
+    case 'pipeline': return { id:0, name:'New project', type:'real', tier:'Needs re-scoping', stage:'Inquiry', probability:0.2, quoteValue:0, notes:'', stages:[ { label:'Scope & cost', kind:'scope', start:'', end:'', cost:0 } ] };
+    case 'pricingTiers': return { name:'New tier', buildDays:1, materialsCost:0 };
+    case 'capability': return { area:'New trade area', status:'Parked', notes:'' };
+    case 'network': return { name:'New contact', role:'', category:'', notes:'' };
+    case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
+    case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
+    case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'' };
+    case 'leads': return { id:0, business:'New lead', contact:'', phone:'', email:'', source:'', lastContacted:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'' };
+    case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
+    default: return {};
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener('change', (e) => {
+  const el = e.target; const tab = el.dataset.tab; if(!tab) return;
+  const field = el.dataset.field; let value = el.value;
+  if(el.type === 'number') value = value==='' ? 0 : Number(value);
+  if(field === 'priority') value = Number(value);
+  if(tab==='assumptions') state.assumptions[field] = value;
+  else if(tab==='businessPlan') state.businessPlan[field] = value;
+  else if(tab==='settings') state.settings[field] = value;
+  else if(tab==='stageprob') state.settings.stageProbability[field] = (value===''?0:Number(value))/100;
+  else if(tab==='payline'){ const p=Number(el.dataset.idx), pl=Number(el.dataset.pli); if(state.projects[p] && state.projects[p].paymentLines[pl]) state.projects[p].paymentLines[pl][field] = value; }
+  else if(tab==='root') state[field] = value;
+  else if(tab==='stages'){ const p=Number(el.dataset.proj), s=Number(el.dataset.sidx); if(state.pipeline[p] && state.pipeline[p].stages[s]) state.pipeline[p].stages[s][field] = value; }
+  else if(tab==='projmilestone'){ const p=Number(el.dataset.idx); if(state.projects[p]){ state.projects[p].milestones = state.projects[p].milestones||{}; state.projects[p].milestones[field] = value; } }
+  else { const idx = Number(el.dataset.idx); if(state[tab] && state[tab][idx]) state[tab][idx][field] = value; }
+  render();
+  saveState();
+});
+document.addEventListener('click', (e) => {
+  const wt = e.target.closest('.width-toggle button');
+  if(wt){
+    const id = wt.parentNode.dataset.forid, mode = wt.dataset.wmode;
+    const sc = document.getElementById(id);
+    if(sc){ sc.classList.toggle('fitmode', mode==='fit'); }
+    wt.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('active', b===wt));
+    state.tableModes = state.tableModes || {}; state.tableModes[id] = mode; saveState();
+    return;
+  }
+  const fc = e.target.closest('.fc-cell');
+  if(fc){ revenueBreakdownMonth = fc.dataset.fcmonth; renderRevenueBreakdown(); return; }
+  const btn = e.target.closest('[data-action]'); if(!btn) return;
+  const action = btn.dataset.action;
+  if(action === 'add-row'){
+    const tab = btn.dataset.tab;
+    const row = newRowFor(tab);
+    if(tab === 'pipeline'){ row.id = state.nextPipelineId++; expandedProjects.add(row.id); }
+    state[tab].push(row); render(); saveState();
+  }
+  else if(action === 'delete-row'){ const tab = btn.dataset.tab; state[tab].splice(Number(btn.dataset.idx),1); render(); saveState(); }
+  else if(action === 'toggle-project'){
+    const id = Number(btn.dataset.id);
+    if(expandedProjects.has(id)) expandedProjects.delete(id); else expandedProjects.add(id);
+    renderPipeline();
+  }
+  else if(action === 'add-stage'){
+    const p = Number(btn.dataset.proj);
+    state.pipeline[p].stages.push({ label:'New stage', kind:'other', start:'', end:'', cost:0 });
+    render(); saveState();
+  }
+  else if(action === 'add-visit'){
+    const p = Number(btn.dataset.proj);
+    const n = (state.pipeline[p].stages.filter(s=>s.kind==='onsite').length)+1;
+    state.pipeline[p].stages.push({ label:'Works on site — visit '+n, kind:'onsite', start:'', end:'', cost:0 });
+    render(); saveState();
+  }
+  else if(action === 'del-stage'){
+    const p = Number(btn.dataset.proj), s = Number(btn.dataset.sidx);
+    state.pipeline[p].stages.splice(s,1); render(); saveState();
+  }
+  else if(action === 'set-pipeline-view'){ pipelineView = btn.dataset.view; renderPipeline(); }
+  else if(action === 'add-lead'){ const l = newRowFor('leads'); l.id = state.nextRecordId++; expandedLeads.add(l.id); state.leads.push(l); render(); saveState(); }
+  else if(action === 'delete-lead'){ state.leads.splice(Number(btn.dataset.idx),1); render(); saveState(); }
+  else if(action === 'toggle-lead'){ const id = Number(btn.dataset.id); if(expandedLeads.has(id)) expandedLeads.delete(id); else expandedLeads.add(id); renderLeads(); }
+  else if(action === 'promote-lead'){ promoteLead(Number(btn.dataset.id)); }
+  else if(action === 'promote-project'){ promoteToProject(Number(btn.dataset.id)); }
+  else if(action === 'toggle-projrec'){ const id = Number(btn.dataset.id); if(expandedProjectsP.has(id)) expandedProjectsP.delete(id); else expandedProjectsP.add(id); renderProjects(); }
+  else if(action === 'delete-projrec'){ state.projects.splice(Number(btn.dataset.idx),1); render(); saveState(); }
+  else if(action === 'add-payline'){ const p=Number(btn.dataset.idx); state.projects[p].paymentLines = state.projects[p].paymentLines||[]; state.projects[p].paymentLines.push({ desc:'Payment', dueDate:'', amount:0, invoicedDate:'', paidDate:'' }); render(); saveState(); }
+  else if(action === 'del-payline'){ const p=Number(btn.dataset.idx), pl=Number(btn.dataset.pli); state.projects[p].paymentLines.splice(pl,1); render(); saveState(); }
+  else if(action === 'toggle-done'){
+    const i = Number(btn.dataset.idx); const r = state.actions[i];
+    if(archiving.has(r)) return;
+    if(r.status === 'Done'){ beginArchive(r); }
+    else {
+      showConfirm('Mark this action as completed?', 'It will be set to Done and moved to Archived.').then(ok => {
+        if(ok){ r.status = 'Done'; saveState(); renderActions(); beginArchive(r); }
+      });
+    }
+  }
+  else if(action === 'archive-action'){
+    const i = Number(btn.dataset.idx);
+    state.archivedActions.unshift(state.actions.splice(i,1)[0]);
+    render(); saveState();
+  }
+  else if(action === 'restore-action'){
+    const i = Number(btn.dataset.idx);
+    state.actions.push(state.archivedActions.splice(i,1)[0]);
+    render(); saveState();
+  }
+  else if(action === 'toggle-archived'){
+    const wrap = document.getElementById('archivedWrap');
+    wrap.dataset.open = wrap.dataset.open === '1' ? '0' : '1';
+    renderArchived();
+  }
+  else if(action === 'export-data'){ exportData(); }
+  else if(action === 'import-data'){ document.getElementById('importFile').click(); }
+  else if(action === 'reset-data'){
+    showConfirm('Reset everything to sample data?', 'This clears all your current entries. Export a backup first if you want to keep them.').then(ok => { if(ok) resetData(); });
+  }
+});
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const f = e.target.files && e.target.files[0];
+  if(f) importData(f);
+  e.target.value = '';
+});
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'modalOverlay') resolveConfirm(false);
+  const b = e.target.closest('[data-modal]');
+  if(b) resolveConfirm(b.dataset.modal === 'confirm');
+});
+
+function ensurePipelineIds(){
+  let maxId = 0;
+  [...state.leads, ...state.pipeline, ...state.projects].forEach(p => { if(p.id) maxId = Math.max(maxId, p.id); });
+  state.pipeline.forEach(p => { if(!p.id) p.id = ++maxId; });
+  state.leads.forEach(p => { if(!p.id) p.id = ++maxId; });
+  state.projects.forEach(p => { if(!p.id) p.id = ++maxId; });
+  if(!state.nextPipelineId || state.nextPipelineId <= maxId) state.nextPipelineId = maxId + 1;
+  if(!state.nextRecordId || state.nextRecordId <= maxId) state.nextRecordId = maxId + 1;
+}
+
+function initTableControls(){
+  document.querySelectorAll('.table-scroll[id]').forEach(sc => {
+    if(sc.closest('.detail-row')) return;
+    if(sc.previousElementSibling && sc.previousElementSibling.classList && sc.previousElementSibling.classList.contains('table-tools')) return;
+    const id = sc.id;
+    const mode = (state.tableModes && state.tableModes[id]) || 'fit';
+    if(mode === 'fit') sc.classList.add('fitmode');
+    const bar = document.createElement('div');
+    bar.className = 'table-tools';
+    bar.innerHTML = `<div class="width-toggle" data-forid="${id}">
+      <button data-wmode="fit" class="${mode==='fit'?'active':''}">Fit to screen</button>
+      <button data-wmode="wide" class="${mode==='wide'?'active':''}">Expand width</button></div>`;
+    sc.parentNode.insertBefore(bar, sc);
+  });
+}
+
+/* ---------- init ---------- */
+(async () => { await loadState(); ensurePipelineIds(); render(); initTableControls(); })();
+</script>
+</body>
+</html>
