@@ -345,6 +345,21 @@
   .qual-field input { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; }
   .qual-field.missing label { color: #b3453f; }
   .qual-field.missing input { border-color: #e3c4c1; background: #fdf3ee; }
+
+  /* leads: two-column detail + comms timeline */
+  .lead-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+  .lead-col-right { border-left: 1px solid var(--line); padding-left: 22px; }
+  .qual-stack { display: flex; flex-direction: column; gap: 10px; }
+  .qual-stack .qual-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .qual-stack .qual-field input { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; }
+  .comms-scroll { max-height: 232px; overflow-y: auto; padding-right: 6px; margin-top: 4px; }
+  .comm-entry { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .comm-entry:last-child { border-bottom: none; }
+  .comm-entry .comm-date { width: 120px; flex-shrink: 0; border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 5px 6px; font-size: 11.5px; }
+  .comm-entry .comm-note { flex: 1; border: 1px solid transparent; background: transparent; padding: 5px 6px; font-size: 12.5px; border-radius: 6px; }
+  .comm-entry .comm-note:hover { border-color: var(--stone-deep); background: #fff; }
+  .comm-entry .comm-note:focus { border-color: var(--oak); background: #fffdf9; outline: none; }
+  @media (max-width: 760px){ .lead-cols { grid-template-columns: 1fr; } .lead-col-right { border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 14px; } }
   .gate-msg { font-size: 12px; color: #b3453f; margin-bottom: 10px; }
   .gate-msg.ok { color: var(--green); }
   .milestone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px; max-width: 760px; margin-bottom: 14px; }
@@ -377,6 +392,16 @@
   .fs-row:last-child { border-bottom: none; }
   .fs-row.total { font-weight: 700; border-top: 1.5px solid var(--stone-deep); margin-top: 2px; }
   .fs-row.total span:last-child { font-family: var(--serif); font-size: 15px; }
+
+  /* cloud sync */
+  .cloud-badge { font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+  .cloud-badge.on { background: #e4f0e6; color: #4f8a5b; }
+  .cloud-badge.off { background: #efece6; color: var(--muted); }
+  .cloud-badge.warn { background: #fdf3ee; color: #b3453f; }
+  .cloud-msg { font-size: 12px; min-height: 16px; color: var(--muted); }
+  .cloud-msg.ok { color: #4f8a5b; }
+  .cloud-msg.err { color: #b3453f; }
+  .sql-block { background: #1c1f22; color: #e8e5df; border-radius: 9px; padding: 14px 16px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11.5px; line-height: 1.5; overflow-x: auto; white-space: pre; margin: 4px 0; }
 
   /* view toggle */
   .view-toggle { display: inline-flex; background: #efece6; border-radius: 9px; padding: 3px; margin-bottom: 14px; gap: 2px; }
@@ -674,6 +699,42 @@
       <div class="assumptions-grid" id="financeSettingsGrid"></div>
     </div>
 
+    <div class="section-label">Cloud database — multi-device sync</div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <span id="cloudStatus"></span>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;">Connect to your Supabase database so the tracker syncs across devices and is backed up server-side, instead of living only in this browser. <strong>First-time setup:</strong> run the SQL below once in Supabase, then paste your Project URL and publishable key and hit Connect. (Logins come in the next step — for now, keep the link private.)</p>
+      <div class="assumptions-grid two" style="max-width:640px;">
+        <div><label>Project URL</label><input id="cloudUrl" placeholder="https://xxxx.supabase.co"></div>
+        <div><label>Publishable key (sb_publishable_…)</label><input id="cloudKey" type="password" placeholder="sb_publishable_…"></div>
+      </div>
+      <div class="btn-row" style="margin-top:12px;margin-bottom:8px;">
+        <button class="btn" data-action="cloud-connect">Connect &amp; sync</button>
+        <button class="btn secondary" data-action="cloud-test">Test connection</button>
+        <button class="btn secondary" data-action="cloud-reload">Reload from cloud</button>
+        <button class="btn secondary" data-action="cloud-disconnect" style="margin-left:auto;">Disconnect</button>
+      </div>
+      <div id="cloudMsg" class="cloud-msg"></div>
+      <details style="margin-top:14px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--slate);">Show one-time setup SQL</summary>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0;">In Supabase: left sidebar → <strong>SQL Editor</strong> → <strong>New query</strong> → paste this → <strong>Run</strong>. You only do this once.</p>
+        <pre class="sql-block" id="setupSql">create table if not exists tracker_data (
+  id int primary key default 1,
+  doc jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  constraint single_row check (id = 1)
+);
+insert into tracker_data (id, doc) values (1, '{}'::jsonb)
+  on conflict (id) do nothing;
+alter table tracker_data enable row level security;
+create policy "app read"   on tracker_data for select using (true);
+create policy "app insert" on tracker_data for insert with check (true);
+create policy "app update" on tracker_data for update using (true) with check (true);</pre>
+        <button class="btn secondary" data-action="copy-sql" style="margin-top:8px;">Copy SQL</button>
+      </details>
+    </div>
+
     <div class="section-label">Data &amp; backup</div>
     <div class="card">
       <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;">Your changes save automatically to <strong>this browser on this device</strong>. They stay put when you close and reopen — but they don't yet sync across devices (that's the next upgrade). Export a backup regularly so nothing can be lost; Import restores a backup or moves your data to another device.</p>
@@ -826,11 +887,11 @@ function defaultState(){
     nextRecordId: 300,
     tableModes: {},
     leads: [
-      { id: 101, business: 'Meadow View Estate', contact: '', phone: '', email: '', source: 'Cold outreach', lastContacted: '', status: 'Not Contacted', notes: 'Large rural property — potential for multiple structures.', budget: '', decisionMaker: '', timeline: '', competition: '' },
-      { id: 102, business: 'Bramley Residence', contact: 'Sarah Bramley', phone: '', email: '', source: 'Facebook group', lastContacted: '2026-09-02', status: 'Contacted', notes: 'Asked about pergola pricing — awaiting reply.', budget: '', decisionMaker: '', timeline: '', competition: '' },
-      { id: 103, business: 'Hargreaves', contact: 'Tom Hargreaves', phone: '', email: '', source: 'Referral', lastContacted: '2026-09-04', status: 'Qualified – Ready to Quote', notes: 'Wants a garden room, keen to proceed.', budget: '£15–20k', decisionMaker: 'Tom & wife (joint)', timeline: 'Spring 2027', competition: 'Getting one other quote' },
-      { id: 104, business: 'Mark Davis Ltd', contact: 'Mark Davis', phone: '', email: '', source: 'Network (Gary)', lastContacted: '2026-09-05', status: 'Possible Opportunity', notes: 'Workplace fit-out, wants it done quickly. Follow up after holiday.', budget: '', decisionMaker: 'Mark (owner)', timeline: 'ASAP', competition: '' },
-      { id: 105, business: 'Fenwick', contact: '', source: 'Facebook group', phone: '', email: '', lastContacted: '2026-08-20', status: 'No Current Opportunity', notes: 'Enquired but no budget this year — keep warm.', budget: '', decisionMaker: '', timeline: '', competition: '' }
+      { id: 101, leadType: 'Commercial', contact: '', company: 'Meadow View Estate', phone: '', email: '', source: 'Cold outreach', status: 'Not Contacted', notes: 'Large rural property — potential for multiple structures.', budget: '', decisionMaker: '', timeline: '', competition: '', comms: [] },
+      { id: 102, leadType: 'Residential', contact: 'Sarah Bramley', company: '', phone: '', email: '', source: 'Facebook group', status: 'Contacted', notes: 'Asked about pergola pricing — awaiting reply.', budget: '', decisionMaker: '', timeline: '', competition: '', comms: [ { date: '2026-09-02', note: 'Sarah messaged via Facebook asking about pergola pricing' } ] },
+      { id: 103, leadType: 'Residential', contact: 'Tom Hargreaves', company: '', phone: '', email: '', source: 'Referral', status: 'Qualified – Ready to Quote', notes: 'Wants a garden room, keen to proceed.', budget: '£15–20k', decisionMaker: 'Tom & wife (joint)', timeline: 'Spring 2027', competition: 'Getting one other quote', comms: [ { date: '2026-09-01', note: 'Lynton reached out to Tom by WhatsApp' }, { date: '2026-09-02', note: 'Tom replied — keen, happy to have a call' }, { date: '2026-09-04', note: 'Call with Tom — garden room, ~£15–20k, spring 2027' } ] },
+      { id: 104, leadType: 'Commercial', contact: 'Mark Davis', company: 'Mark Davis Ltd', phone: '', email: '', source: 'Network (Gary)', status: 'Possible Opportunity', notes: 'Workplace fit-out, wants it done quickly. Follow up after holiday.', budget: '', decisionMaker: 'Mark (owner)', timeline: 'ASAP', competition: '', comms: [ { date: '2026-09-05', note: 'Gary introduced Mark — workplace fit-out, wants it quick. Back from holiday Mon/Tue' } ] },
+      { id: 105, leadType: 'Residential', contact: 'Fenwick', company: '', source: 'Facebook group', phone: '', email: '', status: 'No Current Opportunity', notes: 'Enquired but no budget this year — keep warm.', budget: '', decisionMaker: '', timeline: '', competition: '', comms: [ { date: '2026-08-20', note: 'Enquired via Facebook — no budget this year, keep warm' } ] }
     ],
     projects: [
       { id: 201, name: 'Okereke — Garden Pergola', type: 'example', agreedValue: 4600, budgetedCost: 2600, actualCost: 2750, notes: 'Completed example — shows the delivery view.',
@@ -908,7 +969,7 @@ function mergeDefaults(loaded){
   });
   return out;
 }
-/* ---------- storage layer: localStorage-first (for hosting), window.storage fallback (Claude preview) ---------- */
+/* ---------- storage layer: cloud (Supabase REST) with localStorage fallback ---------- */
 const Store = {
   async get(key){
     try{ const v = localStorage.getItem(key); if(v !== null) return v; }catch(e){}
@@ -921,24 +982,146 @@ const Store = {
     return false;
   }
 };
+
+/* cloud config lives per-device in localStorage (not in the shared doc) */
+const CLOUD_CONFIG_KEY = 'business-tracker-cloud-config';
+const DEFAULT_PROJECT_URL = 'https://dunbyxxpgpfewvelwtpv.supabase.co';
+let cloud = { url: '', key: '', enabled: false };
+let usingCloud = false;
+let cloudLoadedAt = null;
+let cloudConflict = false;
+
+function loadCloudConfig(){
+  try{ const c = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || 'null'); if(c) cloud = Object.assign(cloud, c); }catch(e){}
+  if(!cloud.url) cloud.url = DEFAULT_PROJECT_URL;
+}
+function saveCloudConfig(){ try{ localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cloud)); }catch(e){} }
+function cloudBase(){ return (cloud.url || '').replace(/\/+$/, ''); }
+function sbHeaders(extra){ return Object.assign({ 'apikey': cloud.key, 'Authorization': 'Bearer ' + cloud.key, 'Content-Type': 'application/json' }, extra || {}); }
+async function sbGetRow(){
+  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.1&select=doc,updated_at`, { headers: sbHeaders() });
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
+  const rows = await r.json();
+  return rows[0] || null;
+}
+async function sbSaveRow(doc){
+  const body = JSON.stringify({ doc: doc, updated_at: new Date().toISOString() });
+  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.1`, { method: 'PATCH', headers: sbHeaders({ 'Prefer': 'return=representation' }), body });
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
+  const rows = await r.json();
+  return rows[0];
+}
+async function sbTest(){
+  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.1&select=id`, { headers: sbHeaders() });
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
+  return true;
+}
+
 async function loadState(){
+  loadCloudConfig();
+  if(cloud.enabled && cloudBase() && cloud.key){
+    try{
+      const row = await sbGetRow();
+      if(row){
+        state = mergeDefaults(row.doc && Object.keys(row.doc).length ? row.doc : {});
+        cloudLoadedAt = row.updated_at; usingCloud = true;
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+        setSaveStatus('Loaded from cloud');
+        return;
+      }
+      setSaveStatus('Cloud row missing — run the setup SQL. Using local for now.');
+    }catch(e){ usingCloud = false; setSaveStatus('Cloud unavailable — using local copy'); }
+  }
   try{
     const value = await Store.get(STORAGE_KEY);
-    if(value){ state = mergeDefaults(JSON.parse(value)); setSaveStatus('Loaded your saved data'); return; }
+    if(value){ state = mergeDefaults(JSON.parse(value)); setSaveStatus('Loaded your saved data (local)'); return; }
   }catch(e){}
   state = defaultState();
   setSaveStatus('Starting from sample data');
 }
+
 let saveTimer = null;
 function saveState(){
   setSaveStatus('Saving…');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
-    const ok = await Store.set(STORAGE_KEY, JSON.stringify(state));
-    setSaveStatus(ok ? 'All changes saved' : 'Save failed — export a backup to be safe');
-  }, 400);
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}   // local backup always
+    if(usingCloud && cloud.enabled && cloud.key){
+      try{
+        const row = await sbGetRow();   // conflict guard — don't clobber a newer remote
+        if(row && cloudLoadedAt && row.updated_at && row.updated_at !== cloudLoadedAt && new Date(row.updated_at) > new Date(cloudLoadedAt)){
+          cloudConflict = true; renderCloudStatus();
+          setSaveStatus('⚠ Changed on another device — reload before saving');
+          return;
+        }
+        const saved = await sbSaveRow(state);
+        cloudLoadedAt = saved.updated_at; cloudConflict = false; renderCloudStatus();
+        setSaveStatus('Saved to cloud ✓');
+      }catch(e){ setSaveStatus('Cloud save failed (saved locally): ' + (e.message||'')); }
+    } else {
+      const ok = await Store.set(STORAGE_KEY, JSON.stringify(state));
+      setSaveStatus(ok ? 'All changes saved (local)' : 'Save failed — export a backup to be safe');
+    }
+  }, 500);
 }
 function setSaveStatus(msg){ const el = document.getElementById('saveStatus'); if(el) el.textContent = msg; }
+
+/* connect / disconnect / reload */
+async function connectCloud(){
+  const u = document.getElementById('cloudUrl').value.trim();
+  const k = document.getElementById('cloudKey').value.trim();
+  if(!u || !k){ setCloudMsg('Enter both the Project URL and the publishable key.', 'err'); return; }
+  cloud.url = u; cloud.key = k; cloud.enabled = true; saveCloudConfig();
+  setCloudMsg('Connecting…', '');
+  try{
+    await sbTest();
+    const row = await sbGetRow();
+    if(row && row.doc && Object.keys(row.doc).length){
+      state = mergeDefaults(row.doc); cloudLoadedAt = row.updated_at;
+      setCloudMsg('Connected — adopted the data already in the cloud ✓', 'ok');
+    } else {
+      const saved = await sbSaveRow(state); cloudLoadedAt = saved.updated_at;
+      setCloudMsg('Connected — pushed your current data up to the cloud ✓', 'ok');
+    }
+    usingCloud = true; cloudConflict = false;
+    ensurePipelineIds(); render(); renderCloudStatus();
+  }catch(e){
+    usingCloud = false; renderCloudStatus();
+    setCloudMsg('Could not connect: ' + (e.message || 'check the URL, key, and that you ran the setup SQL.'), 'err');
+  }
+}
+function disconnectCloud(){
+  cloud.enabled = false; usingCloud = false; saveCloudConfig();
+  renderCloudStatus(); setCloudMsg('Disconnected — now saving locally on this device only.', '');
+  setSaveStatus('Local mode');
+}
+async function testCloud(){
+  const u = document.getElementById('cloudUrl').value.trim();
+  const k = document.getElementById('cloudKey').value.trim();
+  if(!u || !k){ setCloudMsg('Enter both the Project URL and the publishable key first.', 'err'); return; }
+  const prevU = cloud.url, prevK = cloud.key; cloud.url = u; cloud.key = k;
+  setCloudMsg('Testing…', '');
+  try{ await sbTest(); setCloudMsg('Connection OK — the table is reachable ✓', 'ok'); }
+  catch(e){ setCloudMsg('Test failed: ' + (e.message||'') + '  (check URL, key, and that the setup SQL has been run)', 'err'); cloud.url = prevU; cloud.key = prevK; }
+}
+async function reloadFromCloud(){
+  if(!usingCloud){ setCloudMsg('Not connected to the cloud.', 'err'); return; }
+  try{
+    const row = await sbGetRow();
+    if(row){ state = mergeDefaults(row.doc && Object.keys(row.doc).length ? row.doc : {}); cloudLoadedAt = row.updated_at; cloudConflict = false; ensurePipelineIds(); render(); renderCloudStatus(); setSaveStatus('Reloaded from cloud'); setCloudMsg('Reloaded the latest from the cloud ✓', 'ok'); }
+  }catch(e){ setCloudMsg('Reload failed: ' + (e.message||''), 'err'); }
+}
+function setCloudMsg(msg, kind){ const el = document.getElementById('cloudMsg'); if(el){ el.textContent = msg; el.className = 'cloud-msg' + (kind==='ok'?' ok':kind==='err'?' err':''); } }
+function renderCloudStatus(){
+  const el = document.getElementById('cloudStatus'); if(!el) return;
+  if(usingCloud){
+    el.innerHTML = cloudConflict
+      ? `<span class="cloud-badge warn">● Cloud — needs reload</span>`
+      : `<span class="cloud-badge on">● Connected — syncing to cloud</span>`;
+  } else {
+    el.innerHTML = `<span class="cloud-badge off">● Local only (this device)</span>`;
+  }
+}
 
 /* ---------- backup: export / import / reset ---------- */
 function exportData(){
@@ -1320,41 +1503,70 @@ function leadStatusStyle(s){
   return '';
 }
 function leadQualified(l){ return !!(l.budget && l.decisionMaker && l.timeline && l.competition); }
+function leadLastContact(l){
+  const dates = (l.comms||[]).map(c=>c.date).filter(Boolean).sort();
+  return dates.length ? dates[dates.length-1] : '';
+}
+function leadPrimaryName(l){
+  return l.contact || l.company || '(no name yet)';
+}
 function renderLeads(){
-  let html = `<table style="min-width:960px"><thead><tr>
-    <th style="width:34px"></th><th style="width:60px">Code</th><th style="min-width:170px">Business</th>
-    <th style="width:150px">Contact</th><th style="width:130px">Source</th><th style="width:120px">Last Contacted</th>
-    <th style="width:200px">Lead Status</th><th style="width:34px"></th></tr></thead><tbody>`;
+  let html = `<table style="min-width:1000px"><thead><tr>
+    <th style="width:34px"></th><th style="width:58px">Code</th><th style="width:116px">Type</th>
+    <th style="min-width:150px">Name / Contact</th><th style="min-width:140px">Company</th><th style="width:120px">Source</th>
+    <th style="width:118px">Last contact</th><th style="width:196px">Lead Status</th><th style="width:34px"></th></tr></thead><tbody>`;
   state.leads.forEach((l,i) => {
     const isOpen = expandedLeads.has(l.id);
-    const qualified = leadQualified(l);
+    const isCommercial = l.leadType === 'Commercial';
+    const last = leadLastContact(l);
     html += `<tr>
-      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Qualification detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Detail & comms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
       <td class="code-cell">${recordCode(l.id,'lead')}</td>
-      <td><input data-tab="leads" data-idx="${i}" data-field="business" value="${escAttr(l.business)}"></td>
-      <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="—"></td>
+      <td><select data-tab="leads" data-idx="${i}" data-field="leadType">
+        <option${l.leadType==='Residential'?' selected':''}>Residential</option>
+        <option${l.leadType==='Commercial'?' selected':''}>Commercial</option></select></td>
+      <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="${isCommercial?'Contact person':'Homeowner name'}"></td>
+      <td>${isCommercial
+        ? `<input data-tab="leads" data-idx="${i}" data-field="company" value="${escAttr(l.company||'')}" placeholder="Company">`
+        : `<input class="computed" disabled value="—" title="Residential — no company">`}</td>
       <td><input data-tab="leads" data-idx="${i}" data-field="source" value="${escAttr(l.source||'')}"></td>
-      <td><input type="date" data-tab="leads" data-idx="${i}" data-field="lastContacted" value="${l.lastContacted||''}"></td>
+      <td class="computed" title="Pulled from the latest communication entry">${last?fmtDisplay(toDate(last)):'—'}</td>
       <td><select data-tab="leads" data-idx="${i}" data-field="status" style="${leadStatusStyle(l.status)}font-weight:600;border-radius:6px;">${LEAD_STATUSES.map(s=>`<option${l.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
       <td><button class="icon-btn" data-action="delete-lead" data-idx="${i}" title="Delete lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
     </tr>`;
     if(isOpen){
       const miss = f => l[f] ? '' : ' missing';
-      html += `<tr class="detail-row"><td colspan="8"><div class="detail-box">
-        <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(l.business)}</span></div>
-        <div class="stage-label-row">Qualification — all four needed before this lead can be promoted to quote</div>
-        <div class="qual-grid">
-          <div class="qual-field${miss('budget')}"><label>Budget indication</label><input data-tab="leads" data-idx="${i}" data-field="budget" value="${escAttr(l.budget||'')}" placeholder="e.g. £15–20k"></div>
-          <div class="qual-field${miss('decisionMaker')}"><label>Decision-maker</label><input data-tab="leads" data-idx="${i}" data-field="decisionMaker" value="${escAttr(l.decisionMaker||'')}" placeholder="Who signs off?"></div>
-          <div class="qual-field${miss('timeline')}"><label>Desired timeline</label><input data-tab="leads" data-idx="${i}" data-field="timeline" value="${escAttr(l.timeline||'')}" placeholder="When?"></div>
-          <div class="qual-field${miss('competition')}"><label>Competition</label><input data-tab="leads" data-idx="${i}" data-field="competition" value="${escAttr(l.competition||'')}" placeholder="Other quotes?"></div>
+      const qualified = leadQualified(l);
+      const comms = (l.comms||[]).map((c,ci)=>({c,ci})).sort((a,b)=>(b.c.date||'').localeCompare(a.c.date||''));
+      html += `<tr class="detail-row"><td colspan="9"><div class="detail-box lead-detail">
+        <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(leadPrimaryName(l))}</span><span class="detail-meta">${l.leadType}${isCommercial&&l.company?' · '+escAttr(l.company):''}</span></div>
+        <div class="lead-cols">
+          <div class="lead-col-left">
+            <div class="stage-label-row">Qualification — all four needed before promotion</div>
+            <div class="qual-stack">
+              <div class="qual-field${miss('budget')}"><label>Budget indication</label><input data-tab="leads" data-idx="${i}" data-field="budget" value="${escAttr(l.budget||'')}" placeholder="e.g. £15–20k"></div>
+              <div class="qual-field${miss('decisionMaker')}"><label>Decision-maker</label><input data-tab="leads" data-idx="${i}" data-field="decisionMaker" value="${escAttr(l.decisionMaker||'')}" placeholder="Who signs off?"></div>
+              <div class="qual-field${miss('timeline')}"><label>Desired timeline</label><input data-tab="leads" data-idx="${i}" data-field="timeline" value="${escAttr(l.timeline||'')}" placeholder="When?"></div>
+              <div class="qual-field${miss('competition')}"><label>Competition</label><input data-tab="leads" data-idx="${i}" data-field="competition" value="${escAttr(l.competition||'')}" placeholder="Other quotes?"></div>
+            </div>
+            <div class="detail-notes" style="margin-top:12px;"><label>Notes</label><input data-tab="leads" data-idx="${i}" data-field="notes" value="${escAttr(l.notes||'')}"></div>
+            ${qualified
+              ? `<div class="gate-msg ok">✓ Qualified — ready to promote.</div><button class="promote-btn" data-action="promote-lead" data-id="${l.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Sales Pipeline</button>`
+              : `<div class="gate-msg">Fill all four qualification fields to unlock promotion.</div><button class="promote-btn" disabled>Promote to Sales Pipeline</button>`}
+          </div>
+          <div class="lead-col-right">
+            <div class="stage-label-row" style="display:flex;justify-content:space-between;align-items:center;">Communication timeline <button class="btn secondary" style="padding:4px 10px;font-size:11px;" data-action="add-comm" data-id="${l.id}">+ Add touchpoint</button></div>
+            <div class="comms-scroll">
+              ${comms.length ? comms.map(({c,ci})=>`
+                <div class="comm-entry">
+                  <input type="date" class="comm-date" data-tab="comms" data-idx="${i}" data-cidx="${ci}" data-field="date" value="${c.date||''}">
+                  <input class="comm-note" data-tab="comms" data-idx="${i}" data-cidx="${ci}" data-field="note" value="${escAttr(c.note||'')}" placeholder="What happened?">
+                  <button class="icon-btn" data-action="del-comm" data-id="${l.id}" data-cidx="${ci}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+                </div>`).join('')
+              : `<div class="breakdown-hint">No touchpoints yet — add the first contact above.</div>`}
+            </div>
+          </div>
         </div>
-        <div class="detail-notes"><label>Contact details &amp; notes</label><input data-tab="leads" data-idx="${i}" data-field="notes" value="${escAttr(l.notes||'')}"></div>
-        ${qualified
-          ? `<div class="gate-msg ok">✓ Qualified — ready to promote into the Sales Pipeline.</div>
-             <button class="promote-btn" data-action="promote-lead" data-id="${l.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Sales Pipeline</button>`
-          : `<div class="gate-msg">Fill all four qualification fields to unlock promotion.</div>
-             <button class="promote-btn" disabled>Promote to Sales Pipeline</button>`}
       </div></td></tr>`;
     }
   });
@@ -1483,13 +1695,17 @@ function promoteLead(id){
   const idx = state.leads.findIndex(l => l.id === id);
   if(idx < 0) return;
   const l = state.leads[idx];
+  const primary = l.contact || l.company || 'New opportunity';
+  const name = (l.leadType === 'Commercial' && l.company)
+    ? l.company + (l.contact ? ' — ' + l.contact : '')
+    : primary;
   const rec = {
-    id: l.id, name: l.business + (l.contact ? ' — ' + l.contact : ''), type: 'real',
+    id: l.id, name, type: 'real',
     tier: 'Needs re-scoping', stage: 'Inquiry', probability: 0.3, quoteValue: 0,
     notes: (l.notes||'') + `  [From lead: budget ${l.budget||'?'}; decision-maker ${l.decisionMaker||'?'}; timeline ${l.timeline||'?'}; competition ${l.competition||'?'}]`,
-    contact: l.contact||'', phone: l.phone||'', email: l.email||'', source: l.source||'',
+    contact: l.contact||'', company: l.company||'', leadType: l.leadType||'Residential', phone: l.phone||'', email: l.email||'', source: l.source||'',
     budget: l.budget||'', decisionMaker: l.decisionMaker||'', timeline: l.timeline||'', competition: l.competition||'',
-    contractSigned: '',
+    comms: l.comms||[], contractSigned: '',
     stages: [ { label: 'Scope & cost', kind: 'scope', start: '', end: '', cost: 0 } ]
   };
   state.leads.splice(idx, 1);
@@ -1808,7 +2024,7 @@ function newRowFor(tab){
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
     case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'' };
-    case 'leads': return { id:0, business:'New lead', contact:'', phone:'', email:'', source:'', lastContacted:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'' };
+    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
   }
@@ -1825,6 +2041,7 @@ document.addEventListener('change', (e) => {
   else if(tab==='settings') state.settings[field] = value;
   else if(tab==='stageprob') state.settings.stageProbability[field] = (value===''?0:Number(value))/100;
   else if(tab==='payline'){ const p=Number(el.dataset.idx), pl=Number(el.dataset.pli); if(state.projects[p] && state.projects[p].paymentLines[pl]) state.projects[p].paymentLines[pl][field] = value; }
+  else if(tab==='comms'){ const li=Number(el.dataset.idx), ci=Number(el.dataset.cidx); if(state.leads[li] && state.leads[li].comms[ci]) state.leads[li].comms[ci][field] = value; }
   else if(tab==='root') state[field] = value;
   else if(tab==='stages'){ const p=Number(el.dataset.proj), s=Number(el.dataset.sidx); if(state.pipeline[p] && state.pipeline[p].stages[s]) state.pipeline[p].stages[s][field] = value; }
   else if(tab==='projmilestone'){ const p=Number(el.dataset.idx); if(state.projects[p]){ state.projects[p].milestones = state.projects[p].milestones||{}; state.projects[p].milestones[field] = value; } }
@@ -1878,6 +2095,14 @@ document.addEventListener('click', (e) => {
   else if(action === 'delete-lead'){ state.leads.splice(Number(btn.dataset.idx),1); render(); saveState(); }
   else if(action === 'toggle-lead'){ const id = Number(btn.dataset.id); if(expandedLeads.has(id)) expandedLeads.delete(id); else expandedLeads.add(id); renderLeads(); }
   else if(action === 'promote-lead'){ promoteLead(Number(btn.dataset.id)); }
+  else if(action === 'add-comm'){
+    const l = state.leads.find(x => x.id === Number(btn.dataset.id));
+    if(l){ l.comms = l.comms || []; l.comms.push({ date: fmt(new Date()), note: '' }); render(); saveState(); }
+  }
+  else if(action === 'del-comm'){
+    const l = state.leads.find(x => x.id === Number(btn.dataset.id));
+    if(l){ l.comms.splice(Number(btn.dataset.cidx), 1); render(); saveState(); }
+  }
   else if(action === 'promote-project'){ promoteToProject(Number(btn.dataset.id)); }
   else if(action === 'toggle-projrec'){ const id = Number(btn.dataset.id); if(expandedProjectsP.has(id)) expandedProjectsP.delete(id); else expandedProjectsP.add(id); renderProjects(); }
   else if(action === 'delete-projrec'){ state.projects.splice(Number(btn.dataset.idx),1); render(); saveState(); }
@@ -1910,6 +2135,15 @@ document.addEventListener('click', (e) => {
   }
   else if(action === 'export-data'){ exportData(); }
   else if(action === 'import-data'){ document.getElementById('importFile').click(); }
+  else if(action === 'cloud-connect'){ connectCloud(); }
+  else if(action === 'cloud-test'){ testCloud(); }
+  else if(action === 'cloud-reload'){ reloadFromCloud(); }
+  else if(action === 'cloud-disconnect'){ disconnectCloud(); }
+  else if(action === 'copy-sql'){
+    const sql = document.getElementById('setupSql').textContent;
+    if(navigator.clipboard){ navigator.clipboard.writeText(sql).then(()=>setCloudMsg('SQL copied to clipboard ✓','ok'), ()=>setCloudMsg('Copy failed — select the text manually','err')); }
+    else setCloudMsg('Select the text manually to copy','');
+  }
   else if(action === 'reset-data'){
     showConfirm('Reset everything to sample data?', 'This clears all your current entries. Export a backup first if you want to keep them.').then(ok => { if(ok) resetData(); });
   }
@@ -1940,6 +2174,16 @@ function ensurePipelineIds(){
   state.pipeline.forEach(p => { if(!p.id) p.id = ++maxId; });
   state.leads.forEach(p => { if(!p.id) p.id = ++maxId; });
   state.projects.forEach(p => { if(!p.id) p.id = ++maxId; });
+  // normalize leads to the current schema
+  state.leads.forEach(l => {
+    if(!l.leadType) l.leadType = l.company ? 'Commercial' : 'Residential';
+    if(l.company === undefined) l.company = l.business || '';
+    if(!Array.isArray(l.comms)){
+      l.comms = [];
+      if(l.lastContacted) l.comms.push({ date: l.lastContacted, note: (l.notes ? l.notes : 'Contacted') });
+    }
+    delete l.business;
+  });
   if(!state.nextPipelineId || state.nextPipelineId <= maxId) state.nextPipelineId = maxId + 1;
   if(!state.nextRecordId || state.nextRecordId <= maxId) state.nextRecordId = maxId + 1;
 }
@@ -1961,7 +2205,17 @@ function initTableControls(){
 }
 
 /* ---------- init ---------- */
-(async () => { await loadState(); ensurePipelineIds(); render(); initTableControls(); })();
+(async () => {
+  await loadState();
+  ensurePipelineIds();
+  render();
+  initTableControls();
+  // populate cloud config UI (once, after fields exist)
+  const cu = document.getElementById('cloudUrl'), ck = document.getElementById('cloudKey');
+  if(cu) cu.value = cloud.url || '';
+  if(ck) ck.value = cloud.key || '';
+  renderCloudStatus();
+})();
 </script>
 </body>
 </html>
