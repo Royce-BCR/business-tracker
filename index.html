@@ -403,6 +403,27 @@
   .cloud-msg.err { color: #b3453f; }
   .sql-block { background: #1c1f22; color: #e8e5df; border-radius: 9px; padding: 14px 16px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11.5px; line-height: 1.5; overflow-x: auto; white-space: pre; margin: 4px 0; }
 
+  /* auth */
+  body.logged-out .sidebar, body.logged-out .main, body.logged-out .save-status { display: none !important; }
+  .login-overlay { position: fixed; inset: 0; background: var(--ink); display: grid; place-items: center; z-index: 200; }
+  .login-overlay.hidden { display: none; }
+  .login-box { background: #fff; border-radius: 16px; padding: 32px 34px; width: 340px; max-width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .login-box h1 { font-family: var(--serif); font-weight: 600; font-size: 26px; margin: 0 0 2px; letter-spacing: -0.3px; }
+  .login-box .sub { font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--oak); margin-bottom: 22px; }
+  .login-field { margin-bottom: 14px; }
+  .login-field label { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
+  .login-field input { width: 100%; border: 1px solid var(--stone-deep); border-radius: 8px; padding: 9px 11px; font-size: 13.5px; font-family: inherit; }
+  .login-field input:focus { outline: none; border-color: var(--oak); box-shadow: 0 0 0 3px rgba(168,118,62,0.12); }
+  .login-btn { width: 100%; background: var(--ink); color: #fff; border: none; border-radius: 9px; padding: 11px; font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 6px; }
+  .login-btn:hover { background: #33383d; }
+  .login-err { color: #b3453f; font-size: 12px; min-height: 16px; margin-top: 10px; text-align: center; }
+  .logout-bar { margin-top: auto; padding: 14px 12px 2px; border-top: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .logout-bar:empty { display: none; }
+  .logout-bar .who { font-size: 12px; color: #cfcabf; }
+  .logout-bar .role { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: #9a958b; border: 1px solid #3a3d41; padding: 1px 6px; border-radius: 20px; margin-left: 6px; }
+  .logout-bar .logout-link { background: none; border: none; color: #9a958b; font-size: 11.5px; cursor: pointer; text-decoration: underline; font-family: inherit; padding: 0; }
+  .logout-bar .logout-link:hover { color: #fff; }
+
   /* view toggle */
   .view-toggle { display: inline-flex; background: #efece6; border-radius: 9px; padding: 3px; margin-bottom: 14px; gap: 2px; }
   .view-toggle button {
@@ -532,9 +553,22 @@
     <div class="tab g-system" data-tab="settings">Settings</div>
   </div>
 
+  <div class="logout-bar" id="logoutBar"></div>
+
 </div>
 
 <div class="save-status" id="saveStatus"></div>
+
+<div class="login-overlay hidden" id="loginOverlay">
+  <div class="login-box">
+    <h1>Business Tracker</h1>
+    <div class="sub">Sign in</div>
+    <div class="login-field"><label>Username</label><input id="loginUser" autocomplete="username"></div>
+    <div class="login-field"><label>Password</label><input id="loginPass" type="password" autocomplete="current-password"></div>
+    <button class="login-btn" data-action="do-login">Log in</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
 
 <div class="main">
 
@@ -699,6 +733,7 @@
       <div class="assumptions-grid" id="financeSettingsGrid"></div>
     </div>
 
+    <div data-admin-only>
     <div class="section-label">Cloud database — multi-device sync</div>
     <div class="card">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
@@ -734,6 +769,13 @@ create policy "app update" on tracker_data for update using (true) with check (t
         <button class="btn secondary" data-action="copy-sql" style="margin-top:8px;">Copy SQL</button>
       </details>
     </div>
+
+    <div class="section-label">User accounts</div>
+    <div class="card">
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;">Add team members, reset passwords, or remove access. Each person logs in with their own username and password. (Only admins see this panel.)</p>
+      <div id="usersWrap"></div>
+    </div>
+    </div><!-- /admin-only -->
 
     <div class="section-label">Data &amp; backup</div>
     <div class="card">
@@ -986,6 +1028,9 @@ const Store = {
 /* cloud config lives per-device in localStorage (not in the shared doc) */
 const CLOUD_CONFIG_KEY = 'business-tracker-cloud-config';
 const DEFAULT_PROJECT_URL = 'https://dunbyxxpgpfewvelwtpv.supabase.co';
+// ▼▼▼ To auto-connect EVERY device with no key entry, paste your sb_publishable_… key between the quotes below ▼▼▼
+const BAKED_SUPABASE_KEY = '';
+// ▲▲▲ (leave blank to use the key saved on this device) ▲▲▲
 let cloud = { url: '', key: '', enabled: false };
 let usingCloud = false;
 let cloudLoadedAt = null;
@@ -994,6 +1039,8 @@ let cloudConflict = false;
 function loadCloudConfig(){
   try{ const c = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || 'null'); if(c) cloud = Object.assign(cloud, c); }catch(e){}
   if(!cloud.url) cloud.url = DEFAULT_PROJECT_URL;
+  if(!cloud.key && BAKED_SUPABASE_KEY) cloud.key = BAKED_SUPABASE_KEY;
+  if(cloud.url && cloud.key) cloud.enabled = true;
 }
 function saveCloudConfig(){ try{ localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cloud)); }catch(e){} }
 function cloudBase(){ return (cloud.url || '').replace(/\/+$/, ''); }
@@ -1121,6 +1168,91 @@ function renderCloudStatus(){
   } else {
     el.innerHTML = `<span class="cloud-badge off">● Local only (this device)</span>`;
   }
+}
+
+/* ---------- auth: Option A client-side gate ---------- */
+let session = null;
+const SESSION_KEY = 'business-tracker-session';
+function loadSession(){ try{ session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ session = null; } }
+function saveSession(){ try{ localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }catch(e){} }
+function clearSession(){ session = null; try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
+function isAdmin(){ return !!(session && session.role === 'admin'); }
+async function sbRpc(fn, args){
+  const r = await fetch(`${cloudBase()}/rest/v1/rpc/${fn}`, { method: 'POST', headers: sbHeaders(), body: JSON.stringify(args || {}) });
+  if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
+  return await r.json();
+}
+async function attemptLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  if(!u || !p){ err.textContent = 'Enter your username and password.'; return; }
+  if(!cloud.key || !cloudBase()){ err.textContent = 'This device isn\'t connected to the database yet.'; return; }
+  err.textContent = 'Checking…';
+  try{
+    const rows = await sbRpc('app_login', { p_username: u, p_password: p });
+    if(Array.isArray(rows) && rows.length){
+      session = { username: rows[0].username, role: rows[0].role };
+      saveSession();
+      err.textContent = '';
+      document.getElementById('loginPass').value = '';
+      await startApp();
+    } else {
+      err.textContent = 'Incorrect username or password.';
+    }
+  }catch(e){
+    const m = (e.message || '');
+    err.textContent = (m.includes('app_login') || m.includes('404') || m.includes('PGRST202'))
+      ? 'Login system not set up yet — run the Users setup SQL in Supabase.'
+      : 'Could not reach the login service. ' + m;
+  }
+}
+function logout(){ clearSession(); showLogin(); }
+function showLogin(){ const o = document.getElementById('loginOverlay'); if(o) o.classList.remove('hidden'); document.body.classList.add('logged-out'); const lu = document.getElementById('loginUser'); if(lu) setTimeout(()=>lu.focus(), 50); }
+function hideLoginShowApp(){ const o = document.getElementById('loginOverlay'); if(o) o.classList.add('hidden'); document.body.classList.remove('logged-out'); }
+function renderAuthUI(){
+  const lb = document.getElementById('logoutBar');
+  if(lb) lb.innerHTML = session
+    ? `<div class="who">${escAttr(session.username)}<span class="role">${session.role==='admin'?'admin':'user'}</span></div><button class="logout-link" data-action="logout">Log out</button>`
+    : '';
+  const admin = isAdmin();
+  document.querySelectorAll('[data-admin-only]').forEach(el => { el.style.display = admin ? '' : 'none'; });
+  if(admin) renderUsers();
+}
+async function renderUsers(){
+  const wrap = document.getElementById('usersWrap'); if(!wrap || !isAdmin()) return;
+  wrap.innerHTML = '<div class="breakdown-hint">Loading users…</div>';
+  try{
+    const users = await sbRpc('app_list_users', {});
+    const rows = (users || []).map(u => `<tr>
+      <td>${escAttr(u.username)}</td>
+      <td style="width:90px">${u.role==='admin'?'<span class="lyr committed">admin</span>':'<span class="lyr weighted">user</span>'}</td>
+      <td style="width:210px;text-align:right;">
+        <button class="btn secondary" style="padding:4px 10px;font-size:11px;" data-action="reset-user" data-user="${escAttr(u.username)}">Reset password</button>
+        <button class="icon-btn" data-action="delete-user" data-user="${escAttr(u.username)}" title="Delete user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </td></tr>`).join('');
+    wrap.innerHTML = `<div class="table-scroll fitmode" style="margin-bottom:14px;"><table><thead><tr><th>Username</th><th>Role</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="stage-label-row">Add a new user</div>
+      <div class="assumptions-grid" style="grid-template-columns:1fr 1fr 110px auto;align-items:end;gap:10px;max-width:640px;">
+        <div><label>Username</label><input id="newUser" placeholder="username"></div>
+        <div><label>Password</label><input id="newPass" type="text" placeholder="set a password"></div>
+        <div><label>Role</label><select id="newRole"><option value="user">user</option><option value="admin">admin</option></select></div>
+        <div><button class="btn" data-action="add-user">+ Add</button></div>
+      </div>
+      <div id="usersMsg" class="cloud-msg" style="margin-top:8px;"></div>`;
+  }catch(e){ wrap.innerHTML = `<div class="cloud-msg err">Couldn't load users: ${escAttr(e.message||'')} — has the Users setup SQL been run?</div>`; }
+}
+async function startApp(){
+  hideLoginShowApp();
+  await loadState();
+  ensurePipelineIds();
+  render();
+  const cu = document.getElementById('cloudUrl'), ck = document.getElementById('cloudKey');
+  if(cu) cu.value = cloud.url || '';
+  if(ck) ck.value = cloud.key || '';
+  renderCloudStatus();
+  if(!window._tablesInit){ initTableControls(); window._tablesInit = true; }
+  renderAuthUI();
 }
 
 /* ---------- backup: export / import / reset ---------- */
@@ -2144,6 +2276,35 @@ document.addEventListener('click', (e) => {
     if(navigator.clipboard){ navigator.clipboard.writeText(sql).then(()=>setCloudMsg('SQL copied to clipboard ✓','ok'), ()=>setCloudMsg('Copy failed — select the text manually','err')); }
     else setCloudMsg('Select the text manually to copy','');
   }
+  else if(action === 'do-login'){ attemptLogin(); }
+  else if(action === 'logout'){ logout(); }
+  else if(action === 'add-user'){
+    const u = document.getElementById('newUser').value.trim();
+    const p = document.getElementById('newPass').value;
+    const role = document.getElementById('newRole').value;
+    const msg = document.getElementById('usersMsg');
+    if(!u || !p){ msg.textContent = 'Enter a username and password.'; msg.className = 'cloud-msg err'; return; }
+    msg.textContent = 'Adding…'; msg.className = 'cloud-msg';
+    (async () => {
+      try{
+        const res = await sbRpc('app_create_user', { p_username: u, p_password: p, p_role: role });
+        if(res === 'exists'){ msg.textContent = 'That username already exists.'; msg.className = 'cloud-msg err'; }
+        else { msg.textContent = 'User added ✓'; msg.className = 'cloud-msg ok'; renderUsers(); }
+      }catch(e){ msg.textContent = 'Failed: ' + (e.message||''); msg.className = 'cloud-msg err'; }
+    })();
+  }
+  else if(action === 'reset-user'){
+    const u = btn.dataset.user;
+    const np = prompt('Enter a new password for "' + u + '":');
+    if(np){ (async () => { try{ await sbRpc('app_reset_password', { p_username: u, p_password: np }); alert('Password reset for ' + u + '.'); }catch(e){ alert('Reset failed: ' + (e.message||'')); } })(); }
+  }
+  else if(action === 'delete-user'){
+    const u = btn.dataset.user;
+    if(session && u === session.username){ alert("You can't delete the account you're logged in as."); return; }
+    showConfirm('Remove user "' + u + '"?', 'This deletes their login. It cannot be undone.').then(async ok => {
+      if(ok){ try{ await sbRpc('app_delete_user', { p_username: u }); renderUsers(); }catch(e){ alert('Delete failed: ' + (e.message||'')); } }
+    });
+  }
   else if(action === 'reset-data'){
     showConfirm('Reset everything to sample data?', 'This clears all your current entries. Export a backup first if you want to keep them.').then(ok => { if(ok) resetData(); });
   }
@@ -2206,15 +2367,12 @@ function initTableControls(){
 
 /* ---------- init ---------- */
 (async () => {
-  await loadState();
-  ensurePipelineIds();
-  render();
-  initTableControls();
-  // populate cloud config UI (once, after fields exist)
-  const cu = document.getElementById('cloudUrl'), ck = document.getElementById('cloudKey');
-  if(cu) cu.value = cloud.url || '';
-  if(ck) ck.value = cloud.key || '';
-  renderCloudStatus();
+  loadCloudConfig();
+  loadSession();
+  const lp = document.getElementById('loginPass');
+  if(lp) lp.addEventListener('keydown', e => { if(e.key === 'Enter') attemptLogin(); });
+  if(session){ await startApp(); }
+  else { showLogin(); }
 })();
 </script>
 </body>
