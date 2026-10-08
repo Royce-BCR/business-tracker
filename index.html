@@ -797,6 +797,37 @@
   .tk-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
   .tk-actions .btn.del { background: transparent; color: #b3453f; border: 1px solid #e3c4c1; }
   .tk-actions .btn.del:hover { background: #fbeeed; }
+
+  /* Today tab */
+  .tab-count { font-size: 10.5px; font-weight: 700; line-height: 1; padding: 3px 7px; border-radius: 999px; background: rgba(255,255,255,0.14); color: #fff; }
+  .tab-count.over { background: #b3453f; }
+  .tab-count[hidden] { display: none; }
+  .today-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+  @media (max-width: 900px){ .today-grid { grid-template-columns: 1fr; } }
+  .td-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px 8px; box-shadow: var(--shadow); min-width: 0; }
+  .td-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .td-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
+  .td-head .n { font-size: 10.5px; font-weight: 700; background: #efece6; color: var(--slate); border-radius: 999px; padding: 1px 8px; }
+  .td-head .btn { margin-left: auto; padding: 5px 12px; font-size: 12px; }
+  .td-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 9px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .td-row:last-child { border-bottom: none; }
+  .td-row:hover .td-title { text-decoration: underline; }
+  .td-row .cbx { margin: 0; flex-shrink: 0; }
+  .td-title { flex: 1 1 160px; min-width: 0; font-weight: 500; font-size: 13px; overflow-wrap: anywhere; }
+  .td-meta { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 11.5px; color: var(--slate); }
+  .td-meta .link-btn { font-size: 11.5px; text-decoration: none; color: var(--slate); max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-meta .link-btn:hover { text-decoration: underline; color: var(--ink); }
+  .td-meta .link-btn.dim { color: var(--muted); }
+  .td-due { color: #b3453f; font-weight: 600; }
+  .td-row.archiving { opacity: 0.38; transition: opacity 1.8s ease; pointer-events: none; }
+  .td-empty { padding: 18px 4px 14px; color: var(--muted); text-align: center; font-size: 12.5px; }
+  .td-empty .link-btn { display: block; margin: 6px auto 0; font-size: 12px; }
+  .td-od { width: 100%; display: flex; align-items: center; gap: 8px; background: #fdf3ee; color: #b3453f; border: none; border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; margin: 2px 0 6px; text-align: left; }
+  .td-od:hover { background: #fbeae1; }
+  .td-od .chev { width: 14px; height: 14px; margin-left: auto; transition: transform 0.15s; }
+  .td-od.open .chev { transform: rotate(90deg); }
+  .td-od-list { background: #fffaf7; border-radius: 8px; padding: 0 12px; margin-bottom: 6px; }
+  .td-od-list[hidden] { display: none; }
   .stage-row input[type=checkbox], .stage-row .pct-wrap input { width: auto; }
   .modal-extra input { border: 1px solid var(--line); background: #fff; padding: 8px; }
   @media (max-width: 860px) { .tk-grid { grid-template-columns: 1fr; } }
@@ -820,7 +851,8 @@
 
   <div class="nav-group g-command">
     <div class="nav-label">Command</div>
-    <div class="tab g-command active" data-tab="dashboard">Dashboard</div>
+    <div class="tab g-command active" data-tab="today">Today <span class="tab-count" id="todayBadge" hidden></span></div>
+    <div class="tab g-command" data-tab="dashboard">Dashboard</div>
     <div class="tab g-command" data-tab="businessplan">Business Plan</div>
   </div>
 
@@ -871,8 +903,23 @@
 
 <div class="main">
 
+  <!-- TODAY -->
+  <div class="panel active" id="panel-today">
+    <div class="page-head crm-head">
+      <div>
+        <h2 id="todayDate"></h2>
+        <div class="desc" id="todaySummary"></div>
+      </div>
+      <div class="view-toggle" id="todayScope" title="Whose items"></div>
+    </div>
+    <div class="today-grid">
+      <section class="td-card" id="todayCrm"></section>
+      <section class="td-card" id="todayActions"></section>
+    </div>
+  </div>
+
   <!-- DASHBOARD -->
-  <div class="panel active" id="panel-dashboard">
+  <div class="panel" id="panel-dashboard">
     <div class="page-head">
       <h2>Dashboard</h2>
       <div class="desc">The board view — everything in one screen. Weighted pipeline, work in progress, bank balance and open actions up top; the projected cash-flow curve, the pipeline by stage, and the forecast-vs-actuals summary below.</div>
@@ -1148,7 +1195,7 @@ create policy "app update" on tracker_data for update using (true) with check (t
       <h2>Actions</h2>
       <div class="desc">The action log from the weekly catch-up. Click any cell to edit. Drag the edge of a column header to resize it. Owner fields suggest from the team but accept anyone. Overdue items (deadline passed, not Done) highlight automatically.</div>
     </div>
-    <div class="btn-row"><button class="btn" data-action="add-row" data-tab="actions">+ Add action</button></div>
+    <div class="btn-row"><button class="btn" data-action="add-row" data-tab="actions">+ Add action</button><div class="crm-colwrap" id="actColsWrap"></div></div>
     <datalist id="ownersList">
       <option value="Royce"><option value="Lynton"><option value="Gerry"><option value="Peter"><option value="Mike"><option value="TBC">
     </datalist>
@@ -1690,7 +1737,9 @@ async function startApp(){
   hideLoginShowApp();
   await loadState();
   ensurePipelineIds();
+  loadTodayScope();
   render();
+  activateTab('today');   // Today is the landing page after every login
   const cu = document.getElementById('cloudUrl'), ck = document.getElementById('cloudKey');
   if(cu) cu.value = cloud.url || '';
   if(ck) ck.value = cloud.key || '';
@@ -3189,7 +3238,7 @@ const archiving = new Set();
 function beginArchive(actionObj){
   if(archiving.has(actionObj)) return;
   archiving.add(actionObj);
-  renderActions();
+  renderActions(); renderToday();
   setTimeout(() => {
     const idx = state.actions.indexOf(actionObj);
     if(idx > -1) state.archivedActions.unshift(state.actions.splice(idx,1)[0]);
@@ -3228,10 +3277,13 @@ function statusStyle(s){
 function renderActions(){
   const today = new Date(); today.setHours(0,0,0,0);
   const statuses = ['Not Started','In Progress','Waiting','Done'];
-  let html = `<table style="min-width:1210px"><thead><tr>
+  const showLinked = state.actionPrefs.shownCols.includes('linked');
+  const cw = document.getElementById('actColsWrap');
+  if(cw) cw.innerHTML = `<button class="btn secondary" data-today="act-cols">Columns ▾</button>${actUi.colsOpen ? `<div class="crm-colmenu"><label><input type="checkbox" data-acol="linked"${showLinked ? ' checked' : ''}> Linked record</label></div>` : ''}`;
+  let html = `<table style="min-width:${showLinked ? 1390 : 1210}px"><thead><tr>
     <th style="width:44px"></th><th style="width:118px">Date Raised</th><th style="min-width:260px">Action</th><th style="width:104px">Owner</th>
     <th style="width:104px">+ Owner</th><th style="width:132px">Deadline</th><th style="width:74px">Priority</th>
-    <th style="width:128px">Status</th><th style="min-width:180px">Notes</th><th style="width:34px"></th></tr></thead><tbody>`;
+    <th style="width:128px">Status</th>${showLinked ? '<th style="width:170px">Linked record</th>' : ''}<th style="min-width:180px">Notes</th><th style="width:34px"></th></tr></thead><tbody>`;
   state.actions.forEach((r,i) => {
     const done = r.status === 'Done';
     const isArchiving = archiving.has(r);
@@ -3249,6 +3301,7 @@ function renderActions(){
       <td><select data-tab="actions" data-idx="${i}" data-field="priority" style="background:${pBg};color:${pFg};font-weight:700;text-align:center;border-radius:6px;">
         ${[0,1,2,3].map(p=>`<option value="${p}"${Number(r.priority)===p?' selected':''}>${p}</option>`).join('')}</select></td>
       <td><select data-tab="actions" data-idx="${i}" data-field="status" style="${statusStyle(r.status)}font-weight:600;border-radius:6px;">${statuses.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      ${showLinked ? `<td><input list="crmRecList" data-alink="${i}" value="${escAttr(actLinked(r))}" placeholder="optional" autocomplete="off" title="${escAttr(actLinked(r) ? linkedText({ linkedId: actLinked(r) }) : '')}"></td>` : ''}
       <td><input data-tab="actions" data-idx="${i}" data-field="notes" value="${escAttr(r.notes||'')}"></td>
       <td><button class="icon-btn" data-action="archive-action" data-idx="${i}" title="Archive without completing">${TRAY_SVG}</button></td>
     </tr>`;
@@ -3364,6 +3417,8 @@ function ensureTaskModel(o){
   o.nextTaskNo = Math.max(Number(o.nextTaskNo) || 0, maxNo + 1);
   const pr = (o.crmPrefs && typeof o.crmPrefs === 'object') ? o.crmPrefs : {};
   o.crmPrefs = { hiddenCols: (Array.isArray(pr.hiddenCols) ? pr.hiddenCols : []).filter(x => typeof x === 'string') };
+  const ap = (o.actionPrefs && typeof o.actionPrefs === 'object') ? o.actionPrefs : {};   // optional Actions columns that are switched on (none by default)
+  o.actionPrefs = { shownCols: (Array.isArray(ap.shownCols) ? ap.shownCols : []).filter(x => typeof x === 'string') };
   // Sales and Project records get the same newest-first communication timeline a Lead has
   (o.pipeline || []).concat(o.projects || []).forEach(r => { if(!Array.isArray(r.comms)) r.comms = []; });
   return o;
@@ -3699,15 +3754,17 @@ function renderCrm(){
 document.getElementById('crmSearch').addEventListener('input', (e) => { crmUi.q = e.target.value; renderCrmList(); });
 
 /* ---- task side panel ---- */
+let actionPanel = null; // { ref: the action object, isNew } — shares the task side panel (see Today tab)
 let taskPanel = null;   // { mode:'edit', id } | { mode:'new', draft }
-function openTaskPanel(id){ if(!findTask(id)) return; taskPanel = { mode: 'edit', id }; renderTaskPanel(); }
+function openTaskPanel(id){ if(!findTask(id)) return; actionPanel = null; taskPanel = { mode: 'edit', id }; renderTaskPanel(); }
 function openNewTask(linked){
+  actionPanel = null;
   taskPanel = { mode: 'new', draft: { title: '', dueDate: fmt(new Date()), priorityId: defaultPrioId(), typeId: defaultTypeId(), owner: meName(), linkedId: linked || '' } };
   renderTaskPanel(); setTimeout(() => { const el = document.querySelector('#tkBody [data-tf="title"]'); if(el) el.focus(); }, 30);
 }
-function closeTaskPanel(){ taskPanel = null; document.getElementById('tkPanel').hidden = true; document.getElementById('tkBackdrop').hidden = true; }
+function closeTaskPanel(){ taskPanel = null; actionPanel = null; document.getElementById('tkPanel').hidden = true; document.getElementById('tkBackdrop').hidden = true; }
 document.addEventListener('keydown', (e) => {   // Esc closes the task panel first (capture: before the record drawer's own Esc handling)
-  if(e.key === 'Escape' && taskPanel && document.getElementById('modalOverlay').hidden){ closeTaskPanel(); e.stopImmediatePropagation(); }
+  if(e.key === 'Escape' && (taskPanel || actionPanel) && document.getElementById('modalOverlay').hidden){ closeTaskPanel(); e.stopImmediatePropagation(); }
 }, true);
 function panelTask(){ return taskPanel ? (taskPanel.mode === 'new' ? taskPanel.draft : findTask(taskPanel.id)) : null; }
 function renderTaskPanel(){
@@ -3757,7 +3814,7 @@ function refreshTaskPanel(){
         <div style="margin-top:8px;"><button class="btn" data-crm="panel-note">Add note</button></div></div>
       <div class="tk-actions"><button class="btn del" data-crm="panel-delete">Delete task</button><span class="sub" style="font-size:11px;color:var(--muted);">Notes never change a task's due date or status.</span></div>`;
   }
-  dyn.innerHTML = html;
+  if(dyn.dataset.sig !== html){ dyn.innerHTML = html; dyn.dataset.sig = html; }   // an unchanged block is left alone, so a click on its button is not lost to the blur re-render
   const nt = document.getElementById('tkNoteTxt'); if(nt && kv){ nt.value = kv; if(kf) nt.focus(); }
 }
 function panelFieldChange(el){
@@ -3888,6 +3945,237 @@ document.addEventListener('keydown', (e) => {   // Ctrl/Cmd+Enter in the note bo
   if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'tkNoteTxt'){ const b = document.querySelector('#tkDyn [data-crm="panel-note"]'); if(b) b.click(); }
 });
 
+/* ---------- Today tab ----------
+   Two separate lists of what is due today: CRM tasks (state.crmTasks) and Actions (state.actions). The stores are never merged and
+   every behaviour is the existing one: ticking calls completeTask() / the Actions "toggle-done" handler, a CRM row opens the task
+   side panel, an Action row opens the same panel in action mode.
+   Actions have no id, so the panel holds the action object itself. They also already have a free-text `notes` column, so the new
+   note thread is stored in `noteLog` (same shape as a task's notes) and the new link in `linkedId`. Neither is added to existing
+   actions: both are read defensively and only written when used. */
+const todayUi = { scope: 'mine', od: { crm: false, act: false }, key: '' };
+const actUi = { colsOpen: false };
+function todayScopeKey(){ return 'business-tracker-today-scope:' + meName(); }
+function loadTodayScope(){ try{ todayUi.scope = localStorage.getItem(todayScopeKey()) === 'all' ? 'all' : 'mine'; }catch(e){ todayUi.scope = 'mine'; } }
+function setTodayScope(v){ todayUi.scope = v === 'all' ? 'all' : 'mine'; try{ localStorage.setItem(todayScopeKey(), todayUi.scope); }catch(e){} renderToday(); }
+function sameUser(a, b){ return String(a == null ? '' : a).trim().toLowerCase() === String(b == null ? '' : b).trim().toLowerCase(); }
+function actLinked(r){ return normLinked(r && r.linkedId); }
+function actNotes(r){ return Array.isArray(r.noteLog) ? r.noteLog : []; }
+function dateLabel(d){ return d.toLocaleDateString('en-GB', { weekday: 'long' }) + ' ' + d.getDate() + ' ' + d.toLocaleDateString('en-GB', { month: 'long' }) + ' ' + d.getFullYear(); }
+const cmpText = (a, b) => String(a).localeCompare(String(b), undefined, { sensitivity: 'base' });
+
+/* an action note is kept on the action and, when it is linked, also written to that record's timeline (never counts as a contact) */
+function addActionNote(r, text){
+  text = String(text || '').trim(); if(!text) return false;
+  const now = Date.now();
+  if(!Array.isArray(r.noteLog)) r.noteLog = [];
+  r.noteLog.push({ id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 5), text, created: now, author: meName() });
+  const d = dealRecord(linkedRoot(actLinked(r)));
+  if(d){
+    d.rec.comms = Array.isArray(d.rec.comms) ? d.rec.comms : [];
+    d.rec.comms.push({ date: fmt(new Date()), note: 'Action note: ' + r.action + ' — ' + text, created: now, src: 'action', noContact: true });
+  }
+  return true;
+}
+
+function todayData(today){
+  const me = meName(), mine = todayUi.scope === 'mine' && !!me;
+  const tasks = state.crmTasks.filter(t => {
+    const open = t.status === 'open';
+    if(!open && !fadingTasks.has(t.id)) return false;      // a just-ticked row stays for its short fade
+    if(open && taskOnLostLead(t)) return false;             // same rule as the CRM tab's default view
+    if(mine && t.owner !== me) return false;
+    return !!t.dueDate && t.dueDate <= today;
+  });
+  const prioRank = t => { const i = prioIdx(t.priorityId); return i < 0 ? 99 : i; };
+  const taskSort = (a, b) => prioRank(a) - prioRank(b) || cmpText(a.title, b.title);
+  const acts = state.actions.map((r, i) => ({ r, i })).filter(({ r }) => {
+    if(r.status === 'Done' && !archiving.has(r)) return false;   // archiving rows stay for their grey fade
+    if(mine && !sameUser(r.owner, me)) return false;
+    return !!r.deadline && r.deadline <= today;
+  });
+  const actSort = (a, b) => (a.r.owner ? (b.r.owner ? 0 : -1) : (b.r.owner ? 1 : 0)) || cmpText(a.r.owner || '', b.r.owner || '') || cmpText(a.r.action || '', b.r.action || '');
+  return {
+    crmToday: tasks.filter(t => t.dueDate === today).sort(taskSort),
+    crmOver: tasks.filter(t => t.dueDate < today).sort((a, b) => cmpText(a.dueDate, b.dueDate) || taskSort(a, b)),
+    actToday: acts.filter(x => x.r.deadline === today).sort(actSort),
+    actOver: acts.filter(x => x.r.deadline < today).sort((a, b) => cmpText(a.r.deadline, b.r.deadline) || actSort(a, b))
+  };
+}
+
+function todayTaskRow(t, over){
+  const li = linkedInfo(t), done = t.status === 'done';
+  return `<div class="td-row${fadingTasks.has(t.id) ? ' fade-row' : ''}" data-crm="open" data-id="${t.id}">
+      <div class="cbx${done ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="${done ? 'Completed' : 'Mark done'}">${CHECK_SVG}</div>
+      <span class="td-title" title="${escAttr(t.id + ' · ' + t.title)}">${escHtml(t.title)}</span>
+      <span class="td-meta">${typeIcon(t.typeId)}${prioPill(t.priorityId)}
+        ${li ? `<button class="link-btn${li.missing || li.lost ? ' dim' : ''}" data-crm="rec" data-id="${t.id}" title="${escAttr(linkedText(t))}">${escHtml(linkedText(t))}</button>` : ''}
+        ${todayUi.scope === 'all' ? `<span>${escHtml(t.owner || 'Unassigned')}</span>` : ''}
+        ${over ? `<span class="td-due">Due ${escHtml(fmtDisplay(toDate(t.dueDate)))}</span>` : ''}</span></div>`;
+}
+function todayActionRow(x, over){
+  const r = x.r, arch = archiving.has(r), code = actLinked(r), li = code ? linkedInfo({ linkedId: code }) : null;
+  return `<div class="td-row${arch ? ' archiving' : ''}" data-today="act-open" data-idx="${x.i}">
+      <div class="cbx${arch ? ' checked' : ''}" data-action="toggle-done" data-idx="${x.i}" title="Complete &amp; archive">${CHECK_SVG}</div>
+      <span class="td-title">${escHtml(r.action || '(untitled action)')}</span>
+      <span class="td-meta"><span>${escHtml(r.owner || 'No owner')}</span>
+        ${li ? `<button class="link-btn${li.missing || li.lost ? ' dim' : ''}" data-today="act-rec" data-idx="${x.i}" title="${escAttr(linkedText({ linkedId: code }))}">${escHtml(linkedText({ linkedId: code }))}</button>` : ''}
+        ${over ? `<span class="td-due">Due ${escHtml(fmtDisplay(toDate(r.deadline)))}</span>` : ''}</span></div>`;
+}
+function todaySection(key, title, addLabel, addAction, emptyLabel, main, over, rowFn, live){
+  const open = todayUi.od[key];
+  return `<div class="td-head"><h3>${title}</h3><span class="n">${main.filter(live).length}</span><button class="btn secondary" data-today="${addAction}">${addLabel}</button></div>
+    ${over.length ? `<button class="td-od${open ? ' open' : ''}" data-today="od" data-k="${key}">Overdue (${over.filter(live).length})${CHEV_SVG}</button>
+      <div class="td-od-list"${open ? '' : ' hidden'}>${over.map(x => rowFn(x, true)).join('')}</div>` : ''}
+    ${main.length ? main.map(x => rowFn(x, false)).join('') : `<div class="td-empty">Nothing due today<button class="link-btn" data-today="${addAction}">${emptyLabel}</button></div>`}`;
+}
+function renderToday(){
+  if(!state) return;
+  const now = new Date(), today = fmt(now);
+  todayUi.key = today;
+  const d = todayData(today);
+  const dueNow = d.crmToday.filter(t => t.status === 'open').length + d.actToday.filter(x => x.r.status !== 'Done').length;
+  const overNow = d.crmOver.filter(t => t.status === 'open').length + d.actOver.filter(x => x.r.status !== 'Done').length;
+  const badge = document.getElementById('todayBadge');
+  if(badge){ badge.textContent = dueNow + overNow; badge.hidden = !(dueNow + overNow); badge.classList.toggle('over', overNow > 0); badge.title = dueNow + ' due today, ' + overNow + ' overdue'; }
+  const crm = document.getElementById('todayCrm'); if(!crm) return;
+  document.getElementById('todayDate').textContent = dateLabel(now);
+  document.getElementById('todaySummary').textContent = dueNow + ' due today, ' + overNow + ' overdue';
+  document.getElementById('todayScope').innerHTML = `<button data-today="scope" data-v="mine" class="${todayUi.scope === 'mine' ? 'active' : ''}">My items</button><button data-today="scope" data-v="all" class="${todayUi.scope === 'all' ? 'active' : ''}">Everyone</button>`;
+  crm.innerHTML = todaySection('crm', 'CRM tasks', '+ Add', 'add-task', '+ New task', d.crmToday, d.crmOver, todayTaskRow, t => t.status === 'open');
+  document.getElementById('todayActions').innerHTML = todaySection('act', 'Actions', '+ Add', 'add-action', '+ New action', d.actToday, d.actOver, todayActionRow, x => x.r.status !== 'Done');
+  refreshActionPanel();
+}
+/* roll over at midnight and when the tab or window regains focus, so the lists never show yesterday's "today" */
+function checkTodayRollover(){ if(state && todayUi.key && todayUi.key !== fmt(new Date())) render(); }
+setInterval(checkTodayRollover, 30000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) checkTodayRollover(); });
+window.addEventListener('focus', checkTodayRollover);
+
+/* ---- action side panel (same panel element as a task) ---- */
+function openActionPanel(ref){ if(!ref || !state.actions.includes(ref)) return; taskPanel = null; actionPanel = { ref, isNew: false }; renderActionPanel(); }
+function openNewAction(){
+  taskPanel = null;
+  const ref = Object.assign(newRowFor('actions'), { action: '', owner: meName() || 'TBC', deadline: fmt(new Date()) });   // due today by default
+  actionPanel = { ref, isNew: true }; renderActionPanel();
+  setTimeout(() => { const el = document.querySelector('#tkBody [data-af="action"]'); if(el) el.focus(); }, 30);
+}
+function actionPanelValid(){ return !!actionPanel && (actionPanel.isNew || state.actions.includes(actionPanel.ref)); }
+function renderActionPanel(){
+  const r = actionPanel.ref;
+  document.getElementById('tkTitleBar').textContent = actionPanel.isNew ? 'New action' : 'Action';
+  document.getElementById('tkBody').innerHTML = `<div class="tk-form">
+      <div class="field"><label>Action</label><input class="tk-input" data-af="action" value="${escAttr(r.action)}" placeholder="What needs doing?"></div>
+      <div class="tk-grid">
+        <div><label>Owner</label><input class="tk-input" list="ownersList" data-af="owner" value="${escAttr(r.owner || '')}"></div>
+        <div><label>+ Owner</label><input class="tk-input" list="ownersList" data-af="owner2" value="${escAttr(r.owner2 || '')}" placeholder="optional"></div>
+        <div><label>Deadline</label><input type="date" class="tk-input" data-af="deadline" value="${escAttr(r.deadline || '')}"></div>
+        <div><label>Date raised</label><input type="date" class="tk-input" data-af="dateRaised" value="${escAttr(r.dateRaised || '')}"></div>
+        <div><label>Priority</label><select class="tk-input" data-af="priority">${[0, 1, 2, 3].map(p => `<option value="${p}"${Number(r.priority) === p ? ' selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div><label>Status</label><select class="tk-input" data-af="status">${['Not Started', 'In Progress', 'Waiting', 'Done'].map(s => `<option${r.status === s ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label>Summary note</label><input class="tk-input" data-af="notes" value="${escAttr(r.notes || '')}"></div>
+      <div class="field"><label>Linked record</label><input class="tk-input" list="crmRecList" data-af="linkedId" value="${escAttr(actLinked(r))}" placeholder="Search by code or name (optional)" autocomplete="off">
+        <div class="tk-linkinfo" id="tkLinkInfo"></div></div>
+    </div><div id="tkDyn"></div>`;
+  document.getElementById('tkPanel').hidden = false; document.getElementById('tkBackdrop').hidden = false;
+  refreshActionPanel();
+}
+/* re-draws only the parts the user is not typing in (link info, status block, notes) so focus is never lost */
+function refreshActionPanel(){
+  if(!actionPanel) return;
+  if(!actionPanelValid()){ closeTaskPanel(); return; }
+  const dyn = document.getElementById('tkDyn'); if(!dyn) return;
+  const r = actionPanel.ref, isNew = actionPanel.isNew;
+  if(!isNew) document.querySelectorAll('#tkBody [data-af]').forEach(el => {   // follow edits made elsewhere (e.g. the Actions tab)
+    if(document.activeElement === el) return;
+    const v = el.dataset.af === 'linkedId' ? actLinked(r) : String(r[el.dataset.af] == null ? '' : r[el.dataset.af]);
+    if(el.value !== v) el.value = v;
+  });
+  const info = document.getElementById('tkLinkInfo'), code = actLinked(r), li = code ? linkedInfo({ linkedId: code }) : null;
+  if(info && !info.classList.contains('err')) info.innerHTML = li ? `${escHtml(li.name || '')}${li.lost ? ' (lost lead)' : ''}${li.missing ? 'Record no longer exists' : ''} ${li.d && !li.lost ? '<button class="link-btn" data-today="act-rec-panel">Open record</button>' : ''}` : 'Not linked to a record.';
+  const keep = document.getElementById('actNoteTxt'), kv = keep ? keep.value : '', kf = keep && document.activeElement === keep;
+  if(isNew){
+    const h = `<div class="tk-form"><div class="tkf-err" id="actErr"></div></div><div class="tk-actions"><button class="btn secondary" data-crm="panel-close">Cancel</button><button class="btn" data-today="act-create">Create action</button></div>`;
+    if(dyn.dataset.sig !== h){ dyn.innerHTML = h; dyn.dataset.sig = h; }
+    return;
+  }
+  const idx = state.actions.indexOf(r), arch = archiving.has(r);
+  const when = ms => ms ? new Date(ms).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  const notes = actNotes(r).slice().sort((a, b) => a.created - b.created);
+  const html = `<div class="tk-status"><div class="cbx${arch ? ' checked' : ''}" data-action="toggle-done" data-idx="${idx}" title="Complete &amp; archive">${CHECK_SVG}</div>
+      <div><strong>${escHtml(r.status || 'Not Started')}</strong><div class="sub">Tick to complete and archive</div></div></div>
+    <div class="stage-label-row">Notes (${notes.length})</div>
+    <div class="tk-notes">${notes.length ? notes.map(n => `<div class="tk-note"><span class="meta">${escHtml(n.author || 'Someone')} · ${escHtml(when(n.created))}</span>${escHtml(n.text)}</div>`).join('') : '<div class="tkr-empty">No notes yet.</div>'}</div>
+    <div class="tk-addnote"><textarea id="actNoteTxt" placeholder="Add note…${code ? ' (also logged on the record\'s timeline)' : ''}"></textarea>
+      <div style="margin-top:8px;"><button class="btn" data-today="act-note">Add note</button></div></div>`;
+  if(dyn.dataset.sig !== html){ dyn.innerHTML = html; dyn.dataset.sig = html; }
+  const nt = document.getElementById('actNoteTxt'); if(nt && kv){ nt.value = kv; if(kf) nt.focus(); }
+}
+document.addEventListener('change', (e) => {
+  const el = e.target, f = el.dataset && el.dataset.af; if(!f || !actionPanel) return;
+  const r = actionPanel.ref, isNew = actionPanel.isNew, info = document.getElementById('tkLinkInfo'); if(info) info.classList.remove('err');
+  let v = el.value;
+  if(f === 'action'){ v = v.trim(); if(!v && !isNew){ el.value = r.action; return; } }
+  if(f === 'priority') v = Number(v);
+  if(f === 'linkedId'){
+    const code = normLinked(v);
+    if(v.trim() === '') v = '';
+    else if(!code || !activeRecordCodes().some(x => x.code === code)){
+      el.value = actLinked(r); if(info){ info.textContent = 'Pick an active lead, sale or project from the list (e.g. L-101).'; info.classList.add('err'); } return;
+    } else { v = code; el.value = code; }
+    if(v === '' && !r.linkedId){ refreshActionPanel(); return; }   // nothing to clear: keep the action without a linkedId field
+  }
+  r[f] = v;
+  if(!isNew){ render(); saveState(); } else refreshActionPanel();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'actNoteTxt'){ const b = document.querySelector('#tkDyn [data-today="act-note"]'); if(b) b.click(); }
+});
+
+/* ---- Actions tab: optional Linked record column ---- */
+document.addEventListener('change', (e) => {
+  const el = e.target, d = el.dataset || {};
+  if(d.alink !== undefined){
+    const r = state.actions[Number(d.alink)]; if(!r) return;
+    const v = el.value.trim(), code = normLinked(v);
+    if(!v){ if(r.linkedId) r.linkedId = ''; }
+    else if(!code || !activeRecordCodes().some(x => x.code === code)){ el.value = actLinked(r); setSaveStatus('Pick an active lead, sale or project from the list (e.g. L-101).'); return; }
+    else r.linkedId = code;
+    render(); saveState();
+  }
+  else if(d.acol){
+    const s = new Set(state.actionPrefs.shownCols); if(el.checked) s.add(d.acol); else s.delete(d.acol);
+    state.actionPrefs.shownCols = [...s]; renderActions(); saveState();
+  }
+});
+
+/* ---- Today events ---- */
+document.addEventListener('click', (e) => {
+  if(actUi.colsOpen && !e.target.closest('#actColsWrap')){ actUi.colsOpen = false; renderActions(); }
+  const b = e.target.closest('[data-today]'); if(!b) return;
+  const a = b.dataset.today;
+  if(a === 'scope') setTodayScope(b.dataset.v);
+  else if(a === 'od'){ todayUi.od[b.dataset.k] = !todayUi.od[b.dataset.k]; renderToday(); }
+  else if(a === 'add-task') openNewTask('');
+  else if(a === 'add-action') openNewAction();
+  else if(a === 'act-open'){ const inner = e.target.closest('input,select,textarea,button,.cbx,a'); if(inner && inner !== b) return; openActionPanel(state.actions[Number(b.dataset.idx)]); }
+  else if(a === 'act-rec' || a === 'act-rec-panel'){
+    const r = a === 'act-rec' ? state.actions[Number(b.dataset.idx)] : (actionPanel && actionPanel.ref);
+    const d = r && dealRecord(linkedRoot(actLinked(r))); if(d && !d.lost) openDetail(d.pl, d.rec.id);
+  }
+  else if(a === 'act-note'){
+    const box = document.getElementById('actNoteTxt');
+    if(actionPanel && !actionPanel.isNew && box && addActionNote(actionPanel.ref, box.value)){ box.value = ''; render(); saveState(); }
+  }
+  else if(a === 'act-create'){
+    const r = actionPanel && actionPanel.ref, err = document.getElementById('actErr'); if(!r) return;
+    if(!String(r.action).trim()){ err.textContent = 'Give the action a title.'; const el = document.querySelector('#tkBody [data-af="action"]'); if(el) el.focus(); return; }
+    r.action = r.action.trim(); if(!r.linkedId) delete r.linkedId;
+    state.actions.push(r); closeTaskPanel(); render(); saveState(); showToast('Action added');
+  }
+  else if(a === 'act-cols'){ actUi.colsOpen = !actUi.colsOpen; renderActions(); }
+});
+
 /* ---------- master render ---------- */
 function render(){
   renderDashboard();
@@ -3905,6 +4193,7 @@ function render(){
   renderAdmin();
   renderActions();
   renderCrm();
+  renderToday();
   renderTaskOptions();
   applyResizable();
 }
@@ -4141,12 +4430,17 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 });
 document.getElementById('sidebarBackdrop').addEventListener('click', closeMobileSidebar);
 
+function activateTab(name){
+  const tab = document.querySelector('.tab[data-tab="' + name + '"]'), panel = document.getElementById('panel-' + name);
+  if(!tab || !panel) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  panel.classList.add('active');
+}
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    activateTab(tab.dataset.tab);
     closeMobileSidebar();
   });
 });
