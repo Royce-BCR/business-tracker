@@ -381,6 +381,26 @@
   .type-toggle button.active.res { color: #14805f; }
   .type-toggle button.active.com { color: #2a6fb5; }
   .qual-stack .qual-field textarea { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; min-height: 48px; }
+  /* tiers: badge (image or short label), settings card */
+  .tier-img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; border-radius: 3px; }
+  .tier-pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; background: #efe6d6; color: #7a5a2c; vertical-align: middle; }
+  .tier-none { color: #b5b0a5; }
+  .tier-badge-sm { margin-left: 7px; display: inline-block; vertical-align: middle; }
+  .tier-badge-sm .tier-pill { font-size: 9.5px; padding: 1px 6px; }
+  .tier-list { display: flex; flex-direction: column; gap: 8px; }
+  .tier-row { display: grid; grid-template-columns: 56px minmax(120px,1.4fr) 76px 150px 110px 110px 34px; gap: 10px; align-items: end; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .tier-row label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+  .tier-row input[type=text] { border: 1px solid var(--line); background: #fff; padding: 7px 8px; }
+  .tier-move { display: flex; gap: 2px; }
+  .tier-img-ctl { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+  .tier-img-ctl .tier-img { width: 32px; height: 32px; border: 1px solid var(--line); background: #faf8f4; }
+  .tier-upload { padding: 5px 10px; font-size: 11px; cursor: pointer; }
+  .tier-ph { display: inline-block; margin-left: 6px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #c9822f; background: #fbf1cf; padding: 1px 6px; border-radius: 10px; }
+  .tier-banner { font-size: 12.5px; background: #fbf1cf; color: #8a5a1c; border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; line-height: 1.5; }
+  .tier-warn { font-size: 12px; background: #fdf3ee; color: #b3453f; border-radius: 8px; padding: 8px 12px; margin-top: 10px; line-height: 1.55; }
+  .modal-extra { margin: -8px 0 20px; }
+  .modal-extra select { border: 1px solid var(--line); background: #fff; padding: 8px; }
+  @media (max-width: 860px){ .tier-row { grid-template-columns: 1fr 1fr; } }
   .gate-msg { font-size: 12px; color: #b3453f; margin-bottom: 10px; }
   .gate-msg.ok { color: var(--green); }
   .milestone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px; max-width: 760px; margin-bottom: 14px; }
@@ -810,6 +830,9 @@
       <div class="assumptions-grid" id="financeSettingsGrid"></div>
     </div>
 
+    <div class="section-label">Tiers</div>
+    <div class="card" id="tiersCard"></div>
+
     <div data-admin-only>
     <div class="section-label">Cloud database — multi-device sync</div>
     <div class="card">
@@ -914,6 +937,7 @@ create policy "app update" on tracker_data for update using (true) with check (t
   <div class="modal">
     <div class="modal-title" id="modalTitle"></div>
     <div class="modal-msg" id="modalMsg"></div>
+    <div class="modal-extra" id="modalExtra"></div>
     <div class="modal-actions">
       <button class="btn secondary" data-modal="cancel">Cancel</button>
       <button class="btn" data-modal="confirm">Confirm</button>
@@ -951,8 +975,16 @@ function defaultState(){
       tradeAccountDays: 30,
       paymentTermsDays: 7,
       startingCash: 2000,
-      forecastMonths: 6
+      forecastMonths: 6,
+      defaultTierId: ''
     },
+    // Tiers: records reference a tier by its permanent id, never by name. Each tier may carry a small
+    // image as a data URL (resized client-side to max 64x64 PNG, typically 1-4 KB) so the document stays small.
+    tiers: [
+      { id: 'tier_a', name: 'Tier 1', label: '', image: '', min: 0,     max: 5000,  placeholder: true },
+      { id: 'tier_b', name: 'Tier 2', label: '', image: '', min: 5000,  max: 15000, placeholder: true },
+      { id: 'tier_c', name: 'Tier 3', label: '', image: '', min: 15000, max: '',    placeholder: true }
+    ],
     transactions: [
       { date: '2026-08-28', description: 'Okereke — final payment received', category: 'Income', moneyIn: 4600, moneyOut: 0, linkedCode: 'P-201-INV1' },
       { date: '2026-08-12', description: 'Timber merchant — Okereke materials', category: 'Materials', moneyIn: 0, moneyOut: 2750, linkedCode: 'P-201' },
@@ -1085,7 +1117,7 @@ function mergeDefaults(loaded){
   out.colWidths = Object.assign({}, loaded.colWidths || {});
   out.settings = Object.assign({}, d.settings, loaded.settings || {});
   out.settings.stageProbability = Object.assign({}, d.settings.stageProbability, (loaded.settings||{}).stageProbability || {});
-  ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions'].forEach(k => {
+  ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions','tiers'].forEach(k => {
     if(!Array.isArray(out[k])) out[k] = d[k];
   });
   return out;
@@ -1569,7 +1601,7 @@ function renderPipelineTable(){
   const tiers = ['Needs re-scoping','Tier 1','Tier 2','Tier 3'];
   const kinds = Object.keys(STAGE_KINDS);
   let html = `<table style="min-width:1120px"><thead><tr>
-    <th style="width:34px"></th><th style="width:66px">Code</th><th style="min-width:180px">Project / Client</th>
+    <th style="width:34px"></th><th style="width:104px">Code</th><th style="min-width:180px">Project / Client</th>
     <th style="width:88px">Type</th><th style="width:120px">Tier</th><th style="width:108px">Sales Stage</th>
     <th style="width:60px">Prob.</th><th style="width:96px">Quote (£)</th>
     <th style="width:104px">Start</th><th style="width:104px">Complete</th><th style="width:96px">Cost (£)</th>
@@ -1582,7 +1614,7 @@ function renderPipelineTable(){
     html += `<tr${flag ? ' class="flag-row"' : ''}>
       <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-project" data-id="${r.id}" title="Expand stages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
-      <td class="code-cell">${projectCode(r)}</td>
+      <td class="code-cell">${projectCode(r)}${tierBadgeSmall(r.id, r)}</td>
       <td><input data-tab="pipeline" data-idx="${i}" data-field="name" value="${escAttr(r.name)}"></td>
       <td><select data-tab="pipeline" data-idx="${i}" data-field="type">
         <option value="real"${r.type==='real'?' selected':''}>Real</option>
@@ -1703,6 +1735,130 @@ function renderGantt(){
     </div></div>`;
 }
 
+/* ---------- Tiers ---------- */
+function escHtml(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function tierById(id){ return id ? (state.tiers||[]).find(t => t.id === id) || null : null; }
+function tierLabel(t){ const i = state.tiers.indexOf(t); return (t.label||'').trim() || ('T' + (i+1)); }
+function tierBadgeHtml(t){
+  if(!t) return '';
+  const lab = escHtml(tierLabel(t));
+  if(t.image && /^data:image\//.test(t.image)) return `<img class="tier-img" src="${escHtml(t.image)}" alt="${lab}" title="${lab}">`;
+  return `<span class="tier-pill" title="${escHtml(t.name)}">${lab}</span>`;
+}
+/* the tier for a record, by shared id: the lead if it still exists, else the tierId carried over when it was promoted */
+function tierForRecord(id, rec){
+  const lead = (state.leads||[]).find(x => x.id === id);
+  return tierById(lead ? lead.tierId : (rec && rec.tierId));
+}
+function tierBadgeSmall(id, rec){
+  const t = tierForRecord(id, rec);
+  return t ? `<span class="tier-badge-sm">${tierBadgeHtml(t)}</span>` : '';
+}
+/* range is lower-inclusive, upper-exclusive; blank lower = 0, blank upper = no limit */
+function tierRange(t){ return { lo: (t.min===''||t.min==null) ? 0 : Number(t.min), hi: (t.max===''||t.max==null) ? Infinity : Number(t.max) }; }
+function tierForValue(v){
+  if(v===''||v==null||isNaN(Number(v))) return null;
+  v = Number(v);
+  return state.tiers.find(t => { const r = tierRange(t); return v >= r.lo && v < r.hi; }) || null;
+}
+function applyAutoTier(l){
+  if(l.tierManual) return;
+  const t = tierForValue(l.estValue);
+  l.tierId = t ? t.id : (tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : '');
+}
+function reapplyAutoTiers(){ state.leads.forEach(l => { if(!l.tierManual && l.estValue !== '' && l.estValue != null) applyAutoTier(l); }); }
+function tierUsage(id){
+  return { leads: state.leads.filter(r=>r.tierId===id), pipeline: state.pipeline.filter(r=>r.tierId===id), projects: state.projects.filter(r=>r.tierId===id) };
+}
+function tierWarnings(){
+  const gbp = n => '£' + Number(n).toLocaleString('en-GB');
+  const r = state.tiers.map(t => Object.assign({ t }, tierRange(t)));
+  const w = [];
+  r.forEach(x => { if(!(x.hi > x.lo)) w.push(`<strong>${escHtml(x.t.name)}</strong>: the upper value must be higher than the lower value.`); });
+  const ok = r.filter(x => x.hi > x.lo);
+  for(let i=0;i<ok.length;i++) for(let j=i+1;j<ok.length;j++){
+    if(ok[i].lo < ok[j].hi && ok[j].lo < ok[i].hi) w.push(`<strong>${escHtml(ok[i].t.name)}</strong> and <strong>${escHtml(ok[j].t.name)}</strong> overlap — a value in both goes to whichever is higher in the list.`);
+  }
+  const sorted = ok.slice().sort((a,b) => a.lo - b.lo);
+  for(let i=0;i<sorted.length-1;i++){
+    if(sorted[i].hi < sorted[i+1].lo) w.push(`Gap: values from ${gbp(sorted[i].hi)} up to ${gbp(sorted[i+1].lo)} don't fall in any tier.`);
+  }
+  return w;
+}
+function renderTiers(){
+  const el = document.getElementById('tiersCard'); if(!el) return;
+  const tiers = state.tiers;
+  const rows = tiers.map((t,i) => `<div class="tier-row">
+      <div><label>Order</label><div class="tier-move">
+        <button class="icon-btn" data-action="tier-up" data-idx="${i}" title="Move up"${i===0?' disabled style="opacity:.3;cursor:default"':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button>
+        <button class="icon-btn" data-action="tier-down" data-idx="${i}" title="Move down"${i===tiers.length-1?' disabled style="opacity:.3;cursor:default"':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div></div>
+      <div><label>Name${t.placeholder?'<span class="tier-ph">placeholder</span>':''}</label><input type="text" data-tab="tiers" data-idx="${i}" data-field="name" value="${escHtml(t.name)}"></div>
+      <div><label>Short label</label><input type="text" maxlength="4" data-tab="tiers" data-idx="${i}" data-field="label" value="${escHtml(t.label||'')}" placeholder="T${i+1}"></div>
+      <div><label>Image (max 64×64)</label><div class="tier-img-ctl">
+        ${t.image ? `<img class="tier-img" src="${escHtml(t.image)}" alt=""><button class="btn secondary tier-upload" data-action="tier-img-remove" data-idx="${i}">Remove</button>`
+                  : `<label class="btn secondary tier-upload" style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);">Upload<input type="file" hidden accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" data-tierimg="${i}"></label>`}</div></div>
+      <div><label>From (£)</label><input type="text" inputmode="numeric" data-tab="tiers" data-idx="${i}" data-field="min" value="${t.min===''?'':escHtml(t.min)}" placeholder="0"></div>
+      <div><label>Up to (£)</label><input type="text" inputmode="numeric" data-tab="tiers" data-idx="${i}" data-field="max" value="${t.max===''?'':escHtml(t.max)}" placeholder="no limit"></div>
+      <div><button class="icon-btn" data-action="delete-tier" data-idx="${i}" title="Delete tier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    </div>`).join('');
+  const warns = tierWarnings();
+  el.innerHTML = `
+    <p style="font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.55;">Tiers group leads by estimated value. A lead's tier follows it from Lead to Sales to Project. A value equal to a tier's upper limit falls into the next tier up.</p>
+    ${tiers.some(t=>t.placeholder) ? `<div class="tier-banner"><strong>Placeholder tiers.</strong> The names and £ ranges marked <em>placeholder</em> are examples only — edit them to match your real bands. Editing a tier's range removes its marker.</div>` : ''}
+    <div class="tier-list">${rows || '<div class="breakdown-hint">No tiers yet — add one below.</div>'}</div>
+    ${warns.length ? `<div class="tier-warn"><strong>Check your ranges:</strong><br>${warns.join('<br>')}</div>` : ''}
+    <div id="tierMsg" class="cloud-msg" style="margin-top:8px;"></div>
+    <div class="btn-row" style="margin-top:12px;"><button class="btn secondary" data-action="add-tier">+ Add tier</button></div>
+    <div class="assumptions-grid two" style="margin-top:16px;"><div><label>Default tier for new leads</label>
+      <select data-tab="settings" data-field="defaultTierId"><option value=""${!state.settings.defaultTierId?' selected':''}>None</option>${tiers.map(t=>`<option value="${escHtml(t.id)}"${state.settings.defaultTierId===t.id?' selected':''}>${escHtml(t.name)}</option>`).join('')}</select></div></div>`;
+}
+function newTierId(){ let id; do { id = 'tier_' + Math.random().toString(36).slice(2,8); } while(state.tiers.some(t=>t.id===id)); return id; }
+async function deleteTier(idx){
+  const t = state.tiers[idx]; if(!t) return;
+  const u = tierUsage(t.id), n = u.leads.length + u.pipeline.length + u.projects.length;
+  let dest = '';
+  if(n){
+    const opts = '<option value="">No tier</option>' + state.tiers.filter(x=>x.id!==t.id).map(x=>`<option value="${escHtml(x.id)}">${escHtml(x.name)}</option>`).join('');
+    const ok = await showConfirm(`Delete “${t.name}”?`, `${n} record${n!==1?'s use':' uses'} this tier. Move ${n!==1?'them':'it'} to:`, `<select id="tierMoveTo">${opts}</select>`);
+    if(!ok) return;
+    dest = _confirmExtraValue || '';
+    u.leads.forEach(r => { r.tierId = dest; r.tierManual = true; });
+    [...u.pipeline, ...u.projects].forEach(r => { r.tierId = dest; });
+  }
+  state.tiers.splice(idx, 1);
+  if(state.settings.defaultTierId === t.id) state.settings.defaultTierId = '';
+  reapplyAutoTiers(); render(); saveState();
+}
+/* resize to max 64x64 on a canvas and keep as a small PNG data URL */
+function handleTierImage(idx, file){
+  const msg = t => { const m = document.getElementById('tierMsg'); if(m){ m.textContent = t; m.className = 'cloud-msg' + (t ? ' err' : ''); } };
+  const t = state.tiers[idx]; if(!t || !file) return Promise.resolve(false);
+  if(!/^image\/(png|jpeg|svg\+xml)$/.test(file.type)){ msg('Please choose a PNG, JPG or SVG image.'); return Promise.resolve(false); }
+  if(file.size > 2*1024*1024){ msg('That image is over 2 MB — please pick a smaller one (it gets shrunk to 64×64 anyway).'); return Promise.resolve(false); }
+  return new Promise(resolve => {
+    const fr = new FileReader();
+    fr.onerror = () => { msg('Sorry, that image could not be read.'); resolve(false); };
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => { msg('Sorry, that image could not be read.'); resolve(false); };
+      img.onload = () => {
+        const w0 = img.naturalWidth || 64, h0 = img.naturalHeight || 64;
+        const sc = Math.min(1, 64 / Math.max(w0, h0));
+        const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w0*sc)); c.height = Math.max(1, Math.round(h0*sc));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        t.image = c.toDataURL('image/png');
+        render(); saveState(); resolve(true);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if(el.dataset && el.dataset.tierimg !== undefined){ handleTierImage(Number(el.dataset.tierimg), el.files && el.files[0]); el.value = ''; }
+});
+
 /* ---------- Leads ---------- */
 const LEAD_STATUSES = ['Not Contacted','Contacted','No Current Opportunity','Possible Opportunity','Qualified – Ready to Quote','Closed – No Fit'];
 const expandedLeads = new Set();
@@ -1743,9 +1899,11 @@ function sortedComms(l){
 /* leads table column widths (px), remembered per table in state.colWidths */
 const LEADS_TABLE_ID = 'leadsTableWrap';
 const LEADS_COLS = [ // [default, min]
-  [34,34], [66,56], [200,90], [170,90], [170,90], [110,76], [126,84], [200,110], [34,34] ];
+  [34,34], [66,56], [64,44], [200,90], [170,90], [170,90], [110,76], [126,84], [200,110], [34,34] ];
 function leadColWidths(){
-  const saved = (state.colWidths && state.colWidths[LEADS_TABLE_ID]) || [];
+  let saved = (state.colWidths && state.colWidths[LEADS_TABLE_ID]) || [];
+  if(saved.length === LEADS_COLS.length - 1) saved = [...saved.slice(0,2), LEADS_COLS[2][0], ...saved.slice(2)];   // widths saved before the Tier column existed
+  else if(saved.length !== LEADS_COLS.length) saved = [];
   return LEADS_COLS.map((c,i) => Math.max(c[1], Number(saved[i]) || c[0]));
 }
 function applyLeadCols(table, widths, fit){
@@ -1755,7 +1913,7 @@ function applyLeadCols(table, widths, fit){
 }
 function renderLeads(){
   const widths = leadColWidths();
-  const heads = ['','Code','Project name','Contact','Company','Postcode','Last contacted','Lead status',''];
+  const heads = ['','Code','Tier','Project name','Contact','Company','Postcode','Last contacted','Lead status',''];
   let html = `<table class="leads-table"><colgroup>${widths.map(()=>'<col>').join('')}</colgroup><thead><tr>${heads.map((h,i)=>
     `<th>${h}${(i===0||i===heads.length-1)?'':`<div class="col-handle" data-leadcol="${i}" title="Drag to resize · double-click to reset"></div>`}</th>`).join('')}</tr></thead><tbody>`;
   state.leads.forEach((l,i) => {
@@ -1765,6 +1923,7 @@ function renderLeads(){
     html += `<tr class="lead-row ${isCommercial?'lead-com':'lead-res'}">
       <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Detail & comms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
       <td class="code-cell">${recordCode(l.id,'lead')}</td>
+      <td class="tier-cell">${tierById(l.tierId) ? tierBadgeHtml(tierById(l.tierId)) : '<span class="tier-none">—</span>'}</td>
       <td><input class="lead-proj" data-tab="leads" data-idx="${i}" data-field="projectName" value="${escAttr(l.projectName||'')}" placeholder="Click to add"></td>
       <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="${isCommercial?'Contact person':'Homeowner name'}"></td>
       <td>${isCommercial
@@ -1779,7 +1938,7 @@ function renderLeads(){
       const miss = f => l[f] ? '' : ' missing';
       const qualified = leadQualified(l);
       const comms = sortedComms(l);
-      html += `<tr class="detail-row"><td colspan="9"><div class="detail-box lead-detail">
+      html += `<tr class="detail-row"><td colspan="10"><div class="detail-box lead-detail">
         <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(leadPrimaryName(l))}</span><span class="detail-meta">${l.leadType}${isCommercial&&l.company?' · '+escAttr(l.company):''}</span></div>
         <div class="lead-cols">
           <div class="lead-col-left">
@@ -1788,6 +1947,11 @@ function renderLeads(){
                 <button class="res${!isCommercial?' active':''}" data-action="set-lead-type" data-idx="${i}" data-val="Residential">Residential</button>
                 <button class="com${isCommercial?' active':''}" data-action="set-lead-type" data-idx="${i}" data-val="Commercial">Commercial</button></div></div>
               <div class="qual-field"><label>Source</label><input data-tab="leads" data-idx="${i}" data-field="source" value="${escAttr(l.source||'')}" placeholder="e.g. Referral, Facebook group"></div>
+              <div class="qual-field"><label>Estimated value (£)</label><input type="number" step="1" min="0" data-tab="leads" data-idx="${i}" data-field="estValue" value="${l.estValue===''||l.estValue==null?'':l.estValue}" placeholder="Sets the tier automatically"></div>
+              <div class="qual-field"><label>Tier</label><select data-tab="leads" data-idx="${i}" data-field="tierSel">
+                <option value="auto"${!l.tierManual?' selected':''}>Auto${!l.tierManual && tierById(l.tierId) ? ' ('+escHtml(tierById(l.tierId).name)+')' : ''}</option>
+                <option value="none"${l.tierManual && !tierById(l.tierId)?' selected':''}>No tier</option>
+                ${state.tiers.map(t=>`<option value="${escHtml(t.id)}"${l.tierManual && l.tierId===t.id?' selected':''}>${escHtml(t.name)}</option>`).join('')}</select></div>
               <div class="qual-field"><label>Location / address</label><textarea rows="2" data-tab="leads" data-idx="${i}" data-field="address" placeholder="Site address — the postcode is picked out automatically">${escAttr(l.address||'')}</textarea></div>
             </div>
             <div class="stage-label-row">Qualification — all four needed before promotion</div>
@@ -1864,7 +2028,7 @@ function renderProjects(){
     return;
   }
   let html = `<table style="min-width:920px"><thead><tr>
-    <th style="width:34px"></th><th style="width:60px">Code</th><th style="min-width:190px">Project</th>
+    <th style="width:34px"></th><th style="width:100px">Code</th><th style="min-width:190px">Project</th>
     <th style="width:120px">Agreed value</th><th style="width:180px">Progress</th>
     <th style="width:120px">Budget vs actual</th><th style="width:34px"></th></tr></thead><tbody>`;
   state.projects.forEach((p,i) => {
@@ -1873,7 +2037,7 @@ function renderProjects(){
     const costFlag = (Number(p.actualCost)||0) > (Number(p.budgetedCost)||0);
     html += `<tr>
       <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-projrec" data-id="${p.id}" title="Delivery detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
-      <td class="code-cell">${recordCode(p.id,'project')}</td>
+      <td class="code-cell">${recordCode(p.id,'project')}${tierBadgeSmall(p.id, p)}</td>
       <td><input data-tab="projects" data-idx="${i}" data-field="name" value="${escAttr(p.name)}"></td>
       <td><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="agreedValue" value="${p.agreedValue||0}"></td>
       <td><span class="progress-pill">${projectProgress(p)}</span></td>
@@ -1931,6 +2095,7 @@ function renderSettings(){
      <div><label>Trade account terms (days)</label><input type="number" step="1" data-tab="settings" data-field="tradeAccountDays" value="${s.tradeAccountDays}"></div>
      <div><label>Client payment terms (days)</label><input type="number" step="1" data-tab="settings" data-field="paymentTermsDays" value="${s.paymentTermsDays}"></div>
      <div><label>Forecast horizon (months, if no dated work)</label><input type="number" step="1" data-tab="settings" data-field="forecastMonths" value="${s.forecastMonths}"></div>`;
+  renderTiers();
 }
 function renderTransactions(){
   const txns = state.transactions;
@@ -1976,6 +2141,7 @@ function promoteLead(id){
     notes: (l.notes||'') + `  [From lead: budget ${l.budget||'?'}; decision-maker ${l.decisionMaker||'?'}; timeline ${l.timeline||'?'}; competition ${l.competition||'?'}]`,
     contact: l.contact||'', company: l.company||'', leadType: l.leadType||'Residential', phone: l.phone||'', email: l.email||'', source: l.source||'',
     projectName: l.projectName||'', address: l.address||'', postcode: l.postcode||'', postcodeManual: !!l.postcodeManual,
+    estValue: l.estValue===undefined?'':l.estValue, tierId: l.tierId||'', tierManual: !!l.tierManual,
     budget: l.budget||'', decisionMaker: l.decisionMaker||'', timeline: l.timeline||'', competition: l.competition||'',
     comms: l.comms||[], contractSigned: '',
     stages: [ { label: 'Scope & cost', kind: 'scope', start: '', end: '', cost: 0 } ]
@@ -1993,6 +2159,7 @@ function promoteToProject(id){
     id: s.id, name: s.name, type: s.type, agreedValue: Number(s.quoteValue)||0,
     budgetedCost: projectRollup(s).totalCost, actualCost: 0, notes: s.notes||'',
     milestones: { contractSigned: s.contractSigned||'', designSigned:'', materialsOrdered:'', materialsDelivered:'', onSiteStart:'', buildComplete:'', invoiced:'', paid:'', signOff:'' },
+    tierId: s.tierId||'',
     testimonial: '', stages: s.stages || [],
     paymentLines: [ { desc: 'On completion', dueDate: projectRollup(s).end ? fmt(projectRollup(s).end) : '', amount: Number(s.quoteValue)||0, invoicedDate: '', paidDate: '' } ]
   };
@@ -2174,15 +2341,20 @@ function beginArchive(actionObj){
 }
 /* custom confirm modal → Promise<boolean> */
 let _confirmResolver = null;
-function showConfirm(title, message){
+let _confirmExtraValue = null;   // value of the <select> in the modal's extra slot (if any) when it closed
+function showConfirm(title, message, extraHtml){
   return new Promise(resolve => {
     _confirmResolver = resolve;
     document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalMsg').textContent = message || '';
+    document.getElementById('modalExtra').innerHTML = extraHtml || '';
     document.getElementById('modalOverlay').hidden = false;
   });
 }
 function resolveConfirm(val){
+  const sel = document.querySelector('#modalExtra select');
+  _confirmExtraValue = sel ? sel.value : null;
+  document.getElementById('modalExtra').innerHTML = '';
   document.getElementById('modalOverlay').hidden = true;
   if(_confirmResolver){ _confirmResolver(val); _confirmResolver = null; }
 }
@@ -2296,7 +2468,7 @@ function newRowFor(tab){
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
     case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'' };
-    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', projectName:'', address:'', postcode:'', postcodeManual:false, comms:[] };
+    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
   }
@@ -2317,6 +2489,26 @@ document.addEventListener('change', (e) => {
   else if(tab==='root') state[field] = value;
   else if(tab==='stages'){ const p=Number(el.dataset.proj), s=Number(el.dataset.sidx); if(state.pipeline[p] && state.pipeline[p].stages[s]) state.pipeline[p].stages[s][field] = value; }
   else if(tab==='projmilestone'){ const p=Number(el.dataset.idx); if(state.projects[p]){ state.projects[p].milestones = state.projects[p].milestones||{}; state.projects[p].milestones[field] = value; } }
+  else if(tab==='tiers' && state.tiers[Number(el.dataset.idx)]){
+    const t = state.tiers[Number(el.dataset.idx)];
+    if(field==='min' || field==='max'){
+      const n = parseFloat(String(el.value).replace(/[£,\s]/g,''));
+      t[field] = isNaN(n) ? '' : Math.max(0, n);
+      t.placeholder = false; reapplyAutoTiers();
+    } else if(field==='name'){ t.name = el.value.trim() || t.name; }
+    else if(field==='label'){ t.label = el.value.trim(); }
+  }
+  else if(tab==='leads' && state.leads[Number(el.dataset.idx)] && field==='estValue'){
+    const l = state.leads[Number(el.dataset.idx)];
+    const n = parseFloat(el.value);
+    l.estValue = (el.value==='' || isNaN(n)) ? '' : Math.max(0, n);
+    applyAutoTier(l);
+  }
+  else if(tab==='leads' && state.leads[Number(el.dataset.idx)] && field==='tierSel'){
+    const l = state.leads[Number(el.dataset.idx)];
+    if(el.value==='auto'){ l.tierManual = false; applyAutoTier(l); }
+    else { l.tierManual = true; l.tierId = el.value==='none' ? '' : el.value; }
+  }
   else if(tab==='leads' && state.leads[Number(el.dataset.idx)] && (field==='address' || field==='postcode')){
     const l = state.leads[Number(el.dataset.idx)];
     if(field==='address'){ l.address = value; if(!l.postcodeManual) l.postcode = extractPostcode(value); }
@@ -2373,6 +2565,13 @@ document.addEventListener('click', (e) => {
   else if(action === 'add-lead'){ const l = newRowFor('leads'); l.id = state.nextRecordId++; expandedLeads.add(l.id); state.leads.push(l); render(); saveState(); }
   else if(action === 'delete-lead'){ state.leads.splice(Number(btn.dataset.idx),1); render(); saveState(); }
   else if(action === 'toggle-lead'){ const id = Number(btn.dataset.id); if(expandedLeads.has(id)) expandedLeads.delete(id); else expandedLeads.add(id); renderLeads(); }
+  else if(action === 'add-tier'){ state.tiers.push({ id: newTierId(), name: 'Tier ' + (state.tiers.length+1), label: '', image: '', min: '', max: '', placeholder: false }); render(); saveState(); }
+  else if(action === 'delete-tier'){ deleteTier(Number(btn.dataset.idx)); }
+  else if(action === 'tier-up' || action === 'tier-down'){
+    const i = Number(btn.dataset.idx), j = action==='tier-up' ? i-1 : i+1;
+    if(state.tiers[i] && state.tiers[j]){ [state.tiers[i], state.tiers[j]] = [state.tiers[j], state.tiers[i]]; reapplyAutoTiers(); render(); saveState(); }
+  }
+  else if(action === 'tier-img-remove'){ const t = state.tiers[Number(btn.dataset.idx)]; if(t){ t.image = ''; render(); saveState(); } }
   else if(action === 'set-lead-type'){ const l = state.leads[Number(btn.dataset.idx)]; if(l && l.leadType !== btn.dataset.val){ l.leadType = btn.dataset.val; render(); saveState(); } }
   else if(action === 'promote-lead'){ promoteLead(Number(btn.dataset.id)); }
   else if(action === 'add-comm'){
@@ -2505,9 +2704,18 @@ function ensurePipelineIds(){
     delete l.business;
     if(typeof l.projectName !== 'string') l.projectName = '';
     if(typeof l.address !== 'string') l.address = '';
+    l.tierManual = !!l.tierManual;
+    if(typeof l.tierId !== 'string') l.tierId = '';
+    if(typeof l.estValue !== 'number') l.estValue = '';   // budget is free text, so nothing is migrated into the numeric value
     l.postcodeManual = !!l.postcodeManual;
     if(typeof l.postcode !== 'string') l.postcode = l.postcodeManual ? '' : extractPostcode(l.address);
   });
+  // tiers: fill any missing fields; drop references to tiers that no longer exist
+  state.tiers = (state.tiers||[]).filter(t => t && typeof t === 'object').map(t => ({
+    id: t.id || newTierId(), name: t.name || 'Tier', label: t.label||'', image: typeof t.image==='string' ? t.image : '',
+    min: (t.min===''||t.min==null||isNaN(Number(t.min))) ? '' : Number(t.min), max: (t.max===''||t.max==null||isNaN(Number(t.max))) ? '' : Number(t.max), placeholder: !!t.placeholder }));
+  if(!tierById(state.settings.defaultTierId)) state.settings.defaultTierId = '';
+  [...state.leads, ...state.pipeline, ...state.projects].forEach(r => { if(r.tierId && !tierById(r.tierId)) r.tierId = ''; });
   if(!state.nextPipelineId || state.nextPipelineId <= maxId) state.nextPipelineId = maxId + 1;
   if(!state.nextRecordId || state.nextRecordId <= maxId) state.nextRecordId = maxId + 1;
 }
