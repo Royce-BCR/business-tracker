@@ -244,6 +244,12 @@
     cursor: col-resize; user-select: none;
   }
   .col-handle:hover { background: linear-gradient(to right, transparent, rgba(168,118,62,0.35)); }
+  /* resizable tables (Leads, Sales Pipeline, Project Pipeline + their detail tables): fixed layout driven by <colgroup> */
+  .rt-table { table-layout: fixed; }
+  .rt-table th { overflow: hidden; text-overflow: ellipsis; }
+  .rt-table td { overflow: hidden; }
+  .link-btn { background: none; border: none; padding: 0; font-family: inherit; font-size: 11px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+  .link-btn:hover { color: var(--ink); }
 
   input, select, textarea {
     width: 100%;
@@ -324,7 +330,7 @@
   .archived-body[hidden] { display: none; }
 
   /* table width control */
-  .table-tools { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .table-tools { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-bottom: 6px; }
   .width-toggle { display: inline-flex; background: #efece6; border-radius: 8px; padding: 2px; gap: 2px; }
   .width-toggle button { border: none; background: none; font-family: inherit; font-size: 11px; font-weight: 500; padding: 4px 11px; border-radius: 6px; cursor: pointer; color: var(--muted); }
   .width-toggle button.active { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
@@ -400,6 +406,27 @@
   .tier-warn { font-size: 12px; background: #fdf3ee; color: #b3453f; border-radius: 8px; padding: 8px 12px; margin-top: 10px; line-height: 1.55; }
   .modal-extra { margin: -8px 0 20px; }
   .modal-extra select { border: 1px solid var(--line); background: #fff; padding: 8px; }
+  .modal-extra textarea { border: 1px solid var(--line); background: #fff; padding: 8px; margin-top: 8px; min-height: 64px; }
+  .modal-extra .modal-err { color: #b3453f; font-size: 12px; margin-top: 6px; min-height: 0; }
+  .modal-extra .modal-err:empty { display: none; }
+  /* settings: pipeline stage cards + lost reasons */
+  .stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+  .stage-cards .card { margin-bottom: 0; }
+  .stage-list { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 12px; }
+  .stage-row { display: grid; grid-template-columns: 58px minmax(0,1fr) 34px; gap: 8px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+  .stage-row.has-pct { grid-template-columns: 58px minmax(0,1fr) 74px 34px; }
+  .stage-row input[type=text], .stage-row input[type=number] { border: 1px solid var(--line); background: #fff; padding: 6px 8px; }
+  .stage-row .pct-wrap { display: flex; align-items: center; gap: 3px; font-size: 11.5px; color: var(--muted); }
+  .stage-head { display: grid; grid-template-columns: 58px minmax(0,1fr) 34px; gap: 8px; padding: 0 8px; margin-top: 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+  .stage-head.has-pct { grid-template-columns: 58px minmax(0,1fr) 74px 34px; }
+  /* lost leads bar (Leads tab, bottom) */
+  .lost-section { margin-top: 26px; opacity: 0.8; }
+  .lost-section .archived-toggle { background: #f1efeb; color: #9a958b; font-size: 11.5px; padding: 7px 12px; }
+  .lost-section .archived-toggle:hover { background: #ebe8e2; }
+  .lost-section .table-scroll { background: #f7f5f1; box-shadow: none; }
+  .lost-section table td, .lost-section table th { color: #9a958b; }
+  .lost-section .btn.secondary { padding: 4px 11px; font-size: 11px; color: #6c675e; }
+  .btn.lost-btn { margin-left: 10px; color: #8a6a67; border-color: #e3d4d2; }
   @media (max-width: 860px){ .tier-row { grid-template-columns: 1fr 1fr; } }
   .gate-msg { font-size: 12px; color: #b3453f; margin-bottom: 10px; }
   .gate-msg.ok { color: var(--green); }
@@ -742,6 +769,7 @@
     </div>
     <div class="btn-row"><button class="btn" data-action="add-lead">+ Add lead</button></div>
     <div class="table-scroll" id="leadsTableWrap"></div>
+    <div id="lostLeadsWrap"></div>
   </div>
 
   <!-- SALES PIPELINE -->
@@ -819,11 +847,12 @@
       <div class="desc">Central configuration — the knobs that drive the rest of the system. Change them here and everything downstream re-calculates.</div>
     </div>
 
-    <div class="section-label">Sales stage → probability</div>
-    <div class="card">
-      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;">Each sales stage carries a default win probability, used to weight the forecast. A deal inherits its stage's probability automatically — you can override a single deal in its Sales Pipeline detail if it's unusually hot or cold.</p>
-      <div class="assumptions-grid" id="stageProbGrid"></div>
-    </div>
+    <div class="section-label">Pipeline stages</div>
+    <p style="font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.55;max-width:760px;">The stages each pipeline moves through. Rename, reorder, add or delete them — records keep their place because they follow a stage's hidden id, not its name. Each Sales stage carries a <strong>weighted percentage</strong> that weights the forecast, cash flow and dashboard; you can still override a single deal in its Sales Pipeline detail. Deleting a stage that holds records asks where to move them.</p>
+    <div class="stage-cards" id="stageCards"></div>
+
+    <div class="section-label">Lost reasons</div>
+    <div class="card" id="lostReasonsCard"></div>
 
     <div class="section-label">Cash &amp; payment terms</div>
     <div class="card">
@@ -966,12 +995,100 @@ function monthLabel(d){ return d.toLocaleDateString('en-GB',{month:'short',year:
 function money(n){ if(n===null||n===undefined||isNaN(n)) return '£0'; return '£'+Math.round(n).toLocaleString('en-GB'); }
 function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
+/* ---------- pipeline stages: configurable lists, referenced by permanent id ---------- */
+/* Seed lists = the stages that used to be hardcoded. Seed ids are fixed so every device/backup migrates to the same ids. */
+const MILESTONE_ORDER = [   // delivery milestone date fields (keys), seeded as the Project pipeline stages
+  ['contractSigned','Contract signed'], ['designSigned','Design & costs signed'], ['materialsOrdered','Materials ordered'],
+  ['materialsDelivered','Materials delivered'], ['onSiteStart','On-site start'], ['buildComplete','Build complete'],
+  ['invoiced','Invoiced'], ['paid','Paid'], ['signOff','Sign-off']
+];
+const STAGE_PIPELINES = ['lead','sales','project'];
+const STAGE_PIPELINE_TITLES = { lead: 'Lead pipeline', sales: 'Sales pipeline', project: 'Project pipeline' };
+const SEED_STAGES = {
+  lead: [ ['stg_lead_not_contacted','Not Contacted'], ['stg_lead_contacted','Contacted'], ['stg_lead_no_opportunity','No Current Opportunity'],
+          ['stg_lead_possible','Possible Opportunity'], ['stg_lead_qualified','Qualified – Ready to Quote'], ['stg_lead_closed','Closed – No Fit'] ],
+  sales: [ ['stg_sales_inquiry','Inquiry',10], ['stg_sales_tabled','Tabled',25], ['stg_sales_quoted','Quoted',50], ['stg_sales_confirmed','Confirmed',100] ]
+};
+const SEED_LOST_REASONS = [ ['lr_price','Price'], ['lr_timing','Timing'], ['lr_competitor','Went with competitor'], ['lr_no_response','No response'], ['lr_not_fit','Not a fit'], ['lr_other','Other'] ];
+function newStageId(o){
+  const used = new Set(); STAGE_PIPELINES.forEach(pl => ((o.pipelineStages||{})[pl]||[]).forEach(s => used.add(s.id)));
+  let id; do { id = 'stg_' + Math.random().toString(36).slice(2,8); } while(used.has(id)); return id;
+}
+function seedStageList(pl, legacyProb){
+  if(pl === 'project') return MILESTONE_ORDER.map(([k,label]) => ({ id: 'stg_proj_'+k, name: label, key: k }));
+  return SEED_STAGES[pl].map(([id,name,pct]) => {
+    const st = { id, name };
+    if(pl === 'sales'){ const lp = legacyProb && legacyProb[name]; st.pct = (lp !== undefined && lp !== null && lp !== '' && !isNaN(Number(lp))) ? Math.round(Number(lp)*100) : pct; }
+    return st;
+  });
+}
+function clampPct(v){ const n = Number(v); return isNaN(n) ? 0 : Math.max(0, Math.min(100, n)); }
+function sortByOrder(list){   // stable: by stored order when present, else by position
+  return list.map((x,i) => ({ x, i, o: (x.order === undefined || x.order === null || x.order === '' || isNaN(Number(x.order))) ? i : Number(x.order) })).sort((a,b) => a.o - b.o || a.i - b.i).map(e => e.x);
+}
+function renumberStages(list){ list.forEach((s,i) => { s.order = i; }); }
+function stageByName(list, name){ const n = String(name==null?'':name).trim().toLowerCase(); return n ? list.find(s => s.name.trim().toLowerCase() === n) : null; }
+/* Normalise stage lists + convert every record from stage NAME to stage ID. Idempotent; used by defaultState() and mergeDefaults()
+   so old backups / old cloud documents migrate on load. Records are never dropped: an unknown old stage name becomes a new stage. */
+function ensureStageModel(o, legacyProb){
+  const ps = (o.pipelineStages && typeof o.pipelineStages === 'object') ? o.pipelineStages : {};
+  o.pipelineStages = ps;
+  STAGE_PIPELINES.forEach(pl => {
+    let list = Array.isArray(ps[pl]) ? ps[pl].filter(s => s && typeof s === 'object' && s.id) : [];
+    if(!list.length) list = seedStageList(pl, legacyProb);
+    list = sortByOrder(list);
+    ps[pl] = list.map(s => {
+      const st = { id: String(s.id), name: String(s.name==null?'':s.name).trim() || 'Stage' };
+      if(s.key) st.key = s.key;
+      if(pl === 'sales') st.pct = clampPct(s.pct);
+      return st;
+    });
+    renumberStages(ps[pl]);
+  });
+  const addStage = (pl, name) => {
+    const st = { id: newStageId(o), name: String(name).trim() };
+    if(pl === 'sales'){ const lp = legacyProb && legacyProb[name]; st.pct = clampPct(lp !== undefined && lp !== '' ? Number(lp)*100 : 0); }
+    ps[pl].push(st); renumberStages(ps[pl]); return st;
+  };
+  const resolve = (pl, id, name) => {
+    const list = ps[pl];
+    if(id && list.some(s => s.id === id)) return id;
+    const hit = stageByName(list, name); if(hit) return hit.id;
+    if(name !== undefined && name !== null && String(name).trim()) return addStage(pl, name).id;
+    return list[0].id;
+  };
+  (o.leads||[]).forEach(l => {
+    l.stageId = resolve('lead', l.stageId, l.status); delete l.status;
+    l.lost = !!l.lost;
+    if(l.lost){ l.lostStageId = (l.lostStageId && ps.lead.some(s => s.id === l.lostStageId)) ? l.lostStageId : l.stageId; }
+  });
+  (o.pipeline||[]).forEach(r => { r.stageId = resolve('sales', r.stageId, r.stage); delete r.stage; });
+  (o.projects||[]).forEach(p => {
+    if(p.stageId && ps.project.some(s => s.id === p.stageId)) return;
+    const m = p.milestones || {}; let id = '';
+    ps.project.forEach(s => { if(s.key && m[s.key]) id = s.id; });   // furthest milestone reached = the old derived "progress"
+    p.stageId = id || ps.project[0].id;
+  });
+  // lost reasons
+  let rs = Array.isArray(o.lostReasons) ? o.lostReasons.filter(r => r && r.id) : [];
+  if(!rs.length) rs = SEED_LOST_REASONS.map(([id,name]) => ({ id, name }));
+  rs = sortByOrder(rs).map(r => ({ id: String(r.id), name: String(r.name==null?'':r.name).trim() || 'Reason' }));
+  renumberStages(rs); o.lostReasons = rs;
+  (o.leads||[]).forEach(l => {
+    if(!l.lost){ if(l.lostReason === undefined) l.lostReason = ''; return; }
+    if(!rs.some(r => r.id === l.lostReason)){ const hit = stageByName(rs, l.lostReason); l.lostReason = hit ? hit.id : ''; }
+    if(typeof l.lostNote !== 'string') l.lostNote = '';
+    if(typeof l.lostDate !== 'string') l.lostDate = '';
+  });
+  if(o.settings) delete o.settings.stageProbability;   // replaced by the Sales stages' own percentages
+  return o;
+}
+
 /* ---------- default state ---------- */
 function defaultState(){
-  return {
+  return ensureStageModel({
     startingCash: 2000,
     settings: {
-      stageProbability: { 'Inquiry': 0.1, 'Tabled': 0.25, 'Quoted': 0.5, 'Confirmed': 1.0 },
       tradeAccountDays: 30,
       paymentTermsDays: 7,
       startingCash: 2000,
@@ -1101,7 +1218,7 @@ function defaultState(){
       { dateRaised: '2026-09-01', action: 'Prioritise outdoor structure / BBQ area leads in the pipeline', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Strong niche — suits higher-end clients and Lynton\'s creative style' }
     ],
     archivedActions: []
-  };
+  });
 }
 
 let state = null;
@@ -1116,10 +1233,13 @@ function mergeDefaults(loaded){
   out.tableModes = Object.assign({}, loaded.tableModes || {});
   out.colWidths = Object.assign({}, loaded.colWidths || {});
   out.settings = Object.assign({}, d.settings, loaded.settings || {});
-  out.settings.stageProbability = Object.assign({}, d.settings.stageProbability, (loaded.settings||{}).stageProbability || {});
   ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions','tiers'].forEach(k => {
     if(!Array.isArray(out[k])) out[k] = d[k];
   });
+  // stages: seed/normalise the configurable lists and convert any old stage NAMES on records to stage IDs
+  // (old backups carried settings.stageProbability — it seeds the Sales stage percentages, then is dropped)
+  if(!loaded.pipelineStages) delete out.pipelineStages;   // old document: re-seed from the old names/percentages, not from today's defaults
+  ensureStageModel(out, (loaded.settings || {}).stageProbability);
   return out;
 }
 /* ---------- storage layer: cloud (Supabase REST) with localStorage fallback ---------- */
@@ -1421,9 +1541,18 @@ function projectRollup(p){
 }
 function effectiveProb(r){
   if(r.probOverride !== undefined && r.probOverride !== null && r.probOverride !== '') return Number(r.probOverride);
-  const sp = (state.settings && state.settings.stageProbability) || {};
-  return sp[r.stage] !== undefined ? Number(sp[r.stage]) : 0;
+  const st = stageById('sales', r.stageId);
+  return st ? clampPct(st.pct)/100 : 0;
 }
+function autoProjectStageId(p){   // the furthest stage whose milestone date is filled in ('' if none)
+  const m = p.milestones || {}; let id = '';
+  state.pipelineStages.project.forEach(s => { if(s.key && m[s.key]) id = s.id; });
+  return id;
+}
+function stageById(pl, id){ return ((state.pipelineStages||{})[pl]||[]).find(s => s.id === id) || null; }
+function stageName(pl, id){ const s = stageById(pl, id); return s ? s.name : '—'; }
+function firstStageId(pl){ const l = (state.pipelineStages||{})[pl] || []; return l.length ? l[0].id : ''; }
+const activeLeads = () => state.leads.filter(l => !l.lost);
 function derivePipelineRow(row){
   const roll = projectRollup(row);
   const completion = roll.end;
@@ -1492,7 +1621,7 @@ function renderDashboard(){
   const today = new Date(); today.setHours(0,0,0,0);
   const openActions = state.actions.filter(a=>a.status!=='Done').length;
   const overdue = state.actions.filter(a=>a.deadline && a.status!=='Done' && toDate(a.deadline)<today).length;
-  const contactedWeek = state.leads.filter(l=>{ if(!l.lastContacted) return false; const diff=(today-toDate(l.lastContacted))/86400000; return diff>=0 && diff<=7; }).length;
+  const contactedWeek = activeLeads().filter(l=>{ if(!l.lastContacted) return false; const diff=(today-toDate(l.lastContacted))/86400000; return diff>=0 && diff<=7; }).length;
 
   const kpis = [
     { label:'Weighted pipeline', value: money(weightedPipeline), sub:`of ${money(totalPipeline)} total`, accent:'var(--g-growth)' },
@@ -1514,10 +1643,9 @@ function renderDashboard(){
   document.getElementById('cashChart').innerHTML = cashFlowChartSVG(cf);
 
   // pipeline by stage
-  const stages = ['Inquiry','Tabled','Quoted','Confirmed'];
-  const byStage = stages.map(st => {
-    const rows = sales.filter(r=>r.stage===st);
-    return { st, count: rows.length, val: rows.reduce((s,r)=>s+(Number(r.quoteValue)||0),0) };
+  const byStage = state.pipelineStages.sales.map(stg => {
+    const rows = sales.filter(r=>r.stageId===stg.id);
+    return { st: escHtml(stg.name), count: rows.length, val: rows.reduce((s,r)=>s+(Number(r.quoteValue)||0),0) };
   });
   const maxVal = Math.max(1, ...byStage.map(b=>b.val));
   document.getElementById('stageBars').innerHTML = byStage.map(b => `
@@ -1597,15 +1725,10 @@ function renderPipeline(){
 }
 
 function renderPipelineTable(){
-  const salesStages = ['Inquiry','Tabled','Quoted','Confirmed'];
+  const salesStages = state.pipelineStages.sales;
   const tiers = ['Needs re-scoping','Tier 1','Tier 2','Tier 3'];
   const kinds = Object.keys(STAGE_KINDS);
-  let html = `<table style="min-width:1120px"><thead><tr>
-    <th style="width:34px"></th><th style="width:104px">Code</th><th style="min-width:180px">Project / Client</th>
-    <th style="width:88px">Type</th><th style="width:120px">Tier</th><th style="width:108px">Sales Stage</th>
-    <th style="width:60px">Prob.</th><th style="width:96px">Quote (£)</th>
-    <th style="width:104px">Start</th><th style="width:104px">Complete</th><th style="width:96px">Cost (£)</th>
-    <th style="width:34px"></th></tr></thead><tbody>`;
+  let html = rtTable('pipelineTableWrap', ['','Code','Project / Client','Type','Tier','Sales Stage','Prob.','Quote (£)','Start','Complete','Cost (£)','']);
   state.pipeline.forEach((r, i) => {
     const d = derivePipelineRow(r);
     const roll = d.rollup;
@@ -1620,7 +1743,7 @@ function renderPipelineTable(){
         <option value="real"${r.type==='real'?' selected':''}>Real</option>
         <option value="example"${r.type==='example'?' selected':''}>Example</option></select></td>
       <td><select data-tab="pipeline" data-idx="${i}" data-field="tier">${tiers.map(t=>`<option${r.tier===t?' selected':''}>${t}</option>`).join('')}</select></td>
-      <td><select data-tab="pipeline" data-idx="${i}" data-field="stage">${salesStages.map(s=>`<option${r.stage===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="stageId">${salesStages.map(s=>`<option value="${escHtml(s.id)}"${r.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
       <td class="computed" title="From sales stage">${Math.round(effectiveProb(r)*100)}%${(r.probOverride!==undefined&&r.probOverride!==null&&r.probOverride!=='')?'*':''}</td>
       <td><input type="number" step="1" data-tab="pipeline" data-idx="${i}" data-field="quoteValue" value="${r.quoteValue}"></td>
       <td class="computed">${fmtDisplay(roll.start)}</td>
@@ -1638,10 +1761,7 @@ function renderPipelineTable(){
         <div class="detail-notes"><label>Notes</label><input data-tab="pipeline" data-idx="${i}" data-field="notes" value="${escAttr(r.notes||'')}"></div>
         <div class="stage-label-row">Stages — each carries its own dates &amp; cost; the project rolls up from these</div>
         <div class="table-scroll" style="box-shadow:none;border-radius:9px;">
-        <table style="min-width:760px"><thead><tr>
-          <th style="min-width:170px">Stage</th><th style="width:140px">Kind</th><th style="width:128px">Start</th>
-          <th style="width:128px">End</th><th style="width:64px">Days</th><th style="width:100px">Cost (£)</th><th style="width:34px"></th>
-        </tr></thead><tbody>`;
+        ${rtTable('pipelineStages', ['Stage','Kind','Start','End','Days','Cost (£)',''])}`;
       (r.stages||[]).forEach((s, si) => {
         const sDays = (s.start && (s.end||s.start)) ? Math.round((toDate(s.end||s.start)-toDate(s.start))/86400000)+1 : 0;
         html += `<tr>
@@ -1662,7 +1782,7 @@ function renderPipelineTable(){
         </div>
         <div class="stage-label-row" style="margin-top:8px;">Forecast weighting</div>
         <div class="qual-grid" style="grid-template-columns:1fr 1fr;max-width:520px;">
-          <div class="qual-field"><label>Effective probability</label><input class="computed" disabled value="${Math.round(effectiveProb(r)*100)}% (${r.stage} stage)"></div>
+          <div class="qual-field"><label>Effective probability</label><input class="computed" disabled value="${Math.round(effectiveProb(r)*100)}% (${escHtml(stageName('sales', r.stageId))} stage)"></div>
           <div class="qual-field"><label>Override (optional, 0–1)</label><input type="number" step="0.05" min="0" max="1" data-tab="pipeline" data-idx="${i}" data-field="probOverride" value="${(r.probOverride!==undefined&&r.probOverride!==null)?r.probOverride:''}" placeholder="blank = use stage default"></div>
         </div>
         <div class="stage-label-row" style="margin-top:8px;">Close &amp; hand to delivery</div>
@@ -1678,7 +1798,9 @@ function renderPipelineTable(){
     }
   });
   html += '</tbody></table>';
-  document.getElementById('pipelineTableWrap').innerHTML = html;
+  const wrap = document.getElementById('pipelineTableWrap');
+  wrap.innerHTML = html;
+  rtApply(wrap);
 }
 
 /* ---------- Gantt ---------- */
@@ -1860,13 +1982,13 @@ document.addEventListener('change', (e) => {
 });
 
 /* ---------- Leads ---------- */
-const LEAD_STATUSES = ['Not Contacted','Contacted','No Current Opportunity','Possible Opportunity','Qualified – Ready to Quote','Closed – No Fit'];
 const expandedLeads = new Set();
-function leadStatusStyle(s){
-  if(s==='Qualified – Ready to Quote') return 'background:#e4f0e6;color:#4f8a5b;';
-  if(s==='Possible Opportunity') return 'background:#fbf1cf;color:#c9822f;';
-  if(s==='Contacted') return 'background:#e6ecf5;color:#4a6b8a;';
-  if(s==='Closed – No Fit') return 'background:#f0eae9;color:#a08a87;';
+/* pill colours follow the stage id (so renaming keeps the colour); stages you add get the neutral grey */
+function leadStatusStyle(stageId){
+  if(stageId==='stg_lead_qualified') return 'background:#e4f0e6;color:#4f8a5b;';
+  if(stageId==='stg_lead_possible') return 'background:#fbf1cf;color:#c9822f;';
+  if(stageId==='stg_lead_contacted') return 'background:#e6ecf5;color:#4a6b8a;';
+  if(stageId==='stg_lead_closed') return 'background:#f0eae9;color:#a08a87;';
   return 'background:#efece6;color:#6c675e;';
 }
 function leadQualified(l){ return !!(l.budget && l.decisionMaker && l.timeline && l.competition); }
@@ -1896,27 +2018,12 @@ function sortedComms(l){
   return (l.comms||[]).map((c,ci)=>({c,ci})).sort((a,b)=>
     (b.c.date||'').localeCompare(a.c.date||'') || ((b.c.created||0) - (a.c.created||0)) || (b.ci - a.ci));
 }
-/* leads table column widths (px), remembered per table in state.colWidths */
 const LEADS_TABLE_ID = 'leadsTableWrap';
-const LEADS_COLS = [ // [default, min]
-  [34,34], [66,56], [64,44], [200,90], [170,90], [170,90], [110,76], [126,84], [200,110], [34,34] ];
-function leadColWidths(){
-  let saved = (state.colWidths && state.colWidths[LEADS_TABLE_ID]) || [];
-  if(saved.length === LEADS_COLS.length - 1) saved = [...saved.slice(0,2), LEADS_COLS[2][0], ...saved.slice(2)];   // widths saved before the Tier column existed
-  else if(saved.length !== LEADS_COLS.length) saved = [];
-  return LEADS_COLS.map((c,i) => Math.max(c[1], Number(saved[i]) || c[0]));
-}
-function applyLeadCols(table, widths, fit){
-  const sum = widths.reduce((a,b)=>a+b,0);
-  table.querySelectorAll('col').forEach((col,i) => { col.style.width = fit ? (widths[i]/sum*100).toFixed(3)+'%' : widths[i]+'px'; });
-  table.style.minWidth = fit ? '0' : sum+'px';
-}
 function renderLeads(){
-  const widths = leadColWidths();
-  const heads = ['','Code','Tier','Project name','Contact','Company','Postcode','Last contacted','Lead status',''];
-  let html = `<table class="leads-table"><colgroup>${widths.map(()=>'<col>').join('')}</colgroup><thead><tr>${heads.map((h,i)=>
-    `<th>${h}${(i===0||i===heads.length-1)?'':`<div class="col-handle" data-leadcol="${i}" title="Drag to resize · double-click to reset"></div>`}</th>`).join('')}</tr></thead><tbody>`;
+  const leadStages = state.pipelineStages.lead;
+  let html = rtTable('leadsTableWrap', ['','Code','Tier','Project name','Contact','Company','Postcode','Last contacted','Lead status',''], 'leads-table');
   state.leads.forEach((l,i) => {
+    if(l.lost) return;   // lost leads live in the Lost leads bar below; i stays the real index into state.leads
     const isOpen = expandedLeads.has(l.id);
     const isCommercial = l.leadType === 'Commercial';
     const last = leadLastContact(l);
@@ -1931,7 +2038,7 @@ function renderLeads(){
         : `<input class="computed" disabled value="—" title="Residential — no company">`}</td>
       <td><input class="lead-pc${l.postcodeManual?' manual':''}" data-tab="leads" data-idx="${i}" data-field="postcode" value="${escAttr(l.postcode||'')}" title="${l.postcodeManual?'Set manually — clear this cell to go back to automatic':'Filled automatically from the address — type to override'}"></td>
       <td class="computed" title="Pulled from the latest communication entry">${last?fmtDisplay(toDate(last)):'—'}</td>
-      <td><select class="lead-pill" data-tab="leads" data-idx="${i}" data-field="status" style="${leadStatusStyle(l.status)}">${LEAD_STATUSES.map(s=>`<option${l.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td><select class="lead-pill" data-tab="leads" data-idx="${i}" data-field="stageId" style="${leadStatusStyle(l.stageId)}">${leadStages.map(s=>`<option value="${escHtml(s.id)}"${l.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
       <td><button class="icon-btn" data-action="delete-lead" data-idx="${i}" title="Delete lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
     </tr>`;
     if(isOpen){
@@ -1965,6 +2072,7 @@ function renderLeads(){
             ${qualified
               ? `<div class="gate-msg ok">✓ Qualified — ready to promote.</div><button class="promote-btn" data-action="promote-lead" data-id="${l.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Sales Pipeline</button>`
               : `<div class="gate-msg">Fill all four qualification fields to unlock promotion.</div><button class="promote-btn" disabled>Promote to Sales Pipeline</button>`}
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);"><button class="btn secondary lost-btn" style="margin-left:0;" data-action="mark-lost" data-id="${l.id}">Mark as lost</button></div>
           </div>
           <div class="lead-col-right">
             <div class="stage-label-row" style="display:flex;justify-content:space-between;align-items:center;">Communication timeline <button class="btn secondary" style="padding:4px 10px;font-size:11px;" data-action="add-comm" data-id="${l.id}">+ Add touchpoint</button></div>
@@ -1985,52 +2093,119 @@ function renderLeads(){
   html += '</tbody></table>';
   const wrap = document.getElementById(LEADS_TABLE_ID);
   wrap.innerHTML = html;
-  applyLeadCols(wrap.firstChild, widths, wrap.classList.contains('fitmode'));
+  rtApply(wrap);
+  renderLostLeads();
 }
-/* drag the grab bar on a Leads header cell to resize that column */
+/* ---------- lost leads ---------- */
+function lostReasonName(id){ const r = (state.lostReasons||[]).find(x => x.id === id); return r ? r.name : '—'; }
+function renderLostLeads(){
+  const wrap = document.getElementById('lostLeadsWrap'); if(!wrap) return;
+  const lost = state.leads.filter(l => l.lost);
+  if(!lost.length){ wrap.innerHTML = ''; return; }
+  const open = wrap.dataset.open === '1';
+  const rows = lost.map(l => `<tr>
+      <td class="code-cell" style="width:80px">${recordCode(l.id,'lead')}</td>
+      <td>${escHtml(l.projectName||'—')}</td>
+      <td>${escHtml(l.contact || l.company || '—')}</td>
+      <td title="${escHtml(l.lostNote||'')}">${escHtml(lostReasonName(l.lostReason))}${l.lostNote ? ' <span title="'+escHtml(l.lostNote)+'">·&nbsp;note</span>' : ''}</td>
+      <td style="width:120px">${l.lostDate ? fmtDisplay(toDate(l.lostDate)) : '—'}</td>
+      <td style="width:90px;text-align:right;"><button class="btn secondary" data-action="restore-lead" data-id="${l.id}">Restore</button></td>
+    </tr>`).join('');
+  wrap.innerHTML = `<div class="archived-section lost-section">
+      <div class="archived-toggle${open?' open':''}" data-action="toggle-lost">
+        <span>Lost leads (${lost.length})</span>${CHEV_SVG}
+      </div>
+      <div class="archived-body table-scroll" ${open?'':'hidden'}>
+        <table><thead><tr><th>Code</th><th>Project name</th><th>Contact</th><th>Reason</th><th>Date lost</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+}
+async function markLeadLost(id){
+  const l = state.leads.find(x => x.id === id && !x.lost); if(!l) return;
+  if(!state.lostReasons.length){ alert('Add at least one lost reason in Settings first.'); return; }
+  const extra = `<select id="lostReasonSel" required><option value="">Select a reason…</option>${state.lostReasons.map(r=>`<option value="${escHtml(r.id)}">${escHtml(r.name)}</option>`).join('')}</select>
+    <textarea id="lostNoteTxt" placeholder="Optional note"></textarea><div class="modal-err" id="modalExtraErr"></div>`;
+  const ok = await showConfirm('Mark this lead as lost?', `${recordCode(l.id,'lead')} · ${leadPrimaryName(l)} will leave the active Leads view and all active counts. You can restore it from the Lost leads bar at the bottom of this tab.`, extra);
+  if(!ok || !_confirmExtraValue) return;
+  l.lostStageId = l.stageId;
+  l.lostReason = _confirmExtraValue; l.lostNote = (_confirmExtraNote || '').trim(); l.lostDate = fmt(new Date());
+  l.lost = true;
+  expandedLeads.delete(l.id);
+  render(); saveState();
+}
+function restoreLead(id){
+  const l = state.leads.find(x => x.id === id && x.lost); if(!l) return;
+  l.stageId = stageById('lead', l.lostStageId) ? l.lostStageId : (stageById('lead', l.stageId) ? l.stageId : firstStageId('lead'));
+  l.lost = false; l.lostReason = ''; l.lostNote = ''; l.lostDate = ''; l.lostStageId = '';
+  render(); saveState();
+}
+/* ---------- resizable columns ----------
+   One mechanism for Leads, Sales Pipeline, Project Pipeline and their expandable detail tables (sub-stages, payment lines).
+   Each table is a fixed-layout <table data-rt="key"> driven by a <colgroup>; widths are remembered per table key in
+   state.colWidths (so they sync/backup with the main document). Spec = [default px, minimum px]; a column whose
+   default equals its minimum (chevron / delete) has no drag handle. */
+const RT_SPECS = {
+  leadsTableWrap:    { cols: [[34,34],[66,56],[64,44],[200,90],[170,90],[170,90],[110,76],[126,84],[200,110],[34,34]] },
+  pipelineTableWrap: { cols: [[34,34],[104,80],[220,120],[104,84],[140,110],[130,104],[64,52],[100,72],[116,100],[116,100],[100,72],[34,34]], nested: ['pipelineStages'] },
+  pipelineStages:    { cols: [[200,100],[140,90],[128,104],[128,104],[64,48],[100,70],[34,34]], parent: 'pipelineTableWrap' },
+  projectsTableWrap: { cols: [[34,34],[100,80],[240,120],[120,90],[200,120],[150,100],[34,34]], nested: ['projectPayments'] },
+  projectPayments:   { cols: [[90,72],[220,100],[128,104],[100,72],[128,104],[128,104],[34,34]], parent: 'projectsTableWrap' }
+};
+function rtTable(key, heads, cls){
+  const cols = RT_SPECS[key].cols;
+  return `<table class="rt-table${cls?' '+cls:''}" data-rt="${key}"><colgroup>${cols.map(()=>'<col>').join('')}</colgroup><thead><tr>${heads.map((h,i)=>
+    `<th>${h}${cols[i][0] > cols[i][1] ? `<div class="col-handle" data-rtcol="${i}" title="Drag to resize · double-click to reset"></div>` : ''}</th>`).join('')}</tr></thead><tbody>`;
+}
+function rtWidths(key){
+  const cols = RT_SPECS[key].cols;
+  let saved = (state.colWidths && state.colWidths[key]) || [];
+  if(key === LEADS_TABLE_ID && saved.length === cols.length - 1) saved = [...saved.slice(0,2), cols[2][0], ...saved.slice(2)];   // widths saved before the Tier column existed
+  else if(saved.length !== cols.length) saved = [];
+  return cols.map((c,i) => Math.max(c[1], Number(saved[i]) || c[0]));
+}
+function rtFit(table){ const sc = table.closest('.table-scroll[id]'); return !!(sc && sc.classList.contains('fitmode')); }   // detail tables follow their page table's Fit / Expand mode
+function rtApplyTable(table, widths, fit){
+  const sum = widths.reduce((a,b) => a+b, 0);
+  [...table.querySelector(':scope > colgroup').children].forEach((col,i) => { col.style.width = fit ? (widths[i]/sum*100).toFixed(3)+'%' : widths[i]+'px'; });
+  table.style.minWidth = fit ? '0' : sum+'px';
+}
+function rtApply(root){ (root || document).querySelectorAll('table[data-rt]').forEach(t => rtApplyTable(t, rtWidths(t.dataset.rt), rtFit(t))); }
+function rtReset(id){   // a page table and its detail tables back to default widths
+  const spec = RT_SPECS[id]; if(!spec) return;
+  [id, ...(spec.nested||[])].forEach(k => { if(state.colWidths) delete state.colWidths[k]; });
+  rtApply(); saveState();
+}
+/* drag the grab bar on a header cell to resize that column (double-click it to reset just that column) */
 document.addEventListener('pointerdown', (e) => {
-  const h = e.target.closest && e.target.closest('.col-handle[data-leadcol]'); if(!h) return;
+  const h = e.target.closest && e.target.closest('.col-handle[data-rtcol]'); if(!h) return;
   e.preventDefault(); e.stopPropagation();
-  const wrap = document.getElementById(LEADS_TABLE_ID), table = wrap.querySelector('table');
-  const idx = Number(h.dataset.leadcol), fit = wrap.classList.contains('fitmode');
-  const widths = [...table.querySelectorAll('thead th')].map(th => th.getBoundingClientRect().width);
+  const table = h.closest('table'), key = table.dataset.rt, cols = RT_SPECS[key].cols;
+  const idx = Number(h.dataset.rtcol), fit = rtFit(table);
+  const cells = () => [...table.tHead.rows[0].cells];
+  const widths = cells().map(th => th.getBoundingClientRect().width);
   const startX = e.clientX, startW = widths[idx];
+  const applyAll = () => document.querySelectorAll(`table[data-rt="${key}"]`).forEach(t => rtApplyTable(t, widths, rtFit(t)));
   const save = () => { // store what is actually on screen (in fit mode the browser scales the columns to fit)
     state.colWidths = state.colWidths || {};
-    state.colWidths[LEADS_TABLE_ID] = [...table.querySelectorAll('thead th')].map(th => Math.round(th.getBoundingClientRect().width));
+    state.colWidths[key] = cells().map(th => Math.round(th.getBoundingClientRect().width));
     saveState();
   };
-  const move = ev => { widths[idx] = Math.max(LEADS_COLS[idx][1], startW + ev.clientX - startX); applyLeadCols(table, widths, fit); };
+  const move = ev => { widths[idx] = Math.max(cols[idx][1], startW + ev.clientX - startX); applyAll(); };
   const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.body.style.cursor=''; save(); };
   document.body.style.cursor = 'col-resize';
   document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
-  h.addEventListener('dblclick', () => { // double-click: back to the default width
-    widths[idx] = LEADS_COLS[idx][0]; applyLeadCols(table, widths, fit); save();
-  }, { once: true });
+  h.addEventListener('dblclick', () => { widths[idx] = cols[idx][0]; applyAll(); save(); }, { once: true });
 });
 
 /* ---------- Project Pipeline ---------- */
 const expandedProjectsP = new Set();
-const MILESTONE_ORDER = [
-  ['contractSigned','Contract signed'], ['designSigned','Design & costs signed'], ['materialsOrdered','Materials ordered'],
-  ['materialsDelivered','Materials delivered'], ['onSiteStart','On-site start'], ['buildComplete','Build complete'],
-  ['invoiced','Invoiced'], ['paid','Paid'], ['signOff','Sign-off']
-];
-function projectProgress(p){
-  const m = p.milestones || {};
-  let last = 'Not started';
-  MILESTONE_ORDER.forEach(([k,label]) => { if(m[k]) last = label; });
-  return last;
-}
 function renderProjects(){
   if(state.projects.length === 0){
     document.getElementById('projectsTableWrap').innerHTML = `<div class="placeholder" style="border:none;background:none;"><div class="tag">No live projects yet</div><h3>Nothing here yet</h3><p>When a Sales Pipeline deal has its contract marked signed, promote it here and it becomes a live project.</p></div>`;
     return;
   }
-  let html = `<table style="min-width:920px"><thead><tr>
-    <th style="width:34px"></th><th style="width:100px">Code</th><th style="min-width:190px">Project</th>
-    <th style="width:120px">Agreed value</th><th style="width:180px">Progress</th>
-    <th style="width:120px">Budget vs actual</th><th style="width:34px"></th></tr></thead><tbody>`;
+  const projStages = state.pipelineStages.project;
+  let html = rtTable('projectsTableWrap', ['','Code','Project','Agreed value','Stage','Budget vs actual','']);
   state.projects.forEach((p,i) => {
     const isOpen = expandedProjectsP.has(p.id);
     const m = p.milestones || {};
@@ -2040,16 +2215,16 @@ function renderProjects(){
       <td class="code-cell">${recordCode(p.id,'project')}${tierBadgeSmall(p.id, p)}</td>
       <td><input data-tab="projects" data-idx="${i}" data-field="name" value="${escAttr(p.name)}"></td>
       <td><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="agreedValue" value="${p.agreedValue||0}"></td>
-      <td><span class="progress-pill">${projectProgress(p)}</span></td>
+      <td><select class="lead-pill progress-pill" data-tab="projects" data-idx="${i}" data-field="stageId" title="Project stage">${projStages.map(s=>`<option value="${escHtml(s.id)}"${p.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
       <td class="${costFlag?'':''}" style="${costFlag?'color:#b3453f;font-weight:600;':''}">${money(p.budgetedCost)} / ${money(p.actualCost)}</td>
       <td><button class="icon-btn" data-action="delete-projrec" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
     </tr>`;
     if(isOpen){
       html += `<tr class="detail-row"><td colspan="7"><div class="detail-box">
-        <div class="detail-head"><span class="detail-code" style="background:var(--green);">${recordCode(p.id,'project')}</span><span>${escAttr(p.name)}</span><span class="detail-meta">Progress: ${projectProgress(p)}</span></div>
+        <div class="detail-head"><span class="detail-code" style="background:var(--green);">${recordCode(p.id,'project')}</span><span>${escAttr(p.name)}</span><span class="detail-meta">Stage: ${escHtml(stageName('project', p.stageId))}</span></div>
         <div class="stage-label-row">Delivery milestones</div>
         <div class="milestone-grid">
-          ${MILESTONE_ORDER.map(([k,label]) => `<div><label>${label}</label><input type="date" data-tab="projmilestone" data-idx="${i}" data-field="${k}" value="${m[k]||''}"></div>`).join('')}
+          ${projStages.filter(st => st.key).map(st => `<div><label>${escHtml(st.name)}</label><input type="date" data-tab="projmilestone" data-idx="${i}" data-field="${st.key}" value="${m[st.key]||''}"></div>`).join('')}
         </div>
         <div class="qual-grid">
           <div class="qual-field"><label>Budgeted cost (£)</label><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="budgetedCost" value="${p.budgetedCost||0}"></div>
@@ -2057,10 +2232,7 @@ function renderProjects(){
         </div>
         <div class="stage-label-row">Payment lines — each is a dated money-in event feeding the forecast &amp; cash flow</div>
         <div class="table-scroll" style="box-shadow:none;border-radius:9px;">
-        <table style="min-width:640px"><thead><tr>
-          <th style="width:90px">Code</th><th style="min-width:150px">Description</th><th style="width:128px">Due date</th>
-          <th style="width:100px">Amount (£)</th><th style="width:128px">Invoiced</th><th style="width:128px">Paid</th><th style="width:34px"></th>
-        </tr></thead><tbody>`;
+        ${rtTable('projectPayments', ['Code','Description','Due date','Amount (£)','Invoiced','Paid',''])}`;
       (p.paymentLines||[]).forEach((pl, pli) => {
         html += `<tr>
           <td class="code-cell">${recordCode(p.id,'project')}-INV${pli+1}</td>
@@ -2080,16 +2252,94 @@ function renderProjects(){
     }
   });
   html += '</tbody></table>';
-  document.getElementById('projectsTableWrap').innerHTML = html;
+  const wrap = document.getElementById('projectsTableWrap');
+  wrap.innerHTML = html;
+  rtApply(wrap);
 }
 
-/* ---------- promote mechanics ---------- */
+/* ---------- Settings: pipeline stages + lost reasons ---------- */
+const UP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>';
+const DOWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+let _focusListItem = null;   // id of a just-added stage/reason, focused after the re-render
+/* pl = 'lead' | 'sales' | 'project' | 'reasons' — one editor for all four lists */
+function listFor(pl){ return pl === 'reasons' ? state.lostReasons : state.pipelineStages[pl]; }
+function stageRowsHtml(pl){
+  const list = listFor(pl), hasPct = pl === 'sales';
+  return `<div class="stage-head${hasPct?' has-pct':''}"><span>Order</span><span>Name</span>${hasPct?'<span>Win %</span>':''}<span></span></div>
+  <div class="stage-list">${list.map((st,i) => `<div class="stage-row${hasPct?' has-pct':''}">
+      <div class="tier-move">
+        <button class="icon-btn" data-action="stage-up" data-pl="${pl}" data-id="${escHtml(st.id)}" title="Move up"${i===0?' disabled style="opacity:.3;cursor:default"':''}>${UP_SVG}</button>
+        <button class="icon-btn" data-action="stage-down" data-pl="${pl}" data-id="${escHtml(st.id)}" title="Move down"${i===list.length-1?' disabled style="opacity:.3;cursor:default"':''}>${DOWN_SVG}</button></div>
+      <input type="text" data-tab="stagename" data-pl="${pl}" data-id="${escHtml(st.id)}" value="${escHtml(st.name)}" aria-label="Name">
+      ${hasPct ? `<div class="pct-wrap"><input type="number" step="1" min="0" max="100" data-tab="stagepct" data-pl="${pl}" data-id="${escHtml(st.id)}" value="${Math.round(clampPct(st.pct))}" aria-label="Weighted percentage">%</div>` : ''}
+      <button class="icon-btn" data-action="stage-del" data-pl="${pl}" data-id="${escHtml(st.id)}" title="Delete">${X_SVG}</button>
+    </div>`).join('')}</div>`;
+}
+function renderStageCards(){
+  const blurbs = {
+    lead: 'Where a lead sits from first contact to qualified. Moving a lead along never promotes it — promotion to Sales always goes through the qualification gate.',
+    sales: 'Each stage\'s weighted percentage is its default win probability, weighting the forecast, cash flow and dashboard.',
+    project: 'Delivery stages. Stages that started as delivery milestones keep their date field in a project\'s detail.'
+  };
+  document.getElementById('stageCards').innerHTML = STAGE_PIPELINES.map(pl => `<div class="card">
+      <div class="stage-label-row" style="margin-bottom:4px;">${STAGE_PIPELINE_TITLES[pl]}</div>
+      <p style="font-size:12px;color:var(--muted);margin:0;line-height:1.5;">${blurbs[pl]}</p>
+      ${stageRowsHtml(pl)}
+      <button class="btn secondary" data-action="stage-add" data-pl="${pl}">+ Add stage</button>
+    </div>`).join('');
+  document.getElementById('lostReasonsCard').innerHTML = `
+    <p style="font-size:12.5px;color:var(--muted);margin:0 0 4px;line-height:1.55;">The reasons offered when you mark a lead as lost.</p>
+    <div style="max-width:420px;">${stageRowsHtml('reasons')}
+    <button class="btn secondary" data-action="stage-add" data-pl="reasons">+ Add reason</button></div>`;
+  if(_focusListItem){
+    const el = document.querySelector(`#panel-settings input[data-tab="stagename"][data-id="${_focusListItem}"]`);
+    if(el){ el.focus(); el.select(); }
+    _focusListItem = null;
+  }
+}
+function stageHolders(pl, id){
+  if(pl === 'lead') return state.leads.filter(l => l.stageId === id || l.lostStageId === id);
+  if(pl === 'sales') return state.pipeline.filter(r => r.stageId === id);
+  if(pl === 'project') return state.projects.filter(p => p.stageId === id);
+  return state.leads.filter(l => l.lost && l.lostReason === id);   // reasons
+}
+function addStageItem(pl){
+  const id = pl === 'reasons' ? 'lr_' + Math.random().toString(36).slice(2,8) : newStageId(state);
+  const item = { id, name: pl === 'reasons' ? 'New reason' : 'New stage' };
+  if(pl === 'sales') item.pct = 0;
+  const list = listFor(pl); list.push(item); renumberStages(list);
+  _focusListItem = id; render(); saveState();
+}
+function moveStageItem(pl, id, dir){
+  const list = listFor(pl), i = list.findIndex(x => x.id === id), j = i + dir;
+  if(i < 0 || j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]]; renumberStages(list); render(); saveState();
+}
+async function deleteStageItem(pl, id){
+  const list = listFor(pl), idx = list.findIndex(x => x.id === id); if(idx < 0) return;
+  const item = list[idx], noun = pl === 'reasons' ? 'reason' : 'stage';
+  if(list.length <= 1){ alert(`A list needs at least one ${noun} — add another before deleting “${item.name}”.`); return; }
+  const holders = stageHolders(pl, id), n = holders.length;
+  if(n){
+    const others = list.filter(x => x.id !== id);
+    const holds = pl === 'reasons' ? 'lost lead' : 'record';
+    const opts = others.map(x => `<option value="${escHtml(x.id)}">${escHtml(x.name)}</option>`).join('');
+    const ok = await showConfirm(`Delete “${item.name}”?`, `${n} ${holds}${n!==1?'s':''} ${pl==='reasons' ? (n!==1?'use':'uses') + ' this reason' : (n!==1?'are':'is') + ' in this stage'}. Move ${n!==1?'them':'it'} to:`, `<select id="stageMoveTo">${opts}</select>`);
+    if(!ok) return;
+    const dest = others.some(x => x.id === _confirmExtraValue) ? _confirmExtraValue : others[0].id;
+    holders.forEach(r => {
+      if(pl === 'reasons') r.lostReason = dest;
+      else { if(r.stageId === id) r.stageId = dest; if(r.lostStageId === id) r.lostStageId = dest; }
+    });
+  }
+  const at = list.findIndex(x => x.id === id);
+  if(at >= 0) list.splice(at, 1);
+  renumberStages(list); render(); saveState();
+}
 function renderSettings(){
   const s = state.settings;
-  const stages = ['Inquiry','Tabled','Quoted','Confirmed'];
-  document.getElementById('stageProbGrid').innerHTML = stages.map(st =>
-    `<div><label>${st} (%)</label><input type="number" step="1" min="0" max="100" data-tab="stageprob" data-field="${st}" value="${Math.round((s.stageProbability[st]||0)*100)}"></div>`
-  ).join('');
+  renderStageCards();
   document.getElementById('financeSettingsGrid').innerHTML =
     `<div><label>Starting cash balance (£)</label><input type="number" step="1" data-tab="settings" data-field="startingCash" value="${s.startingCash}"></div>
      <div><label>Trade account terms (days)</label><input type="number" step="1" data-tab="settings" data-field="tradeAccountDays" value="${s.tradeAccountDays}"></div>
@@ -2131,13 +2381,14 @@ function promoteLead(id){
   const idx = state.leads.findIndex(l => l.id === id);
   if(idx < 0) return;
   const l = state.leads[idx];
+  if(l.lost || !leadQualified(l)) return;   // the qualification gate holds whatever the lead stages are called
   const primary = l.contact || l.company || 'New opportunity';
   const name = (l.leadType === 'Commercial' && l.company)
     ? l.company + (l.contact ? ' — ' + l.contact : '')
     : primary;
   const rec = {
     id: l.id, name, type: 'real',
-    tier: 'Needs re-scoping', stage: 'Inquiry', probability: 0.3, quoteValue: 0,
+    tier: 'Needs re-scoping', stageId: firstStageId('sales'), probability: 0.3, quoteValue: 0,
     notes: (l.notes||'') + `  [From lead: budget ${l.budget||'?'}; decision-maker ${l.decisionMaker||'?'}; timeline ${l.timeline||'?'}; competition ${l.competition||'?'}]`,
     contact: l.contact||'', company: l.company||'', leadType: l.leadType||'Residential', phone: l.phone||'', email: l.email||'', source: l.source||'',
     projectName: l.projectName||'', address: l.address||'', postcode: l.postcode||'', postcodeManual: !!l.postcodeManual,
@@ -2160,9 +2411,11 @@ function promoteToProject(id){
     budgetedCost: projectRollup(s).totalCost, actualCost: 0, notes: s.notes||'',
     milestones: { contractSigned: s.contractSigned||'', designSigned:'', materialsOrdered:'', materialsDelivered:'', onSiteStart:'', buildComplete:'', invoiced:'', paid:'', signOff:'' },
     tierId: s.tierId||'',
+    stageId: '',
     testimonial: '', stages: s.stages || [],
     paymentLines: [ { desc: 'On completion', dueDate: projectRollup(s).end ? fmt(projectRollup(s).end) : '', amount: Number(s.quoteValue)||0, invoicedDate: '', paidDate: '' } ]
   };
+  proj.stageId = autoProjectStageId(proj) || firstStageId('project');
   state.pipeline.splice(idx, 1);
   state.projects.push(proj);
   expandedProjectsP.add(proj.id);
@@ -2226,7 +2479,7 @@ function revenueContributors(key){
     const d = derivePipelineRow(r);
     if(d.invoice && monthKey(d.invoice)===key){
       const amt = (Number(r.quoteValue)||0)*effectiveProb(r);
-      if(amt>0) items.push({ layer:'weighted', code: recordCode(r.id,'sales'), name: r.name, detail: r.stage+' · '+Math.round(effectiveProb(r)*100)+'%', amount: amt });
+      if(amt>0) items.push({ layer:'weighted', code: recordCode(r.id,'sales'), name: r.name, detail: stageName('sales', r.stageId)+' · '+Math.round(effectiveProb(r)*100)+'%', amount: amt });
     }
   });
   return items;
@@ -2341,6 +2594,7 @@ function beginArchive(actionObj){
 }
 /* custom confirm modal → Promise<boolean> */
 let _confirmResolver = null;
+let _confirmExtraNote = null;    // text of a <textarea> in the extra slot, if any
 let _confirmExtraValue = null;   // value of the <select> in the modal's extra slot (if any) when it closed
 function showConfirm(title, message, extraHtml){
   return new Promise(resolve => {
@@ -2352,8 +2606,9 @@ function showConfirm(title, message, extraHtml){
   });
 }
 function resolveConfirm(val){
-  const sel = document.querySelector('#modalExtra select');
+  const sel = document.querySelector('#modalExtra select'), note = document.querySelector('#modalExtra textarea');
   _confirmExtraValue = sel ? sel.value : null;
+  _confirmExtraNote = note ? note.value : null;
   document.getElementById('modalExtra').innerHTML = '';
   document.getElementById('modalOverlay').hidden = true;
   if(_confirmResolver){ _confirmResolver(val); _confirmResolver = null; }
@@ -2425,7 +2680,7 @@ function renderArchived(){
 /* ---------- column resize ---------- */
 function applyResizable(){
   document.querySelectorAll('.main table thead th').forEach(th => {
-    if(th.querySelector('.col-handle') || th.style.width==='34px' || th.closest('.leads-table')) return;   // Leads has its own persisted resizer
+    if(th.querySelector('.col-handle') || th.style.width==='34px' || th.closest('table').hasAttribute('data-rt')) return;   // Leads / Sales / Project tables use the persisted shared resizer
     const handle = document.createElement('div');
     handle.className = 'col-handle';
     th.appendChild(handle);
@@ -2461,14 +2716,14 @@ function render(){
 function newRowFor(tab){
   switch(tab){
     case 'goals': return { longTerm:'New goal', focus:'', target:'', actual:'', onTrack:'—' };
-    case 'pipeline': return { id:0, name:'New project', type:'real', tier:'Needs re-scoping', stage:'Inquiry', probability:0.2, quoteValue:0, notes:'', stages:[ { label:'Scope & cost', kind:'scope', start:'', end:'', cost:0 } ] };
+    case 'pipeline': return { id:0, name:'New project', type:'real', tier:'Needs re-scoping', stageId:firstStageId('sales'), probability:0.2, quoteValue:0, notes:'', stages:[ { label:'Scope & cost', kind:'scope', start:'', end:'', cost:0 } ] };
     case 'pricingTiers': return { name:'New tier', buildDays:1, materialsCost:0 };
     case 'capability': return { area:'New trade area', status:'Parked', notes:'' };
     case 'network': return { name:'New contact', role:'', category:'', notes:'' };
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
     case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'' };
-    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
+    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', stageId:firstStageId('lead'), lost:false, projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
   }
@@ -2483,12 +2738,23 @@ document.addEventListener('change', (e) => {
   if(tab==='assumptions') state.assumptions[field] = value;
   else if(tab==='businessPlan') state.businessPlan[field] = value;
   else if(tab==='settings') state.settings[field] = value;
-  else if(tab==='stageprob') state.settings.stageProbability[field] = (value===''?0:Number(value))/100;
+  else if(tab==='stagename' || tab==='stagepct'){
+    const item = listFor(el.dataset.pl).find(x => x.id === el.dataset.id);
+    if(item){
+      if(tab==='stagename') item.name = el.value.trim() || item.name;
+      else item.pct = clampPct(el.value);
+    }
+  }
+  else if(tab==='projmilestone' && state.projects[Number(el.dataset.idx)]){
+    const p = state.projects[Number(el.dataset.idx)];
+    p.milestones = p.milestones||{}; p.milestones[field] = value;
+    const list = state.pipelineStages.project, auto = autoProjectStageId(p);   // a milestone date moves the project on to that stage (never back)
+    if(auto && list.findIndex(x => x.id === auto) > list.findIndex(x => x.id === p.stageId)) p.stageId = auto;
+  }
   else if(tab==='payline'){ const p=Number(el.dataset.idx), pl=Number(el.dataset.pli); if(state.projects[p] && state.projects[p].paymentLines[pl]) state.projects[p].paymentLines[pl][field] = value; }
   else if(tab==='comms'){ const li=Number(el.dataset.idx), ci=Number(el.dataset.cidx); if(state.leads[li] && state.leads[li].comms[ci]) state.leads[li].comms[ci][field] = value; }
   else if(tab==='root') state[field] = value;
   else if(tab==='stages'){ const p=Number(el.dataset.proj), s=Number(el.dataset.sidx); if(state.pipeline[p] && state.pipeline[p].stages[s]) state.pipeline[p].stages[s][field] = value; }
-  else if(tab==='projmilestone'){ const p=Number(el.dataset.idx); if(state.projects[p]){ state.projects[p].milestones = state.projects[p].milestones||{}; state.projects[p].milestones[field] = value; } }
   else if(tab==='tiers' && state.tiers[Number(el.dataset.idx)]){
     const t = state.tiers[Number(el.dataset.idx)];
     if(field==='min' || field==='max'){
@@ -2526,7 +2792,7 @@ document.addEventListener('click', (e) => {
     const sc = document.getElementById(id);
     if(sc){ sc.classList.toggle('fitmode', mode==='fit'); }
     wt.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('active', b===wt));
-    if(id === LEADS_TABLE_ID) renderLeads();   // column widths switch between % (fit) and px (wide)
+    if(sc) rtApply(sc);   // column widths switch between % (fit) and px (wide)
     state.tableModes = state.tableModes || {}; state.tableModes[id] = mode; saveState();
     return;
   }
@@ -2574,6 +2840,13 @@ document.addEventListener('click', (e) => {
   else if(action === 'tier-img-remove'){ const t = state.tiers[Number(btn.dataset.idx)]; if(t){ t.image = ''; render(); saveState(); } }
   else if(action === 'set-lead-type'){ const l = state.leads[Number(btn.dataset.idx)]; if(l && l.leadType !== btn.dataset.val){ l.leadType = btn.dataset.val; render(); saveState(); } }
   else if(action === 'promote-lead'){ promoteLead(Number(btn.dataset.id)); }
+  else if(action === 'mark-lost'){ markLeadLost(Number(btn.dataset.id)); }
+  else if(action === 'restore-lead'){ restoreLead(Number(btn.dataset.id)); }
+  else if(action === 'toggle-lost'){ const w = document.getElementById('lostLeadsWrap'); w.dataset.open = w.dataset.open === '1' ? '0' : '1'; renderLostLeads(); }
+  else if(action === 'stage-add'){ addStageItem(btn.dataset.pl); }
+  else if(action === 'stage-up' || action === 'stage-down'){ moveStageItem(btn.dataset.pl, btn.dataset.id, action==='stage-up' ? -1 : 1); }
+  else if(action === 'stage-del'){ deleteStageItem(btn.dataset.pl, btn.dataset.id); }
+  else if(action === 'reset-cols'){ rtReset(btn.dataset.forid); }
   else if(action === 'add-comm'){
     const l = state.leads.find(x => x.id === Number(btn.dataset.id));
     if(l){ l.comms = l.comms || []; l.comms.push({ date: fmt(new Date()), note: '', created: Date.now() }); render(); saveState(); }
@@ -2684,7 +2957,13 @@ document.querySelectorAll('.tab').forEach(tab => {
 document.getElementById('modalOverlay').addEventListener('click', (e) => {
   if(e.target.id === 'modalOverlay') resolveConfirm(false);
   const b = e.target.closest('[data-modal]');
-  if(b) resolveConfirm(b.dataset.modal === 'confirm');
+  if(b){
+    if(b.dataset.modal === 'confirm'){   // a required <select> in the modal must be chosen before it can be confirmed
+      const req = document.querySelector('#modalExtra select[required]');
+      if(req && !req.value){ const er = document.getElementById('modalExtraErr'); if(er) er.textContent = 'Please choose a reason.'; req.focus(); return; }
+    }
+    resolveConfirm(b.dataset.modal === 'confirm');
+  }
 });
 
 function ensurePipelineIds(){
@@ -2729,7 +3008,7 @@ function initTableControls(){
     if(mode === 'fit') sc.classList.add('fitmode');
     const bar = document.createElement('div');
     bar.className = 'table-tools';
-    bar.innerHTML = `<div class="width-toggle" data-forid="${id}">
+    bar.innerHTML = `${RT_SPECS[id] && !RT_SPECS[id].parent ? `<button class="link-btn" data-action="reset-cols" data-forid="${id}">Reset column widths</button>` : ''}<div class="width-toggle" data-forid="${id}">
       <button data-wmode="fit" class="${mode==='fit'?'active':''}">Fit to screen</button>
       <button data-wmode="wide" class="${mode==='wide'?'active':''}">Expand width</button></div>`;
     sc.parentNode.insertBefore(bar, sc);
