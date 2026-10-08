@@ -294,7 +294,7 @@
   }
   .flag-row td { background: #fdf3ee !important; }
 
-  /* Accountability: complete checkbox + archive */
+  /* Actions: complete checkbox + archive */
   .cbx {
     width: 19px; height: 19px; border: 2px solid var(--stone-deep); border-radius: 6px;
     cursor: pointer; display: grid; place-items: center; background: #fff; margin: 0 auto;
@@ -712,6 +712,94 @@
   .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 110; background: var(--ink); color: #fff; font-size: 12.5px; padding: 10px 12px 10px 16px; border-radius: 10px; box-shadow: var(--shadow-lift); display: flex; align-items: center; gap: 14px; max-width: calc(100% - 24px); }
   .toast-btn { background: none; border: 1px solid rgba(255,255,255,0.4); color: #fff; font-family: inherit; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 7px; cursor: pointer; }
   .toast-btn:hover { background: rgba(255,255,255,0.12); }
+
+  /* ---------------- CRM tasks ---------------- */
+  .crm-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .crm-head .btn { margin-top: 4px; }
+  .crm-tabs { display: flex; gap: 2px; flex-wrap: wrap; margin: 0 0 12px; border-bottom: 1px solid var(--line); }
+  .crm-tab { border: none; background: none; font-family: inherit; font-size: 12.5px; font-weight: 500; color: var(--muted); padding: 9px 13px; cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 7px; }
+  .crm-tab:hover { color: var(--ink); }
+  .crm-tab.active { color: var(--ink); border-bottom-color: var(--g-growth); font-weight: 600; }
+  .crm-tab .n { font-size: 10.5px; font-weight: 700; background: #efece6; color: var(--slate); border-radius: 999px; padding: 1px 8px; }
+  .crm-tab.over .n.some { background: #fdf3ee; color: #b3453f; }
+  .crm-filters { display: flex; gap: 8px 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .crm-filters-dyn { display: contents; }
+  .crm-filters select, .crm-filters input[type=search] { width: auto; border: 1px solid var(--line); background: #fff; padding: 6px 8px; border-radius: 7px; font-size: 12px; max-width: 190px; }
+  .crm-filters input[type=search] { min-width: 170px; }
+  .crm-filters select:disabled { opacity: 0.55; }
+  .crm-filters .view-toggle { margin-bottom: 0; flex-wrap: wrap; max-width: 100%; }
+  .crm-filters .view-toggle button { padding: 5px 11px; font-size: 12px; }
+  .crm-filters .crm-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+  .crm-grp { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: 100%; }
+  .crm-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--slate); cursor: pointer; }
+  .crm-check input { width: auto; }
+  .crm-colwrap { position: relative; }
+  .crm-colmenu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 15; background: #fff; border: 1px solid var(--stone-deep); border-radius: 9px; box-shadow: var(--shadow-lift); padding: 8px 12px; min-width: 150px; }
+  .crm-colmenu label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 4px 0; cursor: pointer; }
+  .crm-colmenu input { width: auto; }
+  .crm-row { cursor: pointer; }
+  .crm-row.done-row td { color: var(--muted); }
+  .crm-row .cbx { margin: 0; }
+  .crm-group td { background: #f1efeb !important; font-weight: 600; font-size: 11.5px; color: var(--slate); letter-spacing: 0.02em; }
+  .crm-group .gn { font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .crm-empty { text-align: center; color: var(--muted); padding: 26px 10px !important; }
+  .crm-sort { cursor: pointer; }
+  .crm-sort:hover { color: var(--ink); }
+  .crm-sort .arr { color: var(--oak); margin-left: 3px; }
+  .crm-due { min-width: 0 !important; padding: 3px 4px; }
+  .crm-due.over { color: #b3453f; font-weight: 600; }
+  .crm-link { text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--slate); text-decoration: none; }
+  .crm-link:hover { color: var(--ink); text-decoration: underline; }
+  .crm-link.dim { color: var(--muted); }
+  .tk-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .tk-pill { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .tk-ico { display: inline-flex; color: var(--slate); vertical-align: middle; }
+  .tk-ico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .tk-input { border: 1px solid var(--line) !important; background: #fff !important; padding: 7px 9px; border-radius: 7px; }
+  .fade-row { animation: tkFade 0.9s ease forwards; pointer-events: none; }
+  @keyframes tkFade { from { opacity: 1; } to { opacity: 0.25; } }
+  /* tasks section inside a Lead / Sale / Project detail */
+  .tkr { margin: 0 0 14px; padding: 10px 14px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  .tkr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .tkr-head .stage-label-row { margin: 0; }
+  .tkr-head .btn { padding: 4px 10px; font-size: 11px; }
+  .tkr-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .tkr-row:last-child { border-bottom: none; }
+  .tkr-row .cbx { margin: 0; flex-shrink: 0; }
+  .tkr-title { flex: 1; min-width: 0; text-align: left; background: none; border: none; font-family: inherit; font-size: 12.5px; color: var(--ink); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0; }
+  .tkr-title:hover { text-decoration: underline; }
+  .tkr-code { font-size: 10.5px; font-weight: 700; color: var(--slate); background: #efece6; border-radius: 20px; padding: 2px 8px; white-space: nowrap; }
+  .tkr-due { font-size: 11.5px; color: var(--slate); white-space: nowrap; min-width: 78px; text-align: right; }
+  .tkr-due.over { color: #b3453f; font-weight: 600; }
+  .tkr-empty { font-size: 12px; color: var(--muted); padding: 6px 0 2px; }
+  .tkr-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; padding: 10px 0 4px; }
+  .tkr-form label, .tk-form label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .tkr-form .tkf-wide { grid-column: 1 / -1; }
+  .tkr-form .tkf-actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+  .tkf-err { color: #b3453f; font-size: 12px; }
+  /* task side panel */
+  .tk-backdrop { position: fixed; inset: 0; background: rgba(28,31,34,0.32); z-index: 66; animation: fade 0.15s ease; }
+  .tk-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(470px, 100%); background: var(--paper); z-index: 67; box-shadow: -8px 0 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: drIn 0.18s ease; }
+  .tk-backdrop[hidden], .tk-panel[hidden] { display: none; }
+  .tk-form .field { margin-bottom: 14px; }
+  .tk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .tk-grid > div label, .tk-form .field label { display: block; }
+  .tk-linkinfo { font-size: 12px; color: var(--muted); margin-top: 5px; min-height: 16px; }
+  .tk-linkinfo .link-btn { font-size: 12px; }
+  .tk-linkinfo.err { color: #b3453f; }
+  .tk-status { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 12.5px; }
+  .tk-status .cbx { margin: 0; flex-shrink: 0; }
+  .tk-status .sub { color: var(--muted); font-size: 11.5px; }
+  .tk-notes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .tk-note { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .tk-note .meta { display: block; font-size: 10.5px; color: var(--muted); margin-bottom: 2px; white-space: normal; }
+  .tk-addnote textarea { border: 1px solid var(--line); background: #fff; min-height: 60px; padding: 8px 10px; }
+  .tk-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .tk-actions .btn.del { background: transparent; color: #b3453f; border: 1px solid #e3c4c1; }
+  .tk-actions .btn.del:hover { background: #fbeeed; }
+  .stage-row input[type=checkbox], .stage-row .pct-wrap input { width: auto; }
+  .modal-extra input { border: 1px solid var(--line); background: #fff; padding: 8px; }
+  @media (max-width: 860px) { .tk-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -741,6 +829,7 @@
     <div class="tab g-growth" data-tab="leads">Leads</div>
     <div class="tab g-growth" data-tab="salespipeline">Sales Pipeline</div>
     <div class="tab g-growth" data-tab="projectpipeline">Project Pipeline</div>
+    <div class="tab g-growth" data-tab="crm">CRM</div>
   </div>
 
   <div class="nav-group g-finance">
@@ -754,7 +843,7 @@
   <div class="nav-group g-operations">
     <div class="nav-label">Operations</div>
     <div class="tab g-operations" data-tab="admin">Setup &amp; Admin</div>
-    <div class="tab g-operations" data-tab="actions">Accountability</div>
+    <div class="tab g-operations" data-tab="actions">Actions</div>
     <div class="tab g-operations" data-tab="suppliers">Suppliers <span class="soon">Soon</span></div>
   </div>
 
@@ -885,6 +974,21 @@
     <div class="view-pane pane-gantt" id="projectsGanttWrap"></div>
   </div>
 
+  <!-- CRM -->
+  <div class="panel" id="panel-crm">
+    <div class="page-head crm-head">
+      <div>
+        <h2>CRM</h2>
+        <div class="desc">The task queue. Every task can be linked to a lead, sale or project by its code; because those records share one ID as a deal moves along, a task follows the deal from lead to sale to project. Tick a task to complete it, click a row to open it, or add tasks from any record's detail.</div>
+      </div>
+      <button class="btn" data-crm="new">+ New task</button>
+    </div>
+    <div class="crm-tabs" id="crmTabs"></div>
+    <div class="crm-filters"><span id="crmFilters" class="crm-filters-dyn"></span><input type="search" id="crmSearch" class="crm-search" placeholder="Search tasks…" autocomplete="off"></div>
+    <div class="table-scroll" id="crmTableWrap"></div>
+    <datalist id="crmRecList"></datalist>
+  </div>
+
   <!-- PRICING -->
   <div class="panel" id="panel-pricing">
     <div class="page-head">
@@ -942,6 +1046,9 @@
 
     <div class="section-label">Lost reasons</div>
     <div class="card" id="lostReasonsCard"></div>
+
+    <div class="section-label">CRM task options</div>
+    <div class="card" id="taskOptionsCard"></div>
 
     <div class="section-label">Cash &amp; payment terms</div>
     <div class="card">
@@ -1035,10 +1142,10 @@ create policy "app update" on tracker_data for update using (true) with check (t
     <div class="table-scroll" id="adminTableWrap"></div>
   </div>
 
-  <!-- ACCOUNTABILITY -->
+  <!-- ACTIONS -->
   <div class="panel" id="panel-actions">
     <div class="page-head">
-      <h2>Accountability</h2>
+      <h2>Actions</h2>
       <div class="desc">The action log from the weekly catch-up. Click any cell to edit. Drag the edge of a column header to resize it. Owner fields suggest from the team but accept anyone. Overdue items (deadline passed, not Done) highlight automatically.</div>
     </div>
     <div class="btn-row"><button class="btn" data-action="add-row" data-tab="actions">+ Add action</button></div>
@@ -1056,6 +1163,12 @@ create policy "app update" on tracker_data for update using (true) with check (t
   <div class="dr-bar"><span class="dr-title" id="drTitle"></span>
     <button class="icon-btn" data-action="close-detail" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
   <div class="dr-body" id="drBody"></div>
+</aside>
+<div class="tk-backdrop" id="tkBackdrop" data-crm="panel-close" hidden></div>
+<aside class="tk-panel" id="tkPanel" role="dialog" aria-label="Task" hidden>
+  <div class="dr-bar"><span class="dr-title" id="tkTitleBar"></span>
+    <button class="icon-btn" data-crm="panel-close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dr-body" id="tkBody"></div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastMsg"></span><button class="toast-btn" id="toastUndo" type="button">Undo</button></div>
 <div class="gantt-tip" id="ganttTip" hidden></div>
@@ -1184,7 +1297,7 @@ function ensureStageModel(o, legacyProb){
 
 /* ---------- default state ---------- */
 function defaultState(){
-  return ensureStageModel({
+  return ensureTaskModel(ensureStageModel({
     startingCash: 2000,
     settings: {
       tradeAccountDays: 30,
@@ -1315,8 +1428,9 @@ function defaultState(){
       { dateRaised: '2026-09-01', action: 'Start next project: roof over the hosts\' entrance', owner: 'Lynton', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Concrete slab already done' },
       { dateRaised: '2026-09-01', action: 'Prioritise outdoor structure / BBQ area leads in the pipeline', owner: 'TBC', owner2: '', deadline: '', priority: 2, status: 'Not Started', notes: 'Strong niche — suits higher-end clients and Lynton\'s creative style' }
     ],
-    archivedActions: []
-  });
+    archivedActions: [],
+    crmTasks: [], nextTaskNo: 1, crmPrefs: { hiddenCols: [] }
+  }));
 }
 
 let state = null;
@@ -1331,13 +1445,14 @@ function mergeDefaults(loaded){
   out.tableModes = Object.assign({}, loaded.tableModes || {});
   out.colWidths = Object.assign({}, loaded.colWidths || {});
   out.settings = Object.assign({}, d.settings, loaded.settings || {});
-  ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions','tiers'].forEach(k => {
+  ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions','tiers','crmTasks'].forEach(k => {
     if(!Array.isArray(out[k])) out[k] = d[k];
   });
   // stages: seed/normalise the configurable lists and convert any old stage NAMES on records to stage IDs
   // (old backups carried settings.stageProbability — it seeds the Sales stage percentages, then is dropped)
   if(!loaded.pipelineStages) delete out.pipelineStages;   // old document: re-seed from the old names/percentages, not from today's defaults
   ensureStageModel(out, (loaded.settings || {}).stageProbability);
+  ensureTaskModel(out);   // old backups with no tasks / options / timelines get the seeded defaults
   return out;
 }
 /* ---------- storage layer: cloud (Supabase REST) with localStorage fallback ---------- */
@@ -1819,6 +1934,7 @@ function salesDetailHtml(r, i){
           <span>${escAttr(r.name)}</span>
           <span class="detail-meta">${roll.start?fmtDisplay(roll.start):'—'} → ${roll.end?fmtDisplay(roll.end):'—'} · ${roll.durationDays||0} days span · total cost ${money(roll.totalCost)}</span>
         </div>
+        ${recTasksHtml('sales', r)}
         <div class="detail-notes"><label>Notes</label><input data-tab="pipeline" data-idx="${i}" data-field="notes" value="${escAttr(r.notes||'')}"></div>
         <div class="stage-label-row">Stages — each carries its own dates &amp; cost; the project rolls up from these</div>
         <div class="table-scroll" style="box-shadow:none;border-radius:9px;">
@@ -1855,6 +1971,7 @@ function salesDetailHtml(r, i){
              <button class="promote-btn" data-action="promote-project" data-id="${r.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Project Pipeline</button>`
           : `<div class="gate-msg">Set the contract signed date to unlock promotion to Project Pipeline.</div>
              <button class="promote-btn" disabled>Promote to Project Pipeline</button>`}
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);max-width:760px;">${commsBlockHtml('sales', r, i, 'salescomms')}</div>
       </div>`;
   return html;
 }
@@ -2468,7 +2585,7 @@ function leadStatusStyle(stageId){
 }
 function leadQualified(l){ return !!(l.budget && l.decisionMaker && l.timeline && l.competition); }
 function leadLastContact(l){
-  const dates = (l.comms||[]).map(c=>c.date).filter(Boolean).sort();
+  const dates = (l.comms||[]).filter(c => !c.noContact).map(c=>c.date).filter(Boolean).sort();   // To Do task notes are logged but are not a contact
   return dates.length ? dates[dates.length-1] : '';
 }
 function leadPrimaryName(l){
@@ -2498,9 +2615,9 @@ function leadDetailHtml(l, i){
   const isCommercial = l.leadType === 'Commercial';
       const miss = f => l[f] ? '' : ' missing';
       const qualified = leadQualified(l);
-      const comms = sortedComms(l);
       let html = `<div class="detail-box lead-detail">
         <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(leadPrimaryName(l))}</span><span class="detail-meta">${l.leadType}${isCommercial&&l.company?' · '+escAttr(l.company):''}</span></div>
+        ${recTasksHtml('lead', l)}
         <div class="lead-cols">
           <div class="lead-col-left">
             <div class="qual-stack" style="margin-bottom:16px;">
@@ -2529,16 +2646,7 @@ function leadDetailHtml(l, i){
             <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);"><button class="btn secondary lost-btn" style="margin-left:0;" data-action="mark-lost" data-id="${l.id}">Mark as lost</button></div>
           </div>
           <div class="lead-col-right">
-            <div class="stage-label-row" style="display:flex;justify-content:space-between;align-items:center;">Communication timeline <button class="btn secondary" style="padding:4px 10px;font-size:11px;" data-action="add-comm" data-id="${l.id}">+ Add touchpoint</button></div>
-            <div class="comms-scroll">
-              ${comms.length ? comms.map(({c,ci})=>`
-                <div class="comm-entry">
-                  <input type="date" class="comm-date" data-tab="comms" data-idx="${i}" data-cidx="${ci}" data-field="date" value="${c.date||''}">
-                  <input class="comm-note" data-tab="comms" data-idx="${i}" data-cidx="${ci}" data-field="note" value="${escAttr(c.note||'')}" placeholder="What happened?">
-                  <button class="icon-btn" data-action="del-comm" data-id="${l.id}" data-cidx="${ci}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                </div>`).join('')
-              : `<div class="breakdown-hint">No touchpoints yet — add the first contact above.</div>`}
-            </div>
+            ${commsBlockHtml('lead', l, i, 'comms')}
           </div>
         </div>
       </div>`;
@@ -2628,14 +2736,20 @@ const RT_SPECS = {
   pipelineTableWrap: { cols: [[34,34],[104,80],[220,120],[104,84],[140,110],[130,104],[64,52],[100,72],[116,100],[116,100],[100,72],[34,34]], nested: ['pipelineStages'] },
   pipelineStages:    { cols: [[200,100],[140,90],[128,104],[128,104],[64,48],[100,70],[34,34]], parent: 'pipelineTableWrap' },
   projectsTableWrap: { cols: [[34,34],[100,80],[240,120],[120,90],[200,120],[150,100],[34,34]], nested: ['projectPayments'] },
-  projectPayments:   { cols: [[90,72],[220,100],[128,104],[100,72],[128,104],[128,104],[34,34]], parent: 'projectsTableWrap' }
+  projectPayments:   { cols: [[90,72],[220,100],[128,104],[100,72],[128,104],[128,104],[34,34]], parent: 'projectsTableWrap' },
+  crmTableWrap:      { cols: [] }   // CRM task list: columns come from the visible-columns menu (see rtCols)
 };
+function rtCols(key){ return key === CRM_TABLE_ID ? crmVisibleCols().map(c => [c.w, c.min]) : RT_SPECS[key].cols; }
 function rtTable(key, heads, cls){
-  const cols = RT_SPECS[key].cols;
+  const cols = rtCols(key);
   return `<table class="rt-table${cls?' '+cls:''}" data-rt="${key}"><colgroup>${cols.map(()=>'<col>').join('')}</colgroup><thead><tr>${heads.map((h,i)=>
     `<th>${h}${cols[i][0] > cols[i][1] ? `<div class="col-handle" data-rtcol="${i}" title="Drag to resize · double-click to reset"></div>` : ''}</th>`).join('')}</tr></thead><tbody>`;
 }
 function rtWidths(key){
+  if(key === CRM_TABLE_ID){   // CRM widths are remembered per column id, so showing / hiding columns never shifts them
+    const m = (state.colWidths && state.colWidths[key]) || {};
+    return crmVisibleCols().map(c => Math.max(c.min, Number(m[c.id]) || c.w));
+  }
   const cols = RT_SPECS[key].cols;
   let saved = (state.colWidths && state.colWidths[key]) || [];
   if(key === LEADS_TABLE_ID && saved.length === cols.length - 1) saved = [...saved.slice(0,2), cols[2][0], ...saved.slice(2)];   // widths saved before the Tier column existed
@@ -2658,7 +2772,7 @@ function rtReset(id){   // a page table and its detail tables back to default wi
 document.addEventListener('pointerdown', (e) => {
   const h = e.target.closest && e.target.closest('.col-handle[data-rtcol]'); if(!h) return;
   e.preventDefault(); e.stopPropagation();
-  const table = h.closest('table'), key = table.dataset.rt, cols = RT_SPECS[key].cols;
+  const table = h.closest('table'), key = table.dataset.rt, cols = rtCols(key);
   const idx = Number(h.dataset.rtcol), fit = rtFit(table);
   const cells = () => [...table.tHead.rows[0].cells];
   const widths = cells().map(th => th.getBoundingClientRect().width);
@@ -2666,7 +2780,12 @@ document.addEventListener('pointerdown', (e) => {
   const applyAll = () => document.querySelectorAll(`table[data-rt="${key}"]`).forEach(t => rtApplyTable(t, widths, rtFit(t)));
   const save = () => { // store what is actually on screen (in fit mode the browser scales the columns to fit)
     state.colWidths = state.colWidths || {};
-    state.colWidths[key] = cells().map(th => Math.round(th.getBoundingClientRect().width));
+    const now = cells().map(th => Math.round(th.getBoundingClientRect().width));
+    if(key === CRM_TABLE_ID){
+      const m = (state.colWidths[key] && !Array.isArray(state.colWidths[key])) ? state.colWidths[key] : {};
+      crmVisibleCols().forEach((c, i) => { m[c.id] = now[i]; });
+      state.colWidths[key] = m;
+    } else state.colWidths[key] = now;
     saveState();
   };
   const move = ev => { widths[idx] = Math.max(cols[idx][1], startW + ev.clientX - startX); applyAll(); };
@@ -2682,6 +2801,7 @@ function projectDetailHtml(p, i){
   const m = p.milestones || {}, projStages = state.pipelineStages.project;
       let html = `<div class="detail-box">
         <div class="detail-head"><span class="detail-code" style="background:var(--green);">${recordCode(p.id,'project')}</span><span>${escAttr(p.name)}</span><span class="detail-meta">Stage: ${escHtml(stageName('project', p.stageId))}</span></div>
+        ${recTasksHtml('project', p)}
         <div class="stage-label-row">Delivery milestones</div>
         <div class="milestone-grid">
           ${projStages.filter(st => st.key).map(st => `<div><label>${escHtml(st.name)}</label><input type="date" data-tab="projmilestone" data-idx="${i}" data-field="${st.key}" value="${m[st.key]||''}"></div>`).join('')}
@@ -2708,6 +2828,7 @@ function projectDetailHtml(p, i){
         <div class="btn-row" style="margin-top:8px;"><button class="btn secondary" data-action="add-payline" data-idx="${i}">+ Add payment line</button></div>
         <div class="detail-notes"><label>Testimonial</label><input data-tab="projects" data-idx="${i}" data-field="testimonial" value="${escAttr(p.testimonial||'')}" placeholder="Capture the client's words at sign-off"></div>
         <div class="detail-notes"><label>Notes</label><input data-tab="projects" data-idx="${i}" data-field="notes" value="${escAttr(p.notes||'')}"></div>
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);max-width:760px;">${commsBlockHtml('project', p, i, 'projcomms')}</div>
       </div>`;
   return html;
 }
@@ -2895,6 +3016,7 @@ function promoteToProject(id){
     milestones: { contractSigned: s.contractSigned||'', designSigned:'', materialsOrdered:'', materialsDelivered:'', onSiteStart:'', buildComplete:'', invoiced:'', paid:'', signOff:'' },
     tierId: s.tierId||'',
     stageId: '',
+    comms: s.comms || [],
     testimonial: '', stages: s.stages || [],
     paymentLines: [ { desc: 'On completion', dueDate: projectRollup(s).end ? fmt(projectRollup(s).end) : '', amount: Number(s.quoteValue)||0, invoicedDate: '', paidDate: '' } ]
   };
@@ -3056,7 +3178,7 @@ function renderSimpleTable(tabKey, columns, wrapId, statusOptions){
 }
 function renderAdmin(){ renderSimpleTable('admin', [ {field:'item',label:'Item',w:240}, {field:'category',label:'Category',w:130}, {field:'status',label:'Status',type:'select',w:130}, {field:'notes',label:'Notes'} ], 'adminTableWrap', ['Not Started','In Progress','Done']); }
 
-/* ---------- accountability ---------- */
+/* ---------- actions ---------- */
 const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>';
 const TRAY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>';
 const RESTORE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 8"/></svg>';
@@ -3089,7 +3211,7 @@ function showConfirm(title, message, extraHtml){
   });
 }
 function resolveConfirm(val){
-  const sel = document.querySelector('#modalExtra select'), note = document.querySelector('#modalExtra textarea');
+  const sel = document.querySelector('#modalExtra select'), note = document.querySelector('#modalExtra textarea') || document.querySelector('#modalExtra input');
   _confirmExtraValue = sel ? sel.value : null;
   _confirmExtraNote = note ? note.value : null;
   document.getElementById('modalExtra').innerHTML = '';
@@ -3178,6 +3300,594 @@ function applyResizable(){
   });
 }
 
+/* ---------- CRM tasks ----------
+   Tasks live in state.crmTasks (main document → syncs + backs up). Everything is referenced by stable ids:
+   priority / type options by their option id (state.taskOptions), the linked record by its code (L-xxx / S-xxx / P-xxx).
+   A deal keeps one numeric id as it is promoted, so a task follows the deal: it shows on every stage that shares that root id.
+   Each task: { id:'T-001', title, dueDate:'YYYY-MM-DD'|'', priorityId, typeId, status:'open'|'done', completedAt, completedBy,
+                owner, linkedId, notes:[{id,text,created(ms),author}], createdAt, createdBy }.
+   A later "Today" tab only needs to filter this list (status 'open', dueDate <= today, owner = me). */
+const CRM_TABLE_ID = 'crmTableWrap';
+const SEED_TASK_PRIORITIES = [ ['tp_p0','P0'], ['tp_p1','P1'], ['tp_p2','P2'], ['tp_p3','P3'] ];
+const SEED_TASK_TYPES = [ ['tt_todo','To Do',false], ['tt_call','Call',true], ['tt_email','Email',true] ];   // 3rd = counts as a contact
+const PRIO_PALETTE = [ ['#b3453f','#fff'], ['#c9822f','#fff'], ['#fbf1cf','#a8851a'], ['#e4f0e6','#4f8a5b'] ];
+const TYPE_ICONS = {
+  tt_todo:  '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>',
+  tt_call:  '<svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
+  tt_email: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'
+};
+const TYPE_ICON_DEFAULT = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><path d="M12 8.5v3.5l2.2 1.5"/></svg>';
+const CRM_COLS = [   // w = default width, min = minimum width (same [default, min] idea as RT_SPECS)
+  { id:'tick',   label:'',              w:34,  min:34,  fixed:true },
+  { id:'title',  label:'Title',         w:300, min:120, sort:'title' },
+  { id:'type',   label:'Type',          w:64,  min:52,  sort:'type' },
+  { id:'prio',   label:'Priority',      w:88,  min:66,  sort:'prio' },
+  { id:'due',    label:'Due date',      w:142, min:118, sort:'due' },
+  { id:'linked', label:'Linked record', w:240, min:110, sort:'linked' },
+  { id:'owner',  label:'Owner',         w:110, min:70,  sort:'owner' },
+  { id:'notes',  label:'Notes',         w:70,  min:54,  sort:'notes' }
+];
+const CRM_TABS = [ ['overdue','Overdue'], ['today','Today'], ['upcoming','Upcoming'], ['nodate','No date'], ['completed','Completed'], ['all','All'] ];
+const CRM_GROUPS = [ ['none','None'], ['due','Due date'], ['prio','Priority'], ['type','Type'], ['owner','Owner'], ['linked','Linked record'] ];
+const COMMS_TABS = { comms: 'leads', salescomms: 'pipeline', projcomms: 'projects' };   // timeline input tabs → state arrays
+
+/* ---- model ---- */
+function ensureTaskModel(o){
+  const src = (o.taskOptions && typeof o.taskOptions === 'object') ? o.taskOptions : {};
+  const clean = (list, seed, isType) => {
+    let l = Array.isArray(list) ? list.filter(x => x && typeof x === 'object' && x.id) : [];
+    if(!l.length) l = seed.map(([id, name, contact]) => isType ? { id, name, contact } : { id, name });
+    l = sortByOrder(l).map(x => { const r = { id: String(x.id), name: String(x.name==null?'':x.name).trim() || 'Option' }; if(isType) r.contact = !!x.contact; return r; });
+    renumberStages(l); return l;
+  };
+  o.taskOptions = { priority: clean(src.priority, SEED_TASK_PRIORITIES, false), type: clean(src.type, SEED_TASK_TYPES, true) };
+  const prios = o.taskOptions.priority, types = o.taskOptions.type;
+  const dPrio = (prios.find(p => p.id === 'tp_p2') || prios[Math.min(2, prios.length-1)]).id;
+  const dType = (types.find(t => t.id === 'tt_todo') || types[0]).id;
+  let tasks = Array.isArray(o.crmTasks) ? o.crmTasks.filter(t => t && typeof t === 'object') : [];
+  let maxNo = 0;
+  tasks.forEach(t => { const m = /^T-(\d+)$/.exec(t.id || ''); if(m) maxNo = Math.max(maxNo, Number(m[1])); });
+  const iso = v => (typeof v === 'string' ? v : '');
+  o.crmTasks = tasks.map(t => ({
+    id: /^T-\d+$/.test(t.id || '') ? t.id : 'T-' + String(++maxNo).padStart(3, '0'),
+    title: String(t.title == null ? '' : t.title).trim() || '(untitled task)',
+    dueDate: /^\d{4}-\d{2}-\d{2}$/.test(t.dueDate || '') ? t.dueDate : '',
+    priorityId: prios.some(p => p.id === t.priorityId) ? t.priorityId : dPrio,
+    typeId: types.some(x => x.id === t.typeId) ? t.typeId : dType,
+    status: t.status === 'done' ? 'done' : 'open',
+    completedAt: iso(t.completedAt), completedBy: iso(t.completedBy),
+    owner: iso(t.owner), linkedId: normLinked(t.linkedId),
+    notes: (Array.isArray(t.notes) ? t.notes : []).filter(n => n && typeof n === 'object').map((n, i) => ({
+      id: n.id || ('n' + i), text: String(n.text == null ? '' : n.text), created: Number(n.created) || 0, author: iso(n.author) })),
+    createdAt: iso(t.createdAt), createdBy: iso(t.createdBy)
+  }));
+  o.nextTaskNo = Math.max(Number(o.nextTaskNo) || 0, maxNo + 1);
+  const pr = (o.crmPrefs && typeof o.crmPrefs === 'object') ? o.crmPrefs : {};
+  o.crmPrefs = { hiddenCols: (Array.isArray(pr.hiddenCols) ? pr.hiddenCols : []).filter(x => typeof x === 'string') };
+  // Sales and Project records get the same newest-first communication timeline a Lead has
+  (o.pipeline || []).concat(o.projects || []).forEach(r => { if(!Array.isArray(r.comms)) r.comms = []; });
+  return o;
+}
+function allocRecordId(){   // lead / sale / project ids must never clash: the shared id is what links a deal's stages (and its tasks)
+  const n = Math.max(state.nextRecordId || 0, state.nextPipelineId || 0);
+  state.nextRecordId = n + 1; state.nextPipelineId = n + 1; return n;
+}
+function meName(){ return (session && session.username) || ''; }
+function prioList(){ return state.taskOptions.priority; }
+function typeList(){ return state.taskOptions.type; }
+function prioIdx(id){ return prioList().findIndex(p => p.id === id); }
+function prioOpt(id){ return prioList().find(p => p.id === id) || null; }
+function typeOpt(id){ return typeList().find(t => t.id === id) || null; }
+function defaultPrioId(){ const l = prioList(); return (l.find(p => p.id === 'tp_p2') || l[Math.min(2, l.length-1)]).id; }
+function defaultTypeId(){ const l = typeList(); return (l.find(t => t.id === 'tt_todo') || l[0]).id; }
+function findTask(id){ return state.crmTasks.find(t => t.id === id) || null; }
+function taskNum(t){ return Number(String(t.id).replace(/\D/g, '')) || 0; }
+function prioPill(id){
+  const i = prioIdx(id), p = prioList()[i]; if(!p) return '<span class="tier-none">—</span>';
+  const c = i < PRIO_PALETTE.length ? PRIO_PALETTE[i] : ['#efece6', '#6c675e'];
+  return `<span class="tk-pill" style="background:${c[0]};color:${c[1]}">${escHtml(p.name)}</span>`;
+}
+function typeIcon(id){ const t = typeOpt(id); return `<span class="tk-ico" title="${escAttr(t ? t.name : '')}">${TYPE_ICONS[id] || TYPE_ICON_DEFAULT}</span>`; }
+function optionsHtml(list, sel){ return list.map(o => `<option value="${escHtml(o.id)}"${o.id === sel ? ' selected' : ''}>${escHtml(o.name)}</option>`).join(''); }
+
+/* ---- linked records ---- */
+function parseLinked(v){ const m = /^\s*([LSP])\s*-?\s*(\d+)\s*$/i.exec(String(v == null ? '' : v)); return m ? { pre: m[1].toUpperCase(), n: Number(m[2]) } : null; }
+function normLinked(v){ const p = parseLinked(v); return p ? p.pre + '-' + String(p.n).padStart(3, '0') : ''; }
+function linkedRoot(code){ const p = parseLinked(code); return p ? p.n : 0; }
+/* the deal's furthest-along record (project > sale > lead): the one a task note is written to and a click opens */
+function dealRecord(root){
+  if(!root) return null;
+  let r = state.projects.find(x => x.id === root); if(r) return { pl: 'project', rec: r };
+  r = state.pipeline.find(x => x.id === root); if(r) return { pl: 'sales', rec: r };
+  r = state.leads.find(x => x.id === root); if(r) return { pl: 'lead', rec: r, lost: !!r.lost };
+  return null;
+}
+function activeRecordCodes(){   // every active record, for the link pickers (lost leads are not active)
+  const out = [];
+  state.leads.forEach(l => { if(!l.lost) out.push({ code: recordCode(l.id, 'lead'), name: boardTitle('lead', l) }); });
+  state.pipeline.forEach(r => out.push({ code: recordCode(r.id, 'sales'), name: boardTitle('sales', r) }));
+  state.projects.forEach(p => out.push({ code: recordCode(p.id, 'project'), name: boardTitle('project', p) }));
+  return out;
+}
+function taskOnLostLead(t){ const d = dealRecord(linkedRoot(t.linkedId)); return !!(d && d.pl === 'lead' && d.lost); }
+function linkedInfo(t){
+  if(!t.linkedId) return null;
+  const d = dealRecord(linkedRoot(t.linkedId));
+  return { code: t.linkedId, name: d ? boardTitle(d.pl, d.rec) : '', lost: !!(d && d.lost), missing: !d, d };
+}
+function linkedText(t){
+  const i = linkedInfo(t); if(!i) return '';
+  return i.code + (i.name ? ' · ' + i.name : '') + (i.lost ? ' (lost)' : '') + (i.missing ? ' (record removed)' : '');
+}
+function openTaskRecord(t){
+  const d = dealRecord(linkedRoot(t.linkedId));
+  if(d && !d.lost) openDetail(d.pl, d.rec.id);
+}
+
+/* ---- users (owner dropdown): the app's logins when they can be read, else whoever is already known ---- */
+let appUsers = null, appUsersLoading = false;
+async function ensureAppUsers(){
+  if(appUsers !== null || appUsersLoading || !cloudBase() || !cloud.key) return;
+  appUsersLoading = true;
+  try{ const rows = await sbRpc('app_list_users', {}); appUsers = (rows || []).map(u => u.username).filter(Boolean); }
+  catch(e){ appUsers = []; }
+  appUsersLoading = false; renderCrm();
+}
+function taskUsers(extra){
+  const set = new Set();
+  if(meName()) set.add(meName());
+  (appUsers || []).forEach(u => set.add(u));
+  state.crmTasks.forEach(t => { if(t.owner) set.add(t.owner); });
+  if(extra) set.add(extra);
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+function userOptions(sel){ return '<option value="">Unassigned</option>' + taskUsers(sel).map(u => `<option value="${escAttr(u)}"${u === sel ? ' selected' : ''}>${escHtml(u)}</option>`).join(''); }
+
+/* ---- create / complete / notes ---- */
+function createTask(f){
+  const t = {
+    id: 'T-' + String(state.nextTaskNo++).padStart(3, '0'), title: String(f.title).trim(),
+    dueDate: f.dueDate || '', priorityId: prioOpt(f.priorityId) ? f.priorityId : defaultPrioId(), typeId: typeOpt(f.typeId) ? f.typeId : defaultTypeId(),
+    status: 'open', completedAt: '', completedBy: '', owner: f.owner == null ? meName() : f.owner, linkedId: normLinked(f.linkedId),
+    notes: [], createdAt: new Date().toISOString(), createdBy: meName()
+  };
+  state.crmTasks.push(t); return t;
+}
+/* A note is kept on the task and, when the task is linked to a record, also written to that deal's (current) communication timeline.
+   Only types flagged "contact" (Call, Email) count towards Last contacted; To Do notes are logged but marked noContact. */
+function addTaskNote(t, text){
+  text = String(text || '').trim(); if(!text) return false;
+  const now = Date.now();
+  t.notes.push({ id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 5), text, created: now, author: meName() });
+  const d = dealRecord(linkedRoot(t.linkedId));
+  if(d){
+    d.rec.comms = Array.isArray(d.rec.comms) ? d.rec.comms : [];
+    const e = { date: fmt(new Date()), note: 'Task note: ' + t.title + ' — ' + text, created: now, src: 'task', taskId: t.id };
+    const ty = typeOpt(t.typeId); if(!(ty && ty.contact)) e.noContact = true;
+    d.rec.comms.push(e);
+  }
+  return true;
+}
+const fadingTasks = new Set();   // ticked rows stay on screen for the short fade, then move to their new list
+function fadeThenRender(id){
+  fadingTasks.add(id);
+  setTimeout(() => { fadingTasks.delete(id); render(); }, 900);
+}
+async function completeTask(id){
+  const t = findTask(id); if(!t || t.status === 'done') return;
+  let outcome = '';
+  const ty = typeOpt(t.typeId);
+  if(ty && ty.contact){
+    const ok = await showConfirm(`Complete this ${ty.name.toLowerCase()}?`, `${t.id} · ${t.title}. Add a one-line outcome if you like — it is logged on the record's timeline.`,
+      '<input type="text" id="taskOutcome" placeholder="Outcome (optional)" maxlength="200">');
+    if(!ok) return;
+    outcome = (_confirmExtraNote || '').trim();
+  }
+  t.status = 'done'; t.completedAt = new Date().toISOString(); t.completedBy = meName();
+  if(outcome) addTaskNote(t, outcome);
+  fadeThenRender(id); render(); saveState();
+  showToast(`${t.id} marked done`, () => { const x = findTask(id); if(x && x.status === 'done'){ reopenTask(id, false); showToast('Task reopened'); } });
+}
+function reopenTask(id, fade){
+  const t = findTask(id); if(!t || t.status !== 'done') return;
+  t.status = 'open'; t.completedAt = ''; t.completedBy = '';
+  if(fade) fadeThenRender(id);
+  render(); saveState();
+}
+function toggleTaskTick(id){
+  const t = findTask(id); if(!t) return;
+  if(t.status === 'done'){ reopenTask(id, true); showToast(`${t.id} reopened`, () => { const x = findTask(id); if(x && x.status === 'open') completeTask(id); }); }
+  else completeTask(id);
+}
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && e.target && e.target.id === 'taskOutcome'){ e.preventDefault(); const c = document.querySelector('#modalOverlay [data-modal="confirm"]'); if(c) c.click(); }
+});
+
+/* ---- tasks section inside a Lead / Sale / Project detail ---- */
+const taskForms = {};    // 'pl:id' → inline add form open
+const taskDrafts = {};   // 'pl:id' → what was typed so far (survives re-renders)
+function recordTasks(rec){
+  return state.crmTasks.filter(t => linkedRoot(t.linkedId) === rec.id && (t.status === 'open' || fadingTasks.has(t.id))).sort(taskCmp('due', 'asc'));
+}
+function recTasksHtml(pl, rec){
+  const key = pl + ':' + rec.id, today = fmt(new Date()), list = recordTasks(rec);
+  const rows = list.map(t => {
+    const over = t.status === 'open' && t.dueDate && t.dueDate < today;
+    return `<div class="tkr-row${fadingTasks.has(t.id) ? ' fade-row' : ''}">
+      <div class="cbx${t.status === 'done' ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="Mark done">${CHECK_SVG}</div>
+      ${typeIcon(t.typeId)}
+      <button class="tkr-title" data-crm="open" data-id="${t.id}" title="${escAttr(t.title)}">${escHtml(t.title)}</button>
+      <span class="tkr-code" title="Created on ${escAttr(t.linkedId)}">${escHtml(t.linkedId)}</span>
+      <span class="tkr-due${over ? ' over' : ''}">${t.dueDate ? fmtDisplay(toDate(t.dueDate)) : 'No date'}</span>
+      ${prioPill(t.priorityId)}</div>`;
+  }).join('');
+  return `<div class="tkr"><div class="tkr-head"><div class="stage-label-row">Tasks</div>
+      <button class="btn secondary" data-crm="tk-add" data-pl="${pl}" data-id="${rec.id}">+ Add task</button></div>
+    ${taskForms[key] ? taskFormHtml(pl, rec) : ''}
+    ${rows || (taskForms[key] ? '' : '<div class="tkr-empty">No open tasks.</div>')}</div>`;
+}
+function taskFormHtml(pl, rec){
+  const key = pl + ':' + rec.id, d = taskDrafts[key] || {}, code = recordCode(rec.id, pl);
+  const own = d.owner !== undefined ? d.owner : meName();
+  return `<div class="tkr-form" data-key="${key}" data-pl="${pl}" data-id="${rec.id}">
+    <div class="tkf-wide"><label>Title</label><input class="tk-input" data-tkf="title" value="${escAttr(d.title || '')}" placeholder="What needs doing?"></div>
+    <div><label>Due date</label><input type="date" class="tk-input" data-tkf="dueDate" value="${d.dueDate !== undefined ? d.dueDate : fmt(new Date())}"></div>
+    <div><label>Priority</label><select class="tk-input" data-tkf="priorityId">${optionsHtml(prioList(), d.priorityId || defaultPrioId())}</select></div>
+    <div><label>Type</label><select class="tk-input" data-tkf="typeId">${optionsHtml(typeList(), d.typeId || defaultTypeId())}</select></div>
+    <div><label>Owner</label><select class="tk-input" data-tkf="owner">${userOptions(own)}</select></div>
+    <div><label>Linked to</label><span class="tkr-code">${code}</span></div>
+    <div class="tkf-actions"><button class="btn" data-crm="tk-form-add">Add task</button><button class="btn secondary" data-crm="tk-form-cancel">Cancel</button><span class="tkf-err"></span></div>
+  </div>`;
+}
+document.addEventListener('input', (e) => {
+  const f = e.target.dataset && e.target.dataset.tkf; if(!f) return;
+  const form = e.target.closest('.tkr-form'); if(!form) return;
+  (taskDrafts[form.dataset.key] = taskDrafts[form.dataset.key] || {})[f] = e.target.value;
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && e.target.dataset && e.target.dataset.tkf === 'title'){
+    e.preventDefault(); const form = e.target.closest('.tkr-form'); if(form) submitRecordTaskForm(form);
+  }
+});
+function submitRecordTaskForm(form){
+  const val = f => { const el = form.querySelector(`[data-tkf="${f}"]`); return el ? el.value : ''; };
+  const title = val('title').trim(), err = form.querySelector('.tkf-err');
+  if(!title){ err.textContent = 'Give the task a title.'; form.querySelector('[data-tkf="title"]').focus(); return; }
+  const pl = form.dataset.pl, id = Number(form.dataset.id);
+  createTask({ title, dueDate: val('dueDate'), priorityId: val('priorityId'), typeId: val('typeId'), owner: val('owner'), linkedId: recordCode(id, pl) });
+  delete taskForms[form.dataset.key]; delete taskDrafts[form.dataset.key];
+  render(); saveState();
+}
+
+/* ---- shared communication timeline block (Lead, Sale, Project) ---- */
+function commOwner(pl, id){ const arr = pl === 'sales' ? state.pipeline : (pl === 'project' ? state.projects : state.leads); return arr.find(x => x.id === id) || null; }
+function commsBlockHtml(pl, r, i, tabKey){
+  const comms = sortedComms(r);
+  return `<div class="stage-label-row" style="display:flex;justify-content:space-between;align-items:center;">Communication timeline <button class="btn secondary" style="padding:4px 10px;font-size:11px;" data-action="add-comm" data-pl="${pl}" data-id="${r.id}">+ Add touchpoint</button></div>
+            <div class="comms-scroll">
+              ${comms.length ? comms.map(({c,ci})=>`
+                <div class="comm-entry">
+                  <input type="date" class="comm-date" data-tab="${tabKey}" data-idx="${i}" data-cidx="${ci}" data-field="date" value="${c.date||''}">
+                  <input class="comm-note" data-tab="${tabKey}" data-idx="${i}" data-cidx="${ci}" data-field="note" value="${escAttr(c.note||'')}" placeholder="What happened?">
+                  <button class="icon-btn" data-action="del-comm" data-pl="${pl}" data-id="${r.id}" data-cidx="${ci}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+                </div>`).join('')
+              : `<div class="breakdown-hint">No touchpoints yet — add the first contact above.</div>`}
+            </div>`;
+}
+
+/* ---- CRM tab: state of the view (session only, except visible columns + widths which are remembered in the document) ---- */
+const crmUi = { tab: 'today', scope: 'mine', type: '', prio: '', owner: '', linked: '', q: '', showLost: false, groupBy: 'none', sortKey: 'due', sortDir: 'asc', colsOpen: false };
+function crmVisibleCols(){ const hid = new Set((state && state.crmPrefs && state.crmPrefs.hiddenCols) || []); return CRM_COLS.filter(c => c.fixed || !hid.has(c.id)); }
+function taskBucket(t, today){
+  if(t.status === 'done') return 'completed';
+  if(!t.dueDate) return 'nodate';
+  return t.dueDate < today ? 'overdue' : (t.dueDate === today ? 'today' : 'upcoming');
+}
+function taskCmp(key, dir){
+  const prioRank = t => { const i = prioIdx(t.priorityId); return i < 0 ? 99 : i; };
+  const typeRank = t => { const i = typeList().findIndex(x => x.id === t.typeId); return i < 0 ? 99 : i; };
+  const dueCmp = (a, b) => {   // blank dates always last; direction only flips real dates
+    if(a.dueDate === b.dueDate) return 0; if(!a.dueDate) return 1; if(!b.dueDate) return -1;
+    const r = a.dueDate < b.dueDate ? -1 : 1; return dir === 'desc' ? -r : r;
+  };
+  const rest = (a, b) => prioRank(a) - prioRank(b) || taskNum(a) - taskNum(b);
+  const str = (x, y) => String(x).localeCompare(String(y), undefined, { sensitivity: 'base' });
+  const prim = {
+    title: (a, b) => str(a.title, b.title), type: (a, b) => typeRank(a) - typeRank(b), prio: (a, b) => prioRank(a) - prioRank(b),
+    linked: (a, b) => (linkedRoot(a.linkedId) || 1e9) - (linkedRoot(b.linkedId) || 1e9) || str(a.linkedId, b.linkedId),
+    owner: (a, b) => str(a.owner || '￿', b.owner || '￿'), notes: (a, b) => a.notes.length - b.notes.length
+  };
+  if(key === 'due') return (a, b) => dueCmp(a, b) || rest(a, b);
+  return (a, b) => { const r = (prim[key] || (() => 0))(a, b); return r ? (dir === 'desc' ? -r : r) : (dueCmp({ dueDate: a.dueDate }, { dueDate: b.dueDate }) || rest(a, b)); };
+}
+/* filters (everything except the quick-view tab, so the tab counts reflect them) */
+function crmFiltered(){
+  const me = meName(), q = crmUi.q.trim().toLowerCase();
+  return state.crmTasks.filter(t => {
+    if(t.status === 'open' && !crmUi.showLost && taskOnLostLead(t)) return false;
+    if(crmUi.scope === 'mine' ? (me && t.owner !== me) : (crmUi.owner && t.owner !== crmUi.owner)) return false;
+    if(crmUi.type && t.typeId !== crmUi.type) return false;
+    if(crmUi.prio && t.priorityId !== crmUi.prio) return false;
+    if(crmUi.linked === 'none' ? t.linkedId : (crmUi.linked && String(linkedRoot(t.linkedId)) !== crmUi.linked)) return false;
+    if(q){
+      const hay = [t.id, t.title, linkedText(t), t.owner, typeOpt(t.typeId) && typeOpt(t.typeId).name, prioOpt(t.priorityId) && prioOpt(t.priorityId).name].concat(t.notes.map(n => n.text)).join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function crmGroupOf(t, today){
+  const g = crmUi.groupBy;
+  if(g === 'due'){
+    if(t.status === 'done') return ['8', 'Completed'];
+    if(!t.dueDate) return ['9', 'No date'];
+    const tm = fmt(addCalendarDays(toDate(today), 1)), wk = fmt(addCalendarDays(toDate(today), 7));
+    if(t.dueDate < today) return ['1', 'Overdue']; if(t.dueDate === today) return ['2', 'Today'];
+    if(t.dueDate === tm) return ['3', 'Tomorrow']; return t.dueDate <= wk ? ['4', 'Next 7 days'] : ['5', 'Later'];
+  }
+  if(g === 'prio'){ const i = prioIdx(t.priorityId); return [String(i < 0 ? 99 : i).padStart(2, '0'), (prioOpt(t.priorityId) || { name: 'No priority' }).name]; }
+  if(g === 'type'){ const i = typeList().findIndex(x => x.id === t.typeId); return [String(i < 0 ? 99 : i).padStart(2, '0'), (typeOpt(t.typeId) || { name: 'No type' }).name]; }
+  if(g === 'owner') return [t.owner ? '0' + t.owner.toLowerCase() : '1', t.owner || 'Unassigned'];
+  if(g === 'linked') return t.linkedId ? [String(linkedRoot(t.linkedId)).padStart(8, '0'), linkedText(t) || t.linkedId] : ['z', 'No linked record'];
+  return ['', ''];
+}
+function crmCell(c, t, today){
+  const done = t.status === 'done';
+  switch(c.id){
+    case 'tick': return `<td><div class="cbx${done ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="${done ? 'Completed' + (t.completedBy ? ' by ' + escAttr(t.completedBy) : '') + ' — click to reopen' : 'Mark done'}">${CHECK_SVG}</div></td>`;
+    case 'title': return `<td title="${escAttr(t.id + ' · ' + t.title)}"><span class="tk-title acc-action-text">${escHtml(t.title)}</span></td>`;
+    case 'type': return `<td>${typeIcon(t.typeId)}</td>`;
+    case 'prio': return `<td>${prioPill(t.priorityId)}</td>`;
+    case 'due': return `<td><input type="date" class="crm-due${!done && t.dueDate && t.dueDate < today ? ' over' : ''}" data-ctask="due" data-id="${t.id}" value="${t.dueDate}"></td>`;
+    case 'linked': {
+      const i = linkedInfo(t);
+      return `<td>${i ? `<button class="link-btn crm-link${i.missing || i.lost ? ' dim' : ''}" data-crm="rec" data-id="${t.id}" title="${escAttr(linkedText(t))}">${escHtml(linkedText(t))}</button>` : '<span class="tier-none">—</span>'}</td>`;
+    }
+    case 'owner': return `<td>${t.owner ? escHtml(t.owner) : '<span class="tier-none">—</span>'}</td>`;
+    case 'notes': return `<td>${t.notes.length ? t.notes.length : '<span class="tier-none">—</span>'}</td>`;
+  }
+  return '<td></td>';
+}
+function renderCrmList(){
+  const wrap = document.getElementById(CRM_TABLE_ID), tabsEl = document.getElementById('crmTabs'); if(!wrap || !tabsEl) return;
+  const today = fmt(new Date()), pool = crmFiltered(), counts = {};
+  CRM_TABS.forEach(([k]) => { counts[k] = 0; });
+  pool.forEach(t => { counts[taskBucket(t, today)]++; });
+  counts.all = pool.length;
+  tabsEl.innerHTML = CRM_TABS.map(([k, label]) =>
+    `<button class="crm-tab${crmUi.tab === k ? ' active' : ''}${k === 'overdue' ? ' over' : ''}" data-crm="tab" data-v="${k}">${label} <span class="n${counts[k] ? ' some' : ''}">${counts[k]}</span></button>`).join('');
+  const rows = pool.filter(t => crmUi.tab === 'all' || taskBucket(t, today) === crmUi.tab || fadingTasks.has(t.id)).sort(taskCmp(crmUi.sortKey, crmUi.sortDir));
+  const cols = crmVisibleCols();
+  const heads = cols.map(c => !c.sort ? c.label : `<span class="crm-sort" data-crm="sort" data-key="${c.sort}" title="Sort by ${escAttr(c.label)}">${c.label}${crmUi.sortKey === c.sort ? `<span class="arr">${crmUi.sortDir === 'asc' ? '▲' : '▼'}</span>` : ''}</span>`);
+  let html = rtTable(CRM_TABLE_ID, heads);
+  if(!rows.length) html += `<tr><td colspan="${cols.length}" class="crm-empty">${state.crmTasks.length ? 'No tasks match this view.' : 'No tasks yet — use “+ New task”, or add one from a lead, sale or project.'}</td></tr>`;
+  else {
+    const rowHtml = t => `<tr class="crm-row${t.status === 'done' ? ' done-row' : ''}${fadingTasks.has(t.id) ? ' fade-row' : ''}" data-crm="open" data-id="${t.id}">${cols.map(c => crmCell(c, t, today)).join('')}</tr>`;
+    if(crmUi.groupBy === 'none') html += rows.map(rowHtml).join('');
+    else {
+      const groups = new Map();
+      rows.forEach(t => { const [k, label] = crmGroupOf(t, today); if(!groups.has(k)) groups.set(k, { label, items: [] }); groups.get(k).items.push(t); });
+      [...groups.keys()].sort().forEach(k => { const g = groups.get(k);
+        html += `<tr class="crm-group"><td colspan="${cols.length}">${escHtml(g.label)}<span class="gn">${g.items.length}</span></td></tr>` + g.items.map(rowHtml).join(''); });
+    }
+  }
+  html += '</tbody></table>';
+  wrap.innerHTML = html; rtApply(wrap);
+}
+function renderCrmFilters(){
+  const el = document.getElementById('crmFilters'); if(!el) return;
+  const roots = [...new Set(state.crmTasks.map(t => linkedRoot(t.linkedId)).filter(Boolean))].sort((a, b) => a - b);
+  const lname = r => { const t = state.crmTasks.find(x => linkedRoot(x.linkedId) === r); return linkedText(t); };
+  const hid = new Set(state.crmPrefs.hiddenCols);
+  const sel = (k, label, opts) => `<select data-cf="${k}" aria-label="${label}"><option value="">${label}</option>${opts}</select>`;
+  el.innerHTML = `<div class="view-toggle" title="Whose tasks">
+      <button data-crm="scope" data-v="mine" class="${crmUi.scope === 'mine' ? 'active' : ''}">My tasks</button><button data-crm="scope" data-v="all" class="${crmUi.scope === 'all' ? 'active' : ''}">All users</button></div>
+    <select data-cf="owner" aria-label="Owner"${crmUi.scope === 'mine' ? ' disabled title="Switch to All users to pick an owner"' : ''}><option value="">Any owner</option>${taskUsers(crmUi.owner).map(u => `<option value="${escAttr(u)}"${u === crmUi.owner ? ' selected' : ''}>${escHtml(u)}</option>`).join('')}</select>
+    ${sel('type', 'Any type', optionsHtml(typeList(), crmUi.type))}
+    ${sel('prio', 'Any priority', optionsHtml(prioList(), crmUi.prio))}
+    <select data-cf="linked" aria-label="Linked record"><option value="">Any record</option><option value="none"${crmUi.linked === 'none' ? ' selected' : ''}>No linked record</option>${roots.map(r => `<option value="${r}"${crmUi.linked === String(r) ? ' selected' : ''}>${escHtml(lname(r))}</option>`).join('')}</select>
+    <label class="crm-check"><input type="checkbox" data-cf="showLost"${crmUi.showLost ? ' checked' : ''}> Show tasks on lost leads</label>
+    <div class="crm-colwrap"><button class="btn secondary" style="padding:6px 12px;" data-crm="cols-toggle">Columns ▾</button>${crmUi.colsOpen ? `<div class="crm-colmenu">${CRM_COLS.filter(c => !c.fixed).map(c => `<label><input type="checkbox" data-ccol="${c.id}"${hid.has(c.id) ? '' : ' checked'}> ${c.label}</label>`).join('')}</div>` : ''}</div>
+    <span class="crm-grp"><span class="crm-lbl">Group by</span><span class="view-toggle">${CRM_GROUPS.map(([k, l]) => `<button data-crm="group" data-v="${k}" class="${crmUi.groupBy === k ? 'active' : ''}">${l}</button>`).join('')}</span></span>`;
+}
+function renderCrm(){
+  if(!document.getElementById('crmTabs')) return;
+  document.getElementById('crmRecList').innerHTML = activeRecordCodes().map(r => `<option value="${escAttr(r.code)}" label="${escAttr(r.name)}"></option>`).join('');
+  renderCrmFilters(); renderCrmList(); refreshTaskPanel();
+  ensureAppUsers();
+}
+document.getElementById('crmSearch').addEventListener('input', (e) => { crmUi.q = e.target.value; renderCrmList(); });
+
+/* ---- task side panel ---- */
+let taskPanel = null;   // { mode:'edit', id } | { mode:'new', draft }
+function openTaskPanel(id){ if(!findTask(id)) return; taskPanel = { mode: 'edit', id }; renderTaskPanel(); }
+function openNewTask(linked){
+  taskPanel = { mode: 'new', draft: { title: '', dueDate: fmt(new Date()), priorityId: defaultPrioId(), typeId: defaultTypeId(), owner: meName(), linkedId: linked || '' } };
+  renderTaskPanel(); setTimeout(() => { const el = document.querySelector('#tkBody [data-tf="title"]'); if(el) el.focus(); }, 30);
+}
+function closeTaskPanel(){ taskPanel = null; document.getElementById('tkPanel').hidden = true; document.getElementById('tkBackdrop').hidden = true; }
+document.addEventListener('keydown', (e) => {   // Esc closes the task panel first (capture: before the record drawer's own Esc handling)
+  if(e.key === 'Escape' && taskPanel && document.getElementById('modalOverlay').hidden){ closeTaskPanel(); e.stopImmediatePropagation(); }
+}, true);
+function panelTask(){ return taskPanel ? (taskPanel.mode === 'new' ? taskPanel.draft : findTask(taskPanel.id)) : null; }
+function renderTaskPanel(){
+  const panel = document.getElementById('tkPanel'), bd = document.getElementById('tkBackdrop');
+  const t = panelTask(); if(!t){ closeTaskPanel(); return; }
+  document.getElementById('tkTitleBar').textContent = taskPanel.mode === 'new' ? 'New task' : t.id;
+  document.getElementById('tkBody').innerHTML = `<div class="tk-form">
+      <div class="field"><label>Title</label><input class="tk-input" data-tf="title" value="${escAttr(t.title)}" placeholder="What needs doing?"></div>
+      <div class="tk-grid">
+        <div><label>Type</label><select class="tk-input" data-tf="typeId">${optionsHtml(typeList(), t.typeId)}</select></div>
+        <div><label>Priority</label><select class="tk-input" data-tf="priorityId">${optionsHtml(prioList(), t.priorityId)}</select></div>
+        <div><label>Due date</label><input type="date" class="tk-input" data-tf="dueDate" value="${t.dueDate}"></div>
+        <div><label>Owner</label><select class="tk-input" data-tf="owner">${userOptions(t.owner)}</select></div>
+      </div>
+      <div class="field"><label>Linked record</label><input class="tk-input" list="crmRecList" data-tf="linkedId" value="${escAttr(t.linkedId)}" placeholder="Search by code or name (optional)" autocomplete="off">
+        <div class="tk-linkinfo" id="tkLinkInfo"></div></div>
+    </div><div id="tkDyn"></div>`;
+  panel.hidden = false; bd.hidden = false;
+  refreshTaskPanel(true);
+}
+/* re-draws only the parts that change without the user typing in them (status, link info, notes), so focus is never lost */
+function refreshTaskPanel(){
+  if(!taskPanel) return;
+  const t = panelTask(); if(!t){ closeTaskPanel(); return; }
+  const dyn = document.getElementById('tkDyn'); if(!dyn) return;
+  const isNew = taskPanel.mode === 'new';
+  if(!isNew){   // keep the open fields in step with edits made elsewhere (e.g. the list's inline due date)
+    document.querySelectorAll('#tkBody [data-tf]').forEach(el => { if(document.activeElement !== el){ const v = t[el.dataset.tf]; if(v !== undefined && el.value !== v) el.value = v; } });
+    const ow = document.querySelector('#tkBody [data-tf="owner"]');
+    if(ow && t.owner && document.activeElement !== ow && ![...ow.options].some(o => o.value === t.owner)) ow.innerHTML = userOptions(t.owner);
+  }
+  const info = document.getElementById('tkLinkInfo'), li = linkedInfo(t);
+  if(info && !info.classList.contains('err')) info.innerHTML = li ? `${escHtml(li.name || '')}${li.lost ? ' (lost lead)' : ''}${li.missing ? 'Record no longer exists' : ''} ${li.d && !li.lost ? `<button class="link-btn" data-crm="rec" data-id="${isNew ? '' : t.id}">Open record</button>` : ''}` : 'Not linked to a record.';
+  const keep = document.getElementById('tkNoteTxt'), kv = keep ? keep.value : '', kf = keep && document.activeElement === keep;
+  let html = '';
+  if(isNew) html = `<div class="tk-form"><div class="tkf-err" id="tkErr"></div></div><div class="tk-actions"><button class="btn secondary" data-crm="panel-close">Cancel</button><button class="btn" data-crm="panel-create">Create task</button></div>`;
+  else {
+    const done = t.status === 'done';
+    const when = s => s ? new Date(s).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const notes = t.notes.slice().sort((a, b) => a.created - b.created);
+    html = `<div class="tk-status"><div class="cbx${done ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="${done ? 'Reopen' : 'Mark done'}">${CHECK_SVG}</div>
+        <div><strong>${done ? 'Done' : 'Open'}</strong>${done ? `<div class="sub">Completed ${escHtml(when(t.completedAt))}${t.completedBy ? ' by ' + escHtml(t.completedBy) : ''}</div>` : ''}
+        <div class="sub">Created ${escHtml(when(t.createdAt))}${t.createdBy ? ' by ' + escHtml(t.createdBy) : ''}</div></div></div>
+      <div class="stage-label-row">Notes (${notes.length})</div>
+      <div class="tk-notes">${notes.length ? notes.map(n => `<div class="tk-note"><span class="meta">${escHtml(n.author || 'Someone')} · ${escHtml(when(n.created ? new Date(n.created).toISOString() : ''))}</span>${escHtml(n.text)}</div>`).join('') : '<div class="tkr-empty">No notes yet.</div>'}</div>
+      <div class="tk-addnote"><textarea id="tkNoteTxt" placeholder="Add note…${t.linkedId ? ' (also logged on the record\'s timeline)' : ''}"></textarea>
+        <div style="margin-top:8px;"><button class="btn" data-crm="panel-note">Add note</button></div></div>
+      <div class="tk-actions"><button class="btn del" data-crm="panel-delete">Delete task</button><span class="sub" style="font-size:11px;color:var(--muted);">Notes never change a task's due date or status.</span></div>`;
+  }
+  dyn.innerHTML = html;
+  const nt = document.getElementById('tkNoteTxt'); if(nt && kv){ nt.value = kv; if(kf) nt.focus(); }
+}
+function panelFieldChange(el){
+  const f = el.dataset.tf, isNew = taskPanel.mode === 'new', t = panelTask(); if(!t) return;
+  const info = document.getElementById('tkLinkInfo'); if(info) info.classList.remove('err');
+  let v = el.value;
+  if(f === 'title'){ v = v.trim(); if(!v && !isNew){ el.value = t.title; return; } }
+  if(f === 'linkedId'){
+    const code = normLinked(v);
+    if(v.trim() === '') v = '';
+    else if(!code || !activeRecordCodes().some(r => r.code === code)){
+      el.value = t.linkedId; if(info){ info.textContent = 'Pick an active lead, sale or project from the list (e.g. L-101).'; info.classList.add('err'); } return;
+    } else { v = code; el.value = code; }
+  }
+  t[f] = v;
+  if(!isNew){ render(); saveState(); }
+  else refreshTaskPanel();
+}
+document.addEventListener('change', (e) => { if(e.target.dataset && e.target.dataset.tf && taskPanel) panelFieldChange(e.target); });
+document.addEventListener('input', (e) => { if(e.target.dataset && e.target.dataset.tf === 'title' && taskPanel && taskPanel.mode === 'new') taskPanel.draft.title = e.target.value; });
+async function deleteTask(id){
+  const t = findTask(id); if(!t) return;
+  const ok = await showConfirm(`Delete ${t.id}?`, `“${t.title}” and its ${t.notes.length} note${t.notes.length !== 1 ? 's' : ''} will be permanently removed. Notes already logged on a record's timeline stay there. To keep the task, mark it done instead.`);
+  if(!ok) return;
+  state.crmTasks.splice(state.crmTasks.indexOf(t), 1);
+  if(taskPanel && taskPanel.id === id) closeTaskPanel();
+  render(); saveState();
+}
+
+/* ---- Settings: CRM task options (priority + type lists, referenced by id) ---- */
+function taskOptRowsHtml(kind){
+  const list = state.taskOptions[kind], isType = kind === 'type';
+  return `<div class="stage-head${isType ? ' has-pct' : ''}"><span>Order</span><span>Name</span>${isType ? '<span title="Notes on this type update Last contacted, and completing it asks for an outcome">Contact</span>' : ''}<span></span></div>
+  <div class="stage-list">${list.map((o, i) => `<div class="stage-row${isType ? ' has-pct' : ''}">
+      <div class="tier-move">
+        <button class="icon-btn" data-crm="opt-up" data-kind="${kind}" data-id="${escAttr(o.id)}" title="Move up"${i === 0 ? ' disabled style="opacity:.3;cursor:default"' : ''}>${UP_SVG}</button>
+        <button class="icon-btn" data-crm="opt-down" data-kind="${kind}" data-id="${escAttr(o.id)}" title="Move down"${i === list.length - 1 ? ' disabled style="opacity:.3;cursor:default"' : ''}>${DOWN_SVG}</button></div>
+      <input type="text" data-topt="name" data-kind="${kind}" data-id="${escAttr(o.id)}" value="${escAttr(o.name)}" aria-label="Name">
+      ${isType ? `<div class="pct-wrap"><input type="checkbox" data-topt="contact" data-kind="${kind}" data-id="${escAttr(o.id)}"${o.contact ? ' checked' : ''} aria-label="Counts as a contact"></div>` : ''}
+      <button class="icon-btn" data-crm="opt-del" data-kind="${kind}" data-id="${escAttr(o.id)}" title="Delete">${X_SVG}</button></div>`).join('')}</div>`;
+}
+function renderTaskOptions(){
+  const el = document.getElementById('taskOptionsCard'); if(!el) return;
+  el.innerHTML = `<p style="font-size:12.5px;color:var(--muted);margin:0 0 4px;line-height:1.55;max-width:760px;">The priority levels and task types offered on CRM tasks. Rename or reorder freely — tasks follow an option's hidden id, not its name; the first priority is the highest. Types marked <strong>Contact</strong> (Call, Email) update a lead's Last contacted when you add a note, and ask for an outcome when completed.</p>
+    <div class="two-col" style="align-items:start;margin-top:8px;">
+      <div><div class="stage-label-row" style="margin-bottom:0;">Priority</div>${taskOptRowsHtml('priority')}<button class="btn secondary" data-crm="opt-add" data-kind="priority">+ Add priority</button></div>
+      <div><div class="stage-label-row" style="margin-bottom:0;">Type</div>${taskOptRowsHtml('type')}<button class="btn secondary" data-crm="opt-add" data-kind="type">+ Add type</button></div>
+    </div>`;
+}
+function newOptId(kind){ const pre = kind === 'priority' ? 'tp_' : 'tt_'; let id; do { id = pre + Math.random().toString(36).slice(2, 8); } while(state.taskOptions[kind].some(o => o.id === id)); return id; }
+async function deleteTaskOption(kind, id){
+  const list = state.taskOptions[kind], o = list.find(x => x.id === id); if(!o) return;
+  if(list.length <= 1){ alert(`A list needs at least one ${kind} — add another before deleting “${o.name}”.`); return; }
+  const field = kind === 'priority' ? 'priorityId' : 'typeId', used = state.crmTasks.filter(t => t[field] === id), others = list.filter(x => x.id !== id);
+  if(used.length){
+    const ok = await showConfirm(`Delete “${o.name}”?`, `${used.length} task${used.length !== 1 ? 's use' : ' uses'} this ${kind}. Move ${used.length !== 1 ? 'them' : 'it'} to:`,
+      `<select id="optMoveTo">${others.map(x => `<option value="${escAttr(x.id)}">${escHtml(x.name)}</option>`).join('')}</select>`);
+    if(!ok) return;
+    const dest = others.some(x => x.id === _confirmExtraValue) ? _confirmExtraValue : others[0].id;
+    used.forEach(t => { t[field] = dest; });
+  }
+  list.splice(list.findIndex(x => x.id === id), 1); renumberStages(list);
+  render(); saveState();
+}
+
+/* ---- events ---- */
+document.addEventListener('change', (e) => {
+  const el = e.target, d = el.dataset || {};
+  if(d.ctask === 'due'){ const t = findTask(d.id); if(t){ t.dueDate = el.value; render(); saveState(); } }
+  else if(d.cf){
+    if(d.cf === 'showLost') crmUi.showLost = el.checked; else crmUi[d.cf] = el.value;
+    renderCrmFilters(); renderCrmList();
+  }
+  else if(d.ccol){
+    const h = new Set(state.crmPrefs.hiddenCols); if(el.checked) h.delete(d.ccol); else h.add(d.ccol);
+    state.crmPrefs.hiddenCols = [...h]; renderCrmFilters(); renderCrmList(); saveState();
+  }
+  else if(d.topt){
+    const o = state.taskOptions[d.kind] && state.taskOptions[d.kind].find(x => x.id === d.id); if(!o) return;
+    if(d.topt === 'name') o.name = el.value.trim() || o.name; else o.contact = el.checked;
+    render(); saveState();
+  }
+});
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if(crmUi.colsOpen && !t.closest('.crm-colwrap')){ crmUi.colsOpen = false; renderCrmFilters(); }
+  const b = t.closest('[data-crm]'); if(!b) return;
+  const a = b.dataset.crm, id = b.dataset.id;
+  if(a === 'open'){ const inner = t.closest('input,select,textarea,button,.cbx,a'); if(inner && inner !== b) return; openTaskPanel(id); }
+  else if(a === 'tick') toggleTaskTick(id);
+  else if(a === 'rec'){ const tk = id ? findTask(id) : (taskPanel && panelTask()); if(tk) openTaskRecord(tk); }
+  else if(a === 'new') openNewTask('');
+  else if(a === 'tab'){ crmUi.tab = b.dataset.v; renderCrmList(); }
+  else if(a === 'scope'){ crmUi.scope = b.dataset.v; renderCrmFilters(); renderCrmList(); }
+  else if(a === 'group'){ crmUi.groupBy = b.dataset.v; renderCrmFilters(); renderCrmList(); }
+  else if(a === 'sort'){
+    if(crmUi.sortKey === b.dataset.key) crmUi.sortDir = crmUi.sortDir === 'asc' ? 'desc' : 'asc'; else { crmUi.sortKey = b.dataset.key; crmUi.sortDir = 'asc'; }
+    renderCrmList();
+  }
+  else if(a === 'cols-toggle'){ crmUi.colsOpen = !crmUi.colsOpen; renderCrmFilters(); }
+  else if(a === 'tk-add'){
+    const key = b.dataset.pl + ':' + b.dataset.id;
+    if(taskForms[key]) delete taskForms[key]; else { taskForms[key] = true; ensureAppUsers(); }
+    render();
+    const f = document.querySelector(`.tkr-form[data-key="${key}"] [data-tkf="title"]`); if(f) f.focus();
+  }
+  else if(a === 'tk-form-add'){ const f = b.closest('.tkr-form'); if(f) submitRecordTaskForm(f); }
+  else if(a === 'tk-form-cancel'){ const f = b.closest('.tkr-form'); if(f){ delete taskForms[f.dataset.key]; delete taskDrafts[f.dataset.key]; render(); } }
+  else if(a === 'panel-close') closeTaskPanel();
+  else if(a === 'panel-create'){
+    const d = taskPanel && taskPanel.draft, err = document.getElementById('tkErr'); if(!d) return;
+    if(!String(d.title).trim()){ err.textContent = 'Give the task a title.'; const el = document.querySelector('#tkBody [data-tf="title"]'); if(el) el.focus(); return; }
+    const nt = createTask(d); closeTaskPanel(); render(); saveState(); showToast(`${nt.id} created`);
+  }
+  else if(a === 'panel-note'){
+    const tk = taskPanel && taskPanel.mode === 'edit' && findTask(taskPanel.id), box = document.getElementById('tkNoteTxt');
+    if(tk && box && addTaskNote(tk, box.value)){ box.value = ''; render(); saveState(); }
+  }
+  else if(a === 'panel-delete'){ if(taskPanel) deleteTask(taskPanel.id); }
+  else if(a === 'opt-add'){ const list = state.taskOptions[b.dataset.kind]; list.push(b.dataset.kind === 'type' ? { id: newOptId('type'), name: 'New type', contact: false } : { id: newOptId('priority'), name: 'New priority' }); renumberStages(list); render(); saveState(); }
+  else if(a === 'opt-up' || a === 'opt-down'){
+    const list = state.taskOptions[b.dataset.kind], i = list.findIndex(x => x.id === id), j = i + (a === 'opt-up' ? -1 : 1);
+    if(i >= 0 && j >= 0 && j < list.length){ [list[i], list[j]] = [list[j], list[i]]; renumberStages(list); render(); saveState(); }
+  }
+  else if(a === 'opt-del') deleteTaskOption(b.dataset.kind, id);
+});
+document.addEventListener('keydown', (e) => {   // Ctrl/Cmd+Enter in the note box adds the note
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'tkNoteTxt'){ const b = document.querySelector('#tkDyn [data-crm="panel-note"]'); if(b) b.click(); }
+});
+
 /* ---------- master render ---------- */
 function render(){
   renderDashboard();
@@ -3194,6 +3904,8 @@ function render(){
   renderSettings();
   renderAdmin();
   renderActions();
+  renderCrm();
+  renderTaskOptions();
   applyResizable();
 }
 
@@ -3238,7 +3950,7 @@ document.addEventListener('change', (e) => {
     if(auto && list.findIndex(x => x.id === auto) > list.findIndex(x => x.id === p.stageId)) p.stageId = auto;
   }
   else if(tab==='payline'){ const p=Number(el.dataset.idx), pl=Number(el.dataset.pli); if(state.projects[p] && state.projects[p].paymentLines[pl]) state.projects[p].paymentLines[pl][field] = value; }
-  else if(tab==='comms'){ const li=Number(el.dataset.idx), ci=Number(el.dataset.cidx); if(state.leads[li] && state.leads[li].comms[ci]) state.leads[li].comms[ci][field] = value; }
+  else if(COMMS_TABS[tab]){ const r = state[COMMS_TABS[tab]][Number(el.dataset.idx)], ci = Number(el.dataset.cidx); if(r && r.comms && r.comms[ci]) r.comms[ci][field] = value; }
   else if(tab==='root') state[field] = value;
   else if(tab==='stages'){ const p=Number(el.dataset.proj), s=Number(el.dataset.sidx); if(state.pipeline[p] && state.pipeline[p].stages[s]) state.pipeline[p].stages[s][field] = value; }
   else if(tab==='tiers' && state.tiers[Number(el.dataset.idx)]){
@@ -3289,7 +4001,7 @@ document.addEventListener('click', (e) => {
   if(action === 'add-row'){
     const tab = btn.dataset.tab;
     const row = newRowFor(tab);
-    if(tab === 'pipeline'){ row.id = state.nextPipelineId++; expandedProjects.add(row.id); }
+    if(tab === 'pipeline'){ row.id = allocRecordId(); expandedProjects.add(row.id); }
     state[tab].push(row); render(); saveState();
   }
   else if(action === 'delete-row'){ const tab = btn.dataset.tab; state[tab].splice(Number(btn.dataset.idx),1); render(); saveState(); }
@@ -3313,7 +4025,7 @@ document.addEventListener('click', (e) => {
     const p = Number(btn.dataset.proj), s = Number(btn.dataset.sidx);
     state.pipeline[p].stages.splice(s,1); render(); saveState();
   }
-  else if(action === 'add-lead'){ const l = newRowFor('leads'); l.id = state.nextRecordId++; expandedLeads.add(l.id); state.leads.push(l); render(); saveState(); }
+  else if(action === 'add-lead'){ const l = newRowFor('leads'); l.id = allocRecordId(); expandedLeads.add(l.id); state.leads.push(l); render(); saveState(); }
   else if(action === 'delete-lead'){ state.leads.splice(Number(btn.dataset.idx),1); render(); saveState(); }
   else if(action === 'toggle-lead'){ const id = Number(btn.dataset.id); if(expandedLeads.has(id)) expandedLeads.delete(id); else expandedLeads.add(id); renderLeads(); }
   else if(action === 'add-tier'){ state.tiers.push({ id: newTierId(), name: 'Tier ' + (state.tiers.length+1), label: '', image: '', min: '', max: '', placeholder: false }); render(); saveState(); }
@@ -3333,12 +4045,12 @@ document.addEventListener('click', (e) => {
   else if(action === 'stage-del'){ deleteStageItem(btn.dataset.pl, btn.dataset.id); }
   else if(action === 'reset-cols'){ rtReset(btn.dataset.forid); }
   else if(action === 'add-comm'){
-    const l = state.leads.find(x => x.id === Number(btn.dataset.id));
+    const l = commOwner(btn.dataset.pl, Number(btn.dataset.id));
     if(l){ l.comms = l.comms || []; l.comms.push({ date: fmt(new Date()), note: '', created: Date.now() }); render(); saveState(); }
   }
   else if(action === 'del-comm'){
-    const l = state.leads.find(x => x.id === Number(btn.dataset.id));
-    if(l){ l.comms.splice(Number(btn.dataset.cidx), 1); render(); saveState(); }
+    const l = commOwner(btn.dataset.pl, Number(btn.dataset.id));
+    if(l && l.comms){ l.comms.splice(Number(btn.dataset.cidx), 1); render(); saveState(); }
   }
   else if(action === 'promote-project'){ promoteToProject(Number(btn.dataset.id)); }
   else if(action === 'toggle-projrec'){ const id = Number(btn.dataset.id); if(expandedProjectsP.has(id)) expandedProjectsP.delete(id); else expandedProjectsP.add(id); renderProjects(); }
