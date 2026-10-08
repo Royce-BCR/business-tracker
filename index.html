@@ -360,6 +360,27 @@
   .comm-entry .comm-note:hover { border-color: var(--stone-deep); background: #fff; }
   .comm-entry .comm-note:focus { border-color: var(--oak); background: #fffdf9; outline: none; }
   @media (max-width: 760px){ .lead-cols { grid-template-columns: 1fr; } .lead-col-right { border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 14px; } }
+  /* leads: collapsed-row colour coding, status pill, resizable fixed-layout table */
+  .leads-table { table-layout: fixed; }
+  .leads-table th { overflow: hidden; text-overflow: ellipsis; }
+  .leads-table td { overflow: hidden; }
+  .leads-table tr.lead-row td { background: var(--lead-tint); }
+  .leads-table tr.lead-row td:first-child { border-left: 3px solid var(--lead-edge); }
+  .leads-table tr.lead-row:hover td { background: var(--lead-tint-hover); }
+  .leads-table tr.lead-res { --lead-tint: rgba(29,158,117,0.08); --lead-tint-hover: rgba(29,158,117,0.14); --lead-edge: #1D9E75; }
+  .leads-table tr.lead-com { --lead-tint: rgba(55,138,221,0.09); --lead-tint-hover: rgba(55,138,221,0.15); --lead-edge: #378ADD; }
+  .leads-table td.computed { background: var(--lead-tint) !important; border-radius: 0; }   /* let the row tint show through the grey 'computed' look */
+  .leads-table input.computed { background: transparent !important; color: #a8a398; }
+  .leads-table input.lead-proj::placeholder { color: #aaa59a; font-style: italic; }
+  .leads-table input.lead-pc { text-transform: uppercase; }
+  .leads-table input.lead-pc.manual { font-weight: 600; }
+  .lead-pill { width: auto; max-width: 100%; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #efece6; color: #6c675e; border: 1px solid transparent; }
+  .type-toggle { display: inline-flex; background: #efece6; border-radius: 8px; padding: 2px; gap: 2px; }
+  .type-toggle button { border: none; background: none; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 5px 14px; border-radius: 6px; cursor: pointer; color: var(--muted); }
+  .type-toggle button.active { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .type-toggle button.active.res { color: #14805f; }
+  .type-toggle button.active.com { color: #2a6fb5; }
+  .qual-stack .qual-field textarea { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; min-height: 48px; }
   .gate-msg { font-size: 12px; color: #b3453f; margin-bottom: 10px; }
   .gate-msg.ok { color: var(--green); }
   .milestone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px; max-width: 760px; margin-bottom: 14px; }
@@ -984,6 +1005,7 @@ function defaultState(){
     nextPipelineId: 7,
     nextRecordId: 300,
     tableModes: {},
+    colWidths: {},
     leads: [
       { id: 101, leadType: 'Commercial', contact: '', company: 'Meadow View Estate', phone: '', email: '', source: 'Cold outreach', status: 'Not Contacted', notes: 'Large rural property — potential for multiple structures.', budget: '', decisionMaker: '', timeline: '', competition: '', comms: [] },
       { id: 102, leadType: 'Residential', contact: 'Sarah Bramley', company: '', phone: '', email: '', source: 'Facebook group', status: 'Contacted', notes: 'Asked about pergola pricing — awaiting reply.', budget: '', decisionMaker: '', timeline: '', competition: '', comms: [ { date: '2026-09-02', note: 'Sarah messaged via Facebook asking about pergola pricing' } ] },
@@ -1060,6 +1082,7 @@ function mergeDefaults(loaded){
   out.assumptions = Object.assign({}, d.assumptions, loaded.assumptions || {});
   out.businessPlan = Object.assign({}, d.businessPlan, loaded.businessPlan || {});
   out.tableModes = Object.assign({}, loaded.tableModes || {});
+  out.colWidths = Object.assign({}, loaded.colWidths || {});
   out.settings = Object.assign({}, d.settings, loaded.settings || {});
   out.settings.stageProbability = Object.assign({}, d.settings.stageProbability, (loaded.settings||{}).stageProbability || {});
   ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions'].forEach(k => {
@@ -1688,7 +1711,7 @@ function leadStatusStyle(s){
   if(s==='Possible Opportunity') return 'background:#fbf1cf;color:#c9822f;';
   if(s==='Contacted') return 'background:#e6ecf5;color:#4a6b8a;';
   if(s==='Closed – No Fit') return 'background:#f0eae9;color:#a08a87;';
-  return '';
+  return 'background:#efece6;color:#6c675e;';
 }
 function leadQualified(l){ return !!(l.budget && l.decisionMaker && l.timeline && l.competition); }
 function leadLastContact(l){
@@ -1698,38 +1721,75 @@ function leadLastContact(l){
 function leadPrimaryName(l){
   return l.contact || l.company || '(no name yet)';
 }
+/* UK postcode: tolerant (any case, space optional); the last match in the text wins, as postcodes close an address */
+const UK_POSTCODE_RE = /\b([A-Z]{1,2}\d[A-Z\d]?)\s*(\d[A-Z]{2})\b/gi;
+function extractPostcode(text){
+  const all = [...String(text||'').matchAll(UK_POSTCODE_RE)];
+  if(!all.length) return '';
+  const m = all[all.length-1];
+  return (m[1] + ' ' + m[2]).toUpperCase();
+}
+function normalisePostcodeInput(v){
+  v = String(v||'').trim();
+  if(!v) return '';
+  const m = v.match(/^([A-Z]{1,2}\d[A-Z\d]?)\s*(\d[A-Z]{2})$/i);
+  return m ? (m[1] + ' ' + m[2]).toUpperCase() : v.toUpperCase();
+}
+/* newest first by date, then most recently added; entries without a timestamp fall back to array position */
+function sortedComms(l){
+  return (l.comms||[]).map((c,ci)=>({c,ci})).sort((a,b)=>
+    (b.c.date||'').localeCompare(a.c.date||'') || ((b.c.created||0) - (a.c.created||0)) || (b.ci - a.ci));
+}
+/* leads table column widths (px), remembered per table in state.colWidths */
+const LEADS_TABLE_ID = 'leadsTableWrap';
+const LEADS_COLS = [ // [default, min]
+  [34,34], [66,56], [200,90], [170,90], [170,90], [110,76], [126,84], [200,110], [34,34] ];
+function leadColWidths(){
+  const saved = (state.colWidths && state.colWidths[LEADS_TABLE_ID]) || [];
+  return LEADS_COLS.map((c,i) => Math.max(c[1], Number(saved[i]) || c[0]));
+}
+function applyLeadCols(table, widths, fit){
+  const sum = widths.reduce((a,b)=>a+b,0);
+  table.querySelectorAll('col').forEach((col,i) => { col.style.width = fit ? (widths[i]/sum*100).toFixed(3)+'%' : widths[i]+'px'; });
+  table.style.minWidth = fit ? '0' : sum+'px';
+}
 function renderLeads(){
-  let html = `<table style="min-width:1000px"><thead><tr>
-    <th style="width:34px"></th><th style="width:58px">Code</th><th style="width:116px">Type</th>
-    <th style="min-width:150px">Name / Contact</th><th style="min-width:140px">Company</th><th style="width:120px">Source</th>
-    <th style="width:118px">Last contact</th><th style="width:196px">Lead Status</th><th style="width:34px"></th></tr></thead><tbody>`;
+  const widths = leadColWidths();
+  const heads = ['','Code','Project name','Contact','Company','Postcode','Last contacted','Lead status',''];
+  let html = `<table class="leads-table"><colgroup>${widths.map(()=>'<col>').join('')}</colgroup><thead><tr>${heads.map((h,i)=>
+    `<th>${h}${(i===0||i===heads.length-1)?'':`<div class="col-handle" data-leadcol="${i}" title="Drag to resize · double-click to reset"></div>`}</th>`).join('')}</tr></thead><tbody>`;
   state.leads.forEach((l,i) => {
     const isOpen = expandedLeads.has(l.id);
     const isCommercial = l.leadType === 'Commercial';
     const last = leadLastContact(l);
-    html += `<tr>
+    html += `<tr class="lead-row ${isCommercial?'lead-com':'lead-res'}">
       <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Detail & comms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
       <td class="code-cell">${recordCode(l.id,'lead')}</td>
-      <td><select data-tab="leads" data-idx="${i}" data-field="leadType">
-        <option${l.leadType==='Residential'?' selected':''}>Residential</option>
-        <option${l.leadType==='Commercial'?' selected':''}>Commercial</option></select></td>
+      <td><input class="lead-proj" data-tab="leads" data-idx="${i}" data-field="projectName" value="${escAttr(l.projectName||'')}" placeholder="Click to add"></td>
       <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="${isCommercial?'Contact person':'Homeowner name'}"></td>
       <td>${isCommercial
         ? `<input data-tab="leads" data-idx="${i}" data-field="company" value="${escAttr(l.company||'')}" placeholder="Company">`
         : `<input class="computed" disabled value="—" title="Residential — no company">`}</td>
-      <td><input data-tab="leads" data-idx="${i}" data-field="source" value="${escAttr(l.source||'')}"></td>
+      <td><input class="lead-pc${l.postcodeManual?' manual':''}" data-tab="leads" data-idx="${i}" data-field="postcode" value="${escAttr(l.postcode||'')}" title="${l.postcodeManual?'Set manually — clear this cell to go back to automatic':'Filled automatically from the address — type to override'}"></td>
       <td class="computed" title="Pulled from the latest communication entry">${last?fmtDisplay(toDate(last)):'—'}</td>
-      <td><select data-tab="leads" data-idx="${i}" data-field="status" style="${leadStatusStyle(l.status)}font-weight:600;border-radius:6px;">${LEAD_STATUSES.map(s=>`<option${l.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td><select class="lead-pill" data-tab="leads" data-idx="${i}" data-field="status" style="${leadStatusStyle(l.status)}">${LEAD_STATUSES.map(s=>`<option${l.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
       <td><button class="icon-btn" data-action="delete-lead" data-idx="${i}" title="Delete lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
     </tr>`;
     if(isOpen){
       const miss = f => l[f] ? '' : ' missing';
       const qualified = leadQualified(l);
-      const comms = (l.comms||[]).map((c,ci)=>({c,ci})).sort((a,b)=>(b.c.date||'').localeCompare(a.c.date||''));
+      const comms = sortedComms(l);
       html += `<tr class="detail-row"><td colspan="9"><div class="detail-box lead-detail">
         <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(leadPrimaryName(l))}</span><span class="detail-meta">${l.leadType}${isCommercial&&l.company?' · '+escAttr(l.company):''}</span></div>
         <div class="lead-cols">
           <div class="lead-col-left">
+            <div class="qual-stack" style="margin-bottom:16px;">
+              <div class="qual-field"><label>Lead type</label><div class="type-toggle">
+                <button class="res${!isCommercial?' active':''}" data-action="set-lead-type" data-idx="${i}" data-val="Residential">Residential</button>
+                <button class="com${isCommercial?' active':''}" data-action="set-lead-type" data-idx="${i}" data-val="Commercial">Commercial</button></div></div>
+              <div class="qual-field"><label>Source</label><input data-tab="leads" data-idx="${i}" data-field="source" value="${escAttr(l.source||'')}" placeholder="e.g. Referral, Facebook group"></div>
+              <div class="qual-field"><label>Location / address</label><textarea rows="2" data-tab="leads" data-idx="${i}" data-field="address" placeholder="Site address — the postcode is picked out automatically">${escAttr(l.address||'')}</textarea></div>
+            </div>
             <div class="stage-label-row">Qualification — all four needed before promotion</div>
             <div class="qual-stack">
               <div class="qual-field${miss('budget')}"><label>Budget indication</label><input data-tab="leads" data-idx="${i}" data-field="budget" value="${escAttr(l.budget||'')}" placeholder="e.g. £15–20k"></div>
@@ -1759,8 +1819,31 @@ function renderLeads(){
     }
   });
   html += '</tbody></table>';
-  document.getElementById('leadsTableWrap').innerHTML = html;
+  const wrap = document.getElementById(LEADS_TABLE_ID);
+  wrap.innerHTML = html;
+  applyLeadCols(wrap.firstChild, widths, wrap.classList.contains('fitmode'));
 }
+/* drag the grab bar on a Leads header cell to resize that column */
+document.addEventListener('pointerdown', (e) => {
+  const h = e.target.closest && e.target.closest('.col-handle[data-leadcol]'); if(!h) return;
+  e.preventDefault(); e.stopPropagation();
+  const wrap = document.getElementById(LEADS_TABLE_ID), table = wrap.querySelector('table');
+  const idx = Number(h.dataset.leadcol), fit = wrap.classList.contains('fitmode');
+  const widths = [...table.querySelectorAll('thead th')].map(th => th.getBoundingClientRect().width);
+  const startX = e.clientX, startW = widths[idx];
+  const save = () => { // store what is actually on screen (in fit mode the browser scales the columns to fit)
+    state.colWidths = state.colWidths || {};
+    state.colWidths[LEADS_TABLE_ID] = [...table.querySelectorAll('thead th')].map(th => Math.round(th.getBoundingClientRect().width));
+    saveState();
+  };
+  const move = ev => { widths[idx] = Math.max(LEADS_COLS[idx][1], startW + ev.clientX - startX); applyLeadCols(table, widths, fit); };
+  const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.body.style.cursor=''; save(); };
+  document.body.style.cursor = 'col-resize';
+  document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
+  h.addEventListener('dblclick', () => { // double-click: back to the default width
+    widths[idx] = LEADS_COLS[idx][0]; applyLeadCols(table, widths, fit); save();
+  }, { once: true });
+});
 
 /* ---------- Project Pipeline ---------- */
 const expandedProjectsP = new Set();
@@ -1892,6 +1975,7 @@ function promoteLead(id){
     tier: 'Needs re-scoping', stage: 'Inquiry', probability: 0.3, quoteValue: 0,
     notes: (l.notes||'') + `  [From lead: budget ${l.budget||'?'}; decision-maker ${l.decisionMaker||'?'}; timeline ${l.timeline||'?'}; competition ${l.competition||'?'}]`,
     contact: l.contact||'', company: l.company||'', leadType: l.leadType||'Residential', phone: l.phone||'', email: l.email||'', source: l.source||'',
+    projectName: l.projectName||'', address: l.address||'', postcode: l.postcode||'', postcodeManual: !!l.postcodeManual,
     budget: l.budget||'', decisionMaker: l.decisionMaker||'', timeline: l.timeline||'', competition: l.competition||'',
     comms: l.comms||[], contractSigned: '',
     stages: [ { label: 'Scope & cost', kind: 'scope', start: '', end: '', cost: 0 } ]
@@ -2169,7 +2253,7 @@ function renderArchived(){
 /* ---------- column resize ---------- */
 function applyResizable(){
   document.querySelectorAll('.main table thead th').forEach(th => {
-    if(th.querySelector('.col-handle') || th.style.width==='34px') return;
+    if(th.querySelector('.col-handle') || th.style.width==='34px' || th.closest('.leads-table')) return;   // Leads has its own persisted resizer
     const handle = document.createElement('div');
     handle.className = 'col-handle';
     th.appendChild(handle);
@@ -2212,7 +2296,7 @@ function newRowFor(tab){
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
     case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'' };
-    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', comms:[] };
+    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', source:'', status:'Not Contacted', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', projectName:'', address:'', postcode:'', postcodeManual:false, comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
   }
@@ -2233,6 +2317,12 @@ document.addEventListener('change', (e) => {
   else if(tab==='root') state[field] = value;
   else if(tab==='stages'){ const p=Number(el.dataset.proj), s=Number(el.dataset.sidx); if(state.pipeline[p] && state.pipeline[p].stages[s]) state.pipeline[p].stages[s][field] = value; }
   else if(tab==='projmilestone'){ const p=Number(el.dataset.idx); if(state.projects[p]){ state.projects[p].milestones = state.projects[p].milestones||{}; state.projects[p].milestones[field] = value; } }
+  else if(tab==='leads' && state.leads[Number(el.dataset.idx)] && (field==='address' || field==='postcode')){
+    const l = state.leads[Number(el.dataset.idx)];
+    if(field==='address'){ l.address = value; if(!l.postcodeManual) l.postcode = extractPostcode(value); }
+    else if(value.trim()===''){ l.postcodeManual = false; l.postcode = extractPostcode(l.address); }   // cleared → back to automatic
+    else { l.postcodeManual = true; l.postcode = normalisePostcodeInput(value); }
+  }
   else { const idx = Number(el.dataset.idx); if(state[tab] && state[tab][idx]) state[tab][idx][field] = value; }
   render();
   saveState();
@@ -2244,6 +2334,7 @@ document.addEventListener('click', (e) => {
     const sc = document.getElementById(id);
     if(sc){ sc.classList.toggle('fitmode', mode==='fit'); }
     wt.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('active', b===wt));
+    if(id === LEADS_TABLE_ID) renderLeads();   // column widths switch between % (fit) and px (wide)
     state.tableModes = state.tableModes || {}; state.tableModes[id] = mode; saveState();
     return;
   }
@@ -2282,10 +2373,11 @@ document.addEventListener('click', (e) => {
   else if(action === 'add-lead'){ const l = newRowFor('leads'); l.id = state.nextRecordId++; expandedLeads.add(l.id); state.leads.push(l); render(); saveState(); }
   else if(action === 'delete-lead'){ state.leads.splice(Number(btn.dataset.idx),1); render(); saveState(); }
   else if(action === 'toggle-lead'){ const id = Number(btn.dataset.id); if(expandedLeads.has(id)) expandedLeads.delete(id); else expandedLeads.add(id); renderLeads(); }
+  else if(action === 'set-lead-type'){ const l = state.leads[Number(btn.dataset.idx)]; if(l && l.leadType !== btn.dataset.val){ l.leadType = btn.dataset.val; render(); saveState(); } }
   else if(action === 'promote-lead'){ promoteLead(Number(btn.dataset.id)); }
   else if(action === 'add-comm'){
     const l = state.leads.find(x => x.id === Number(btn.dataset.id));
-    if(l){ l.comms = l.comms || []; l.comms.push({ date: fmt(new Date()), note: '' }); render(); saveState(); }
+    if(l){ l.comms = l.comms || []; l.comms.push({ date: fmt(new Date()), note: '', created: Date.now() }); render(); saveState(); }
   }
   else if(action === 'del-comm'){
     const l = state.leads.find(x => x.id === Number(btn.dataset.id));
@@ -2411,6 +2503,10 @@ function ensurePipelineIds(){
       if(l.lastContacted) l.comms.push({ date: l.lastContacted, note: (l.notes ? l.notes : 'Contacted') });
     }
     delete l.business;
+    if(typeof l.projectName !== 'string') l.projectName = '';
+    if(typeof l.address !== 'string') l.address = '';
+    l.postcodeManual = !!l.postcodeManual;
+    if(typeof l.postcode !== 'string') l.postcode = l.postcodeManual ? '' : extractPostcode(l.address);
   });
   if(!state.nextPipelineId || state.nextPipelineId <= maxId) state.nextPipelineId = maxId + 1;
   if(!state.nextRecordId || state.nextRecordId <= maxId) state.nextRecordId = maxId + 1;
