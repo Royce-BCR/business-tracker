@@ -519,23 +519,56 @@
   .detail-notes input { border: 1px solid var(--line); background: #fff; padding: 7px 9px; border-radius: 7px; }
   .stage-label-row { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--oak); font-weight: 600; margin-bottom: 8px; }
 
-  /* Gantt */
-  .gantt-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; font-size: 11.5px; color: var(--slate); }
+  /* Gantt (Sales + Project): sticky label column + sticky header, bars coloured by current stage */
+  .gantt-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .gantt-controls .view-toggle { margin-bottom: 0; }
+  .gantt-legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--slate); }
   .gantt-legend .lg { display: inline-flex; align-items: center; gap: 6px; }
   .gantt-legend .lg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-  .gantt-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
-  .gantt { }
-  .gantt-headrow { display: flex; border-bottom: 1.5px solid var(--stone-deep); background: #faf8f4; position: sticky; top: 0; }
-  .gantt-label { padding: 10px 14px; font-size: 12.5px; flex-shrink: 0; border-right: 1px solid var(--line); display: flex; align-items: center; gap: 6px; }
-  .gantt-label.head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6c675e; font-weight: 600; }
-  .gantt-months { position: relative; height: 38px; }
-  .gantt-month { position: absolute; top: 0; height: 38px; line-height: 38px; font-size: 11px; color: var(--muted); border-left: 1px solid var(--line); padding-left: 6px; box-sizing: border-box; }
-  .gantt-row { display: flex; border-bottom: 1px solid var(--line); }
+  .gantt-scroll { overflow: auto; max-height: 70vh; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
+  .gantt { position: relative; --lw: 210px; }
+  .gantt-headrow { display: flex; border-bottom: 1.5px solid var(--stone-deep); background: #faf8f4; position: sticky; top: 0; z-index: 6; }
+  .gantt-label { width: var(--lw); padding: 0 10px 0 6px; font-size: 12.5px; flex: 0 0 var(--lw); border-right: 1px solid var(--line); display: flex; align-items: center; gap: 6px; position: sticky; left: 0; z-index: 4; background: var(--card); min-height: 40px; overflow: hidden; }
+  .gantt-label .gantt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; min-width: 0; }
+  .gantt-label .gantt-name:hover { text-decoration: underline; }
+  .gantt-label .icon-btn { width: 24px; height: 24px; flex-shrink: 0; }
+  .gantt-label .gantt-nochev { width: 24px; flex-shrink: 0; }
+  .gantt-label.head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6c675e; font-weight: 600; background: #faf8f4; z-index: 7; padding-left: 14px; }
+  .gantt-label.child { padding-left: 38px; font-size: 11.5px; color: var(--slate); background: #fcfbf8; min-height: 32px; }
+  .gantt-label.child span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gantt-tiers { position: relative; height: 46px; }
+  .gantt-t1, .gantt-t2 { position: absolute; left: 0; right: 0; }
+  .gantt-t1 { top: 0; height: 22px; }
+  .gantt-t2 { top: 22px; height: 24px; }
+  .gantt-tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--line); padding-left: 6px; font-size: 11px; line-height: 22px; color: var(--muted); white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+  .gantt-t2 .gantt-tick { line-height: 24px; font-size: 10.5px; }
+  .gantt-body { position: relative; }
+  .gantt-grid { position: absolute; top: 0; bottom: 0; right: 0; pointer-events: none; z-index: 0; }
+  .gantt-grid i { position: absolute; top: 0; bottom: 0; border-left: 1px solid #f0ede6; }
+  .gantt-today { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid #b3453f; z-index: 2; pointer-events: none; }
+  .gantt-today-tag { position: absolute; top: 2px; transform: translateX(-50%); background: #b3453f; color: #fff; font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 8px; z-index: 3; pointer-events: none; }
+  .gantt-row { display: flex; border-bottom: 1px solid var(--line); position: relative; }
   .gantt-row:last-child { border-bottom: none; }
-  .gantt-row:hover { background: #faf9f6; }
+  .gantt-row:hover .gantt-label, .gantt-row:hover { background: #faf9f6; }
+  .gantt-row.child { background: #fcfbf8; }
   .gantt-track { position: relative; height: 40px; flex-shrink: 0; }
-  .gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 6px; display: flex; align-items: center; padding: 0 7px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
-  .gantt-bar span { font-size: 10.5px; color: #fff; white-space: nowrap; font-weight: 500; text-shadow: 0 1px 1px rgba(0,0,0,0.15); }
+  .gantt-row.child .gantt-track { height: 32px; }
+  .gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 6px; display: flex; align-items: center; padding: 0 7px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; min-width: 6px; }
+  .gantt-row.child .gantt-bar { top: 5px; height: 22px; opacity: 0.82; }
+  .gantt-bar.span { opacity: 0.9; }
+  .gantt-bar.ghost { opacity: 0.38; }
+  .gantt-bar span { font-size: 10.5px; color: #fff; white-space: nowrap; font-weight: 500; text-shadow: 0 1px 1px rgba(0,0,0,0.15); pointer-events: none; }
+  .gantt-bar.tiny { overflow: visible; }
+  .gantt-bar.tiny span { position: absolute; left: calc(100% + 5px); color: var(--ink); text-shadow: none; }
+  .gantt-dot { position: absolute; top: 28px; width: 7px; height: 7px; margin-left: -3px; background: #fff; border: 2px solid; border-radius: 50%; z-index: 1; pointer-events: none; }
+  .gantt-nodates { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #faf8f4; padding: 9px 12px; font-size: 12px; }
+  .gantt-nodates summary { cursor: pointer; font-weight: 600; color: var(--slate); }
+  .gantt-nodates ul { list-style: none; margin: 8px 0 2px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .gantt-nodates .link-btn { font-size: 12px; text-align: left; }
+  .gantt-tip { position: fixed; z-index: 130; background: var(--ink); color: #fff; font-size: 11.5px; line-height: 1.5; padding: 7px 10px; border-radius: 8px; pointer-events: none; max-width: 280px; box-shadow: var(--shadow-lift); }
+  .gantt-tip[hidden] { display: none; }
+  .gantt-tip b { font-weight: 600; }
+  .gantt-tip .tp-dim { color: #bfb9ad; }
 
   /* archiving fade */
   tr.archiving { opacity: 0.38; transition: opacity 1.8s ease; pointer-events: none; }
@@ -626,6 +659,59 @@
     .modal { padding: 20px; }
     .table-scroll, .comms-scroll { -webkit-overflow-scrolling: touch; }
   }
+
+  /* ---------------- Pipeline views: Table | Board | Gantt ---------------- */
+  .view-pane { display: none; }
+  .panel[data-view="board"] .pane-board, .panel[data-view="gantt"] .pane-gantt { display: block; }
+  .panel[data-view="board"] > .table-tools, .panel[data-view="board"] > .table-scroll[id],
+  .panel[data-view="gantt"] > .table-tools, .panel[data-view="gantt"] > .table-scroll[id] { display: none; }
+  .bd-hint { font-size: 11.5px; color: var(--muted); margin: 0 0 8px; }
+  .bd-board { display: flex; gap: 12px; align-items: stretch; overflow-x: auto; padding: 2px 2px 12px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+  .bd-col { --sc: var(--slate); flex: 1 0 240px; min-width: 220px; max-width: 340px; min-height: 260px; display: flex; flex-direction: column; max-height: max(380px, calc(100vh - 270px)); background: #efece6; border: 1px solid var(--line); border-top: 3px solid var(--sc); border-radius: var(--radius-sm); scroll-snap-align: start; transition: background 0.1s, box-shadow 0.1s; }
+  .bd-col-head { position: sticky; top: 0; z-index: 2; background: #efece6; padding: 10px 11px 8px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; flex-shrink: 0; }
+  .bd-col-title { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 12.5px; }
+  .bd-col-title .bd-col-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bd-count { background: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 1px 8px; color: var(--slate); }
+  .bd-col-sub { margin-top: 4px; font-size: 11px; color: var(--muted); line-height: 1.45; }
+  .bd-col-sub b { color: var(--slate); font-weight: 600; }
+  .bd-col-body { overflow-y: auto; padding: 4px 8px 10px; display: flex; flex-direction: column; gap: 8px; min-height: 64px; flex: 1; -webkit-overflow-scrolling: touch; }
+  .bd-empty { font-size: 11.5px; color: #aaa59a; text-align: center; padding: 14px 4px; border: 1.5px dashed var(--stone-deep); border-radius: 8px; }
+  .bd-col.bd-over { background: color-mix(in srgb, var(--sc) 14%, #efece6); box-shadow: 0 0 0 2px var(--sc), var(--shadow-lift); }
+  .bd-col.bd-over .bd-col-head { background: transparent; }
+  .bd-tile { --edge: var(--sc, var(--slate)); background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--edge); border-radius: 8px; padding: 8px 10px 9px; box-shadow: var(--shadow); cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; font-size: 12px; line-height: 1.4; }
+  .bd-tile img { -webkit-user-drag: none; pointer-events: none; }
+  .bd-tile:hover { box-shadow: var(--shadow-lift); }
+  .bd-tile:focus-visible { outline: 2px solid var(--oak); outline-offset: 1px; }
+  .bd-t-top { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
+  .bd-t-top .tier-badge-sm { margin-left: 0; }
+  .bd-t-flag { margin-left: auto; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #c9822f; background: #fbf1cf; padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
+  .bd-t-title { font-weight: 600; font-size: 12.5px; word-break: break-word; }
+  .bd-t-sub { color: var(--muted); font-size: 11.5px; word-break: break-word; }
+  .bd-t-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; font-size: 11px; color: var(--slate); }
+  .bd-t-row .k { color: var(--muted); }
+  .bd-tile.bd-placeholder { opacity: 0.35; border-style: dashed; box-shadow: none; }
+  .bd-ghost { position: fixed; z-index: 120; pointer-events: none; margin: 0; opacity: 0.95; transform: rotate(1.5deg); box-shadow: 0 10px 28px rgba(28,31,34,0.28); cursor: grabbing; }
+  body.dnd-active .bd-board { scroll-snap-type: none; }
+  body.dnd-active, body.dnd-active * { cursor: grabbing !important; user-select: none !important; -webkit-user-select: none !important; }
+  @media (max-width: 860px) {
+    .bd-col { flex-basis: 78vw; min-width: 220px; max-width: 320px; max-height: max(360px, calc(100vh - 240px)); }
+    .gantt { --lw: 150px; }
+    .gantt-scroll { max-height: 66vh; }
+  }
+
+  /* record detail drawer (reuses the table's expanded detail markup) */
+  .dr-backdrop { position: fixed; inset: 0; background: rgba(28,31,34,0.4); z-index: 60; animation: fade 0.15s ease; }
+  .dr-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(780px, 100%); background: var(--paper); z-index: 61; box-shadow: -8px 0 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: drIn 0.18s ease; }
+  .dr-backdrop[hidden], .dr-panel[hidden], .toast[hidden] { display: none; }
+  @keyframes drIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .dr-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 10px 18px; background: var(--card); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dr-title { font-family: var(--serif); font-weight: 600; font-size: 17px; }
+  .dr-body { flex: 1; overflow-y: auto; padding: 14px 16px 60px; -webkit-overflow-scrolling: touch; }
+  .dr-body .detail-box { background: var(--card); border-radius: var(--radius-sm); margin: 0; }
+  body.dr-open { overflow: hidden; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 110; background: var(--ink); color: #fff; font-size: 12.5px; padding: 10px 12px 10px 16px; border-radius: 10px; box-shadow: var(--shadow-lift); display: flex; align-items: center; gap: 14px; max-width: calc(100% - 24px); }
+  .toast-btn { background: none; border: 1px solid rgba(255,255,255,0.4); color: #fff; font-family: inherit; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 7px; cursor: pointer; }
+  .toast-btn:hover { background: rgba(255,255,255,0.12); }
 </style>
 </head>
 <body>
@@ -767,8 +853,10 @@
       <h2>Leads</h2>
       <div class="desc">The CRM database — one row per business, from cold contact to qualified opportunity. Click the chevron to open a lead's qualification detail. A lead can only be <strong>promoted into the Sales Pipeline</strong> once budget, decision-maker, timeline and competition are all filled — the gate that separates a lead from a real opportunity to quote. Promoting carries the record forward and switches its code from <strong>L-</strong> to <strong>S-</strong>.</div>
     </div>
+    <div class="view-toggle" id="viewToggle-lead"></div>
     <div class="btn-row"><button class="btn" data-action="add-lead">+ Add lead</button></div>
     <div class="table-scroll" id="leadsTableWrap"></div>
+    <div class="view-pane pane-board" id="leadsBoardWrap"></div>
     <div id="lostLeadsWrap"></div>
   </div>
 
@@ -776,15 +864,13 @@
   <div class="panel" id="panel-salespipeline">
     <div class="page-head">
       <h2>Sales Pipeline</h2>
-      <div class="desc">Live inquiry → quotable → quote sent → closed-won &amp; signed. Click the chevron on any project to expand its stages — each stage carries its own dates and cost, and the project timeline &amp; cost roll up from them. Switch to Timeline for the Gantt view. Only rows marked <strong>Real</strong> feed the forecast.</div>
+      <div class="desc">Live inquiry → quotable → quote sent → closed-won &amp; signed. Click the chevron on any project to expand its stages — each stage carries its own dates and cost, and the project timeline &amp; cost roll up from them. Use the Table / Board / Gantt switcher to see it as a stage board or a timeline. Only rows marked <strong>Real</strong> feed the forecast.</div>
     </div>
-    <div class="view-toggle" id="pipelineViewToggle">
-      <button data-action="set-pipeline-view" data-view="table" class="active">Table</button>
-      <button data-action="set-pipeline-view" data-view="gantt">Timeline (Gantt)</button>
-    </div>
+    <div class="view-toggle" id="viewToggle-sales"></div>
     <div class="btn-row"><button class="btn" data-action="add-row" data-tab="pipeline">+ Add project</button></div>
     <div class="table-scroll" id="pipelineTableWrap"></div>
-    <div id="pipelineGanttWrap"></div>
+    <div class="view-pane pane-board" id="pipelineBoardWrap"></div>
+    <div class="view-pane pane-gantt" id="pipelineGanttWrap"></div>
   </div>
 
   <!-- PROJECT PIPELINE -->
@@ -793,7 +879,10 @@
       <h2>Project Pipeline</h2>
       <div class="desc">Delivery, from signed contract to sign-off and testimonial. A won deal is promoted here from the Sales Pipeline (once its contract is marked signed) and becomes a live project — code <strong>P-</strong>. Expand a project to track its delivery milestones, budgeted vs actual cost, and testimonial. Payment lines &amp; margin variance come in the finance pass.</div>
     </div>
+    <div class="view-toggle" id="viewToggle-project"></div>
     <div class="table-scroll" id="projectsTableWrap"></div>
+    <div class="view-pane pane-board" id="projectsBoardWrap"></div>
+    <div class="view-pane pane-gantt" id="projectsGanttWrap"></div>
   </div>
 
   <!-- PRICING -->
@@ -961,6 +1050,15 @@ create policy "app update" on tracker_data for update using (true) with check (t
   </div>
 
 </div>
+
+<div class="dr-backdrop" id="drBackdrop" data-action="close-detail" hidden></div>
+<aside class="dr-panel" id="drPanel" role="dialog" aria-label="Record detail" hidden>
+  <div class="dr-bar"><span class="dr-title" id="drTitle"></span>
+    <button class="icon-btn" data-action="close-detail" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastMsg"></span><button class="toast-btn" id="toastUndo" type="button">Undo</button></div>
+<div class="gantt-tip" id="ganttTip" hidden></div>
 
 <div class="modal-overlay" id="modalOverlay" hidden>
   <div class="modal">
@@ -1707,52 +1805,15 @@ function renderBusinessPlan(){
 
 /* ---------- sales pipeline ---------- */
 const expandedProjects = new Set();
-let pipelineView = 'table';
 
 function recordCode(id, phase){ const p = phase==='lead'?'L':(phase==='project'?'P':'S'); return p + '-' + String(id||0).padStart(3,'0'); }
 function projectCode(r){ return recordCode(r.id, 'sales'); }
 
-function renderPipeline(){
-  // view toggle
-  const toggle = document.getElementById('pipelineViewToggle');
-  if(toggle){
-    toggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.view === pipelineView));
-  }
-  document.getElementById('pipelineTableWrap').style.display = pipelineView==='table' ? '' : 'none';
-  document.getElementById('pipelineGanttWrap').style.display = pipelineView==='gantt' ? '' : 'none';
-  if(pipelineView === 'table') renderPipelineTable();
-  else renderGantt();
-}
+function renderPipeline(){ renderPipelineTable(); }
 
-function renderPipelineTable(){
-  const salesStages = state.pipelineStages.sales;
-  const tiers = ['Needs re-scoping','Tier 1','Tier 2','Tier 3'];
-  const kinds = Object.keys(STAGE_KINDS);
-  let html = rtTable('pipelineTableWrap', ['','Code','Project / Client','Type','Tier','Sales Stage','Prob.','Quote (£)','Start','Complete','Cost (£)','']);
-  state.pipeline.forEach((r, i) => {
-    const d = derivePipelineRow(r);
-    const roll = d.rollup;
-    const flag = r.type === 'real' && (!r.quoteValue || r.tier === 'Needs re-scoping');
-    const isOpen = expandedProjects.has(r.id);
-    html += `<tr${flag ? ' class="flag-row"' : ''}>
-      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-project" data-id="${r.id}" title="Expand stages">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
-      <td class="code-cell">${projectCode(r)}${tierBadgeSmall(r.id, r)}</td>
-      <td><input data-tab="pipeline" data-idx="${i}" data-field="name" value="${escAttr(r.name)}"></td>
-      <td><select data-tab="pipeline" data-idx="${i}" data-field="type">
-        <option value="real"${r.type==='real'?' selected':''}>Real</option>
-        <option value="example"${r.type==='example'?' selected':''}>Example</option></select></td>
-      <td><select data-tab="pipeline" data-idx="${i}" data-field="tier">${tiers.map(t=>`<option${r.tier===t?' selected':''}>${t}</option>`).join('')}</select></td>
-      <td><select data-tab="pipeline" data-idx="${i}" data-field="stageId">${salesStages.map(s=>`<option value="${escHtml(s.id)}"${r.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
-      <td class="computed" title="From sales stage">${Math.round(effectiveProb(r)*100)}%${(r.probOverride!==undefined&&r.probOverride!==null&&r.probOverride!=='')?'*':''}</td>
-      <td><input type="number" step="1" data-tab="pipeline" data-idx="${i}" data-field="quoteValue" value="${r.quoteValue}"></td>
-      <td class="computed">${fmtDisplay(roll.start)}</td>
-      <td class="computed">${fmtDisplay(roll.end)}</td>
-      <td class="computed">${money(roll.totalCost)}</td>
-      <td><button class="icon-btn" data-action="delete-row" data-tab="pipeline" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
-    </tr>`;
-    if(isOpen){
-      html += `<tr class="detail-row"><td colspan="12"><div class="detail-box">
+function salesDetailHtml(r, i){
+  const roll = derivePipelineRow(r).rollup, kinds = Object.keys(STAGE_KINDS);
+      let html = `<div class="detail-box">
         <div class="detail-head">
           <span class="detail-code">${projectCode(r)}</span>
           <span>${escAttr(r.name)}</span>
@@ -1794,8 +1855,38 @@ function renderPipelineTable(){
              <button class="promote-btn" data-action="promote-project" data-id="${r.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Promote to Project Pipeline</button>`
           : `<div class="gate-msg">Set the contract signed date to unlock promotion to Project Pipeline.</div>
              <button class="promote-btn" disabled>Promote to Project Pipeline</button>`}
-      </div></td></tr>`;
-    }
+      </div>`;
+  return html;
+}
+
+function renderPipelineTable(){
+  const salesStages = state.pipelineStages.sales;
+  const tiers = ['Needs re-scoping','Tier 1','Tier 2','Tier 3'];
+  const kinds = Object.keys(STAGE_KINDS);
+  let html = rtTable('pipelineTableWrap', ['','Code','Project / Client','Type','Tier','Sales Stage','Prob.','Quote (£)','Start','Complete','Cost (£)','']);
+  state.pipeline.forEach((r, i) => {
+    const d = derivePipelineRow(r);
+    const roll = d.rollup;
+    const flag = r.type === 'real' && (!r.quoteValue || r.tier === 'Needs re-scoping');
+    const isOpen = expandedProjects.has(r.id);
+    html += `<tr${flag ? ' class="flag-row"' : ''}>
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-project" data-id="${r.id}" title="Expand stages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td class="code-cell">${projectCode(r)}${tierBadgeSmall(r.id, r)}</td>
+      <td><input data-tab="pipeline" data-idx="${i}" data-field="name" value="${escAttr(r.name)}"></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="type">
+        <option value="real"${r.type==='real'?' selected':''}>Real</option>
+        <option value="example"${r.type==='example'?' selected':''}>Example</option></select></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="tier">${tiers.map(t=>`<option${r.tier===t?' selected':''}>${t}</option>`).join('')}</select></td>
+      <td><select data-tab="pipeline" data-idx="${i}" data-field="stageId">${salesStages.map(s=>`<option value="${escHtml(s.id)}"${r.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
+      <td class="computed" title="From sales stage">${Math.round(effectiveProb(r)*100)}%${(r.probOverride!==undefined&&r.probOverride!==null&&r.probOverride!=='')?'*':''}</td>
+      <td><input type="number" step="1" data-tab="pipeline" data-idx="${i}" data-field="quoteValue" value="${r.quoteValue}"></td>
+      <td class="computed">${fmtDisplay(roll.start)}</td>
+      <td class="computed">${fmtDisplay(roll.end)}</td>
+      <td class="computed">${money(roll.totalCost)}</td>
+      <td><button class="icon-btn" data-action="delete-row" data-tab="pipeline" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+    if(isOpen){ html += `<tr class="detail-row"><td colspan="12">${salesDetailHtml(r, i)}</td></tr>`; }
   });
   html += '</tbody></table>';
   const wrap = document.getElementById('pipelineTableWrap');
@@ -1803,59 +1894,443 @@ function renderPipelineTable(){
   rtApply(wrap);
 }
 
-/* ---------- Gantt ---------- */
-function renderGantt(){
-  const wrap = document.getElementById('pipelineGanttWrap');
-  const projects = state.pipeline.filter(p => projectRollup(p).start && projectRollup(p).end);
-  if(projects.length === 0){
-    wrap.innerHTML = `<div class="placeholder"><div class="tag">No dated projects</div><h3>Nothing to plot yet</h3><p>Add start &amp; end dates to project stages (in Table view) and they'll appear here as a timeline.</p></div>`;
+/* ---------- Pipeline views: Table | Board | Gantt ----------
+   The chosen view is remembered per pipeline in state.tableModes (the same place Fit / Expand is remembered).
+   Board and Gantt only read existing records and the configurable stage lists — nothing else is stored. */
+const VIEW_CFG = {
+  lead:    { views: ['table','board'],          panel: 'panel-leads',           toggle: 'viewToggle-lead',    board: 'leadsBoardWrap' },
+  sales:   { views: ['table','board','gantt'],  panel: 'panel-salespipeline',   toggle: 'viewToggle-sales',   board: 'pipelineBoardWrap', gantt: 'pipelineGanttWrap' },
+  project: { views: ['table','board','gantt'],  panel: 'panel-projectpipeline', toggle: 'viewToggle-project', board: 'projectsBoardWrap', gantt: 'projectsGanttWrap' }
+};
+const VIEW_LABELS = { table: 'Table', board: 'Board', gantt: 'Gantt' };
+function getView(pl){
+  const v = state && state.tableModes && state.tableModes['view_' + pl];
+  return VIEW_CFG[pl].views.includes(v) ? v : 'table';
+}
+function setView(pl, v){
+  if(!VIEW_CFG[pl].views.includes(v) || getView(pl) === v) return;
+  state.tableModes = state.tableModes || {};
+  state.tableModes['view_' + pl] = v;
+  renderPipelineViews(pl); saveState();
+}
+function renderAllPipelineViews(){ Object.keys(VIEW_CFG).forEach(renderPipelineViews); }
+function renderPipelineViews(pl){
+  const cfg = VIEW_CFG[pl], v = getView(pl);
+  document.getElementById(cfg.panel).dataset.view = v;
+  document.getElementById(cfg.toggle).innerHTML = cfg.views.map(x =>
+    `<button data-action="set-view" data-pl="${pl}" data-view="${x}" class="${x===v?'active':''}">${VIEW_LABELS[x]}</button>`).join('');
+  renderBoard(pl);
+  if(cfg.gantt) renderGanttView(pl);
+  ganttCenter();
+}
+
+/* one colour per stage, by its position in the Settings order — shared by board columns and Gantt bars */
+const STAGE_PALETTE = ['#6b7a8f','#4f7cac','#7a6fa8','#a8763e','#c9822f','#4f8a5b','#3f6b4f','#8a5a7a','#2f7f86','#9a5a4a'];
+function stageColor(pl, id){
+  const i = ((state.pipelineStages||{})[pl]||[]).findIndex(s => s.id === id);
+  return i < 0 ? '#8b867c' : STAGE_PALETTE[i % STAGE_PALETTE.length];
+}
+/* the one place that decides which records a board / Gantt shows (lost leads excluded) — any future filter or search plugs in here */
+function viewRecords(pl){ return pl === 'lead' ? activeLeads() : (pl === 'sales' ? state.pipeline : state.projects); }
+function findRec(pl, id){ return viewRecords(pl).find(r => r.id === id) || null; }
+function hasProbOverride(r){ return r.probOverride !== undefined && r.probOverride !== null && r.probOverride !== ''; }
+function boardTitle(pl, r){
+  if(pl === 'lead') return r.projectName || r.contact || r.company || '(no name yet)';
+  return r.name || r.projectName || r.contact || r.company || '(untitled)';
+}
+
+/* "most recently updated first": edits made this session (not stored), then the latest recorded activity date up to today, then newest id */
+const recentTouch = {};
+function touchRec(pl, id){ recentTouch[pl + ':' + id] = Date.now(); }
+function touchFromEl(el){
+  const t = el.dataset.tab, ix = Number(el.dataset.idx);
+  let pl = null, r = null;
+  if(t === 'leads' || t === 'comms'){ pl = 'lead'; r = state.leads[ix]; }
+  else if(t === 'pipeline'){ pl = 'sales'; r = state.pipeline[ix]; }
+  else if(t === 'stages'){ pl = 'sales'; r = state.pipeline[Number(el.dataset.proj)]; }
+  else if(t === 'projects' || t === 'projmilestone' || t === 'payline'){ pl = 'project'; r = state.projects[ix]; }
+  if(pl && r) touchRec(pl, r.id);
+}
+function recActivity(pl, r){
+  const ds = [], now = Date.now();
+  if(pl === 'project'){ Object.values(r.milestones||{}).forEach(d => ds.push(d)); (r.paymentLines||[]).forEach(x => ds.push(x.paidDate, x.invoicedDate)); }
+  else { (r.comms||[]).forEach(c => ds.push(c.date)); if(pl === 'sales') ds.push(r.contractSigned); }
+  let best = 0;
+  ds.forEach(d => { if(!d) return; const t = toDate(d); if(t && !isNaN(t) && t.getTime() <= now && t.getTime() > best) best = t.getTime(); });
+  return best;
+}
+function sortRecent(pl, list){
+  return list.map(r => ({ r, t: recentTouch[pl+':'+r.id] || 0, a: recActivity(pl, r) }))
+    .sort((x, y) => y.t - x.t || y.a - x.a || (Number(y.r.id)||0) - (Number(x.r.id)||0)).map(x => x.r);
+}
+
+/* ---------- Board ---------- */
+function nextMilestone(p){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const ph = milestonePhases(p); if(!ph.length) return null;
+  const nx = ph.find(x => x.s >= today);
+  return nx ? { label: nx.label, d: nx.s, next: true } : { label: ph[ph.length-1].label, d: ph[ph.length-1].s, next: false };
+}
+function tileHtml(pl, r, color){
+  const title = boardTitle(pl, r);
+  const code = recordCode(r.id, pl);
+  let sub = [r.contact, r.company].filter(x => x && x !== title).join(' · ');
+  let rows = '', flag = '', edge = color;
+  if(pl === 'lead'){
+    edge = r.leadType === 'Commercial' ? '#378ADD' : '#1D9E75';
+    if(Number(r.estValue) > 0) rows += `<div class="bd-t-row"><span class="k">Est. value</span><span>${money(r.estValue)}</span></div>`;
+    const last = leadLastContact(r);
+    rows += `<div class="bd-t-row"><span class="k">Last contacted</span><span>${last ? fmtDisplay(toDate(last)) : '—'}</span></div>`;
+  } else if(pl === 'sales'){
+    const roll = projectRollup(r);
+    if(hasProbOverride(r)) flag = `<span class="bd-t-flag" title="This deal has its own percentage — moving it between stages does not change it">manual %</span>`;
+    rows += `<div class="bd-t-row"><span class="k">Quote · ${Math.round(effectiveProb(r)*100)}%</span><span>${money(r.quoteValue)}</span></div>`;
+    if(roll.start) rows += `<div class="bd-t-row"><span class="k">Starts</span><span>${fmtDisplay(roll.start)}</span></div>`;
+  } else {
+    sub = '';
+    rows += `<div class="bd-t-row"><span class="k">Agreed value</span><span>${money(r.agreedValue)}</span></div>`;
+    const nm = nextMilestone(r);
+    rows += `<div class="bd-t-row"><span class="k">${nm ? (nm.next ? 'Next' : 'Last') + ': ' + escHtml(nm.label) : 'Next milestone'}</span><span>${nm ? fmtDisplay(nm.d) : '—'}</span></div>`;
+  }
+  return `<div class="bd-tile" role="button" tabindex="0" data-action="open-detail" data-pl="${pl}" data-id="${r.id}" style="--edge:${edge}">
+    <div class="bd-t-top"><span class="code-cell">${code}</span>${tierBadgeSmall(r.id, r)}${flag}</div>
+    <div class="bd-t-title">${escHtml(title)}</div>${sub ? `<div class="bd-t-sub">${escHtml(sub)}</div>` : ''}${rows}</div>`;
+}
+function colHtml(pl, st, recs, orphan){
+  const color = orphan ? '#8b867c' : stageColor(pl, st.id);
+  let sub = '';
+  if(pl === 'sales' && !orphan){
+    const total = recs.reduce((s,r) => s + (Number(r.quoteValue)||0), 0);
+    const weighted = recs.reduce((s,r) => s + (Number(r.quoteValue)||0) * effectiveProb(r), 0);
+    sub = `<div class="bd-col-sub"><b>${Math.round(clampPct(st.pct))}%</b> stage · ${money(total)} total · <b>${money(weighted)}</b> weighted</div>`;
+  }
+  return `<div class="bd-col" data-pl="${pl}" data-stage="${escHtml(st.id)}" style="--sc:${color}">
+    <div class="bd-col-head"><div class="bd-col-title"><span class="bd-col-name" title="${escHtml(st.name)}">${escHtml(st.name)}</span><span class="bd-count">${recs.length}</span></div>${sub}</div>
+    <div class="bd-col-body">${recs.length ? sortRecent(pl, recs).map(r => tileHtml(pl, r, color)).join('') : '<div class="bd-empty">Nothing here</div>'}</div></div>`;
+}
+function renderBoard(pl){
+  const wrap = document.getElementById(VIEW_CFG[pl].board);
+  if(getView(pl) !== 'board'){ wrap.innerHTML = ''; return; }
+  const prev = wrap.querySelector('.bd-board'), keepL = prev ? prev.scrollLeft : 0, keepT = {};
+  wrap.querySelectorAll('.bd-col').forEach(c => { keepT[c.dataset.stage] = c.querySelector('.bd-col-body').scrollTop; });
+  const stages = state.pipelineStages[pl], by = {}, orphans = [];
+  stages.forEach(s => { by[s.id] = []; });
+  viewRecords(pl).forEach(r => (by[r.stageId] || orphans).push(r));
+  const cols = stages.map(s => colHtml(pl, s, by[s.id], false));
+  if(orphans.length) cols.push(colHtml(pl, { id: '', name: 'No stage' }, orphans, true));
+  const hints = {
+    lead: 'Drag a tile to another column to change its stage. Moving a lead never promotes it — Promote stays in the lead\'s detail and still needs all four qualification fields. Green edge = Residential, blue = Commercial.',
+    sales: 'Drag a tile to another column to change its stage; the stage\'s percentage is applied unless the deal has a manual percentage.',
+    project: 'Drag a tile to another column to change the project\'s stage. Dates and payment lines are never changed by a move.'
+  };
+  wrap.innerHTML = `<p class="bd-hint">${hints[pl]} Click a tile to open it. On a touch screen, press and hold a tile to pick it up.</p><div class="bd-board" data-pl="${pl}">${cols.join('')}</div>`;
+  const b = wrap.querySelector('.bd-board'); b.scrollLeft = keepL;
+  wrap.querySelectorAll('.bd-col').forEach(c => { if(keepT[c.dataset.stage]) c.querySelector('.bd-col-body').scrollTop = keepT[c.dataset.stage]; });
+}
+
+/* ---------- moving a record between stages (board drop + undo) ---------- */
+let toastTimer = null, toastUndo = null;
+function showToast(msg, undo){
+  document.getElementById('toastMsg').textContent = msg;
+  toastUndo = undo || null;
+  document.getElementById('toastUndo').style.display = undo ? '' : 'none';
+  document.getElementById('toast').hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 5000);
+}
+function hideToast(){ clearTimeout(toastTimer); document.getElementById('toast').hidden = true; toastUndo = null; }
+document.getElementById('toastUndo').addEventListener('click', () => { const f = toastUndo; hideToast(); if(f) f(); });
+
+/* a drop changes the stage id only, then goes through the normal render + save path. A sales stage's percentage follows the
+   stage automatically (effectiveProb) unless the deal has its own override, which is kept. Leads are never promoted, and
+   project dates / payment lines are never touched. */
+function moveRecord(pl, id, stageId){
+  const r = findRec(pl, id), st = stageById(pl, stageId);
+  if(!r || !st || r.stageId === stageId) return;
+  const prev = r.stageId;
+  r.stageId = stageId; touchRec(pl, id);
+  let msg = `${recordCode(id, pl)} → ${st.name}`;
+  if(pl === 'sales' && hasProbOverride(r)) msg += ` · manual ${Math.round(Number(r.probOverride)*100)}% kept`;
+  render(); saveState();
+  showToast(msg, () => {
+    const rr = findRec(pl, id);
+    if(rr && rr.stageId === stageId){ rr.stageId = prev; touchRec(pl, id); render(); saveState(); showToast('Move undone'); }
+  });
+}
+
+/* ---------- drag and drop (pointer events: mouse + touch; touch needs a press-and-hold so scrolling still works) ---------- */
+const DND = { st: null, suppress: false };
+const DND_HOLD_MS = 380;
+document.addEventListener('pointerdown', (e) => {
+  const tile = e.target.closest && e.target.closest('.bd-tile');
+  if(!tile || DND.st) return;
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  const col = tile.closest('.bd-col'), board = tile.closest('.bd-board');
+  if(!col || !board) return;
+  const st = DND.st = { tile, board, pl: tile.dataset.pl, id: Number(tile.dataset.id), from: col.dataset.stage, pid: e.pointerId, touch: e.pointerType === 'touch',
+    sx: e.clientX, sy: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null, over: null, hover: null, timer: null, raf: 0, ox: 0, oy: 0 };
+  if(st.touch) st.timer = setTimeout(dndBegin, DND_HOLD_MS);
+});
+document.addEventListener('pointermove', (e) => {
+  const st = DND.st; if(!st || e.pointerId !== st.pid) return;
+  st.x = e.clientX; st.y = e.clientY;
+  if(!st.active){
+    const dist = Math.hypot(st.x - st.sx, st.y - st.sy);
+    if(st.touch){ if(dist > 9) dndEnd(false); }   // finger moved before the hold finished: it is a scroll, not a drag
+    else if(dist > 5) dndBegin();
     return;
   }
-  let min = null, max = null;
-  projects.forEach(p => { const r = projectRollup(p); if(!min||r.start<min) min=r.start; if(!max||r.end>max) max=r.end; });
-  // pad to month boundaries
-  min = new Date(min.getFullYear(), min.getMonth(), 1);
-  max = new Date(max.getFullYear(), max.getMonth()+1, 0);
-  const totalDays = Math.round((max-min)/86400000)+1;
-  const pxPerDay = 13;
-  const timelineW = totalDays * pxPerDay;
-  const labelW = 210;
-  // month headers
-  let monthHeads = '';
-  let cur = new Date(min);
-  while(cur <= max){
-    const mStart = new Date(cur.getFullYear(), cur.getMonth(), 1);
-    const daysIn = new Date(cur.getFullYear(), cur.getMonth()+1, 0).getDate();
-    const left = Math.round((mStart-min)/86400000)*pxPerDay;
-    monthHeads += `<div class="gantt-month" style="left:${left}px;width:${daysIn*pxPerDay}px;">${cur.toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</div>`;
-    cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
-  }
-  // rows
-  let rows = '';
-  projects.forEach(p => {
-    let bars = '';
-    (p.stages||[]).forEach(s => {
-      if(!s.start) return;
-      const st = toDate(s.start), en = toDate(s.end||s.start);
-      const left = Math.round((st-min)/86400000)*pxPerDay;
-      const w = Math.max(pxPerDay, (Math.round((en-st)/86400000)+1)*pxPerDay);
-      const c = STAGE_KINDS[s.kind] ? STAGE_KINDS[s.kind].color : '#8b867c';
-      bars += `<div class="gantt-bar" style="left:${left}px;width:${w}px;background:${c};" title="${escAttr(s.label)} · ${fmtDisplay(st)}–${fmtDisplay(en)}"><span>${escAttr(s.label)}</span></div>`;
-    });
-    rows += `<div class="gantt-row">
-      <div class="gantt-label" style="width:${labelW}px;"><span class="code-cell">${projectCode(p)}</span> ${escAttr(p.name)}</div>
-      <div class="gantt-track" style="width:${timelineW}px;">${bars}</div>
-    </div>`;
-  });
-  // legend
-  const legend = Object.keys(STAGE_KINDS).map(k => `<span class="lg"><i style="background:${STAGE_KINDS[k].color}"></i>${STAGE_KINDS[k].label}</span>`).join('');
-  wrap.innerHTML = `<div class="gantt-legend">${legend}</div>
-    <div class="gantt-scroll"><div class="gantt" style="min-width:${labelW+timelineW}px;">
-      <div class="gantt-headrow"><div class="gantt-label head" style="width:${labelW}px;">Project</div>
-        <div class="gantt-months" style="width:${timelineW}px;">${monthHeads}</div></div>
-      ${rows}
-    </div></div>`;
+  dndMove();
+});
+document.addEventListener('pointerup', (e) => { const st = DND.st; if(st && e.pointerId === st.pid) dndEnd(true); });
+document.addEventListener('pointercancel', (e) => { const st = DND.st; if(st && e.pointerId === st.pid) dndEnd(false); });
+document.addEventListener('touchmove', (e) => { if(DND.st && DND.st.active && e.cancelable) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', (e) => { if(DND.st && e.target.closest && e.target.closest('.bd-tile')) e.preventDefault(); });
+document.addEventListener('dragstart', (e) => { if(e.target.closest && e.target.closest('.bd-tile')) e.preventDefault(); });
+document.addEventListener('click', (e) => { if(DND.suppress && !(e.target.closest && e.target.closest('#toast'))){ e.stopPropagation(); e.preventDefault(); } }, true);   // the click that ends a drag must not open the tile
+
+function dndBegin(){
+  const st = DND.st; if(!st || st.active) return;
+  clearTimeout(st.timer); st.active = true;
+  const r = st.tile.getBoundingClientRect();
+  st.ox = st.sx - r.left; st.oy = st.sy - r.top;
+  const g = st.ghost = st.tile.cloneNode(true);
+  g.classList.add('bd-ghost'); g.removeAttribute('data-action'); g.removeAttribute('tabindex');
+  g.style.width = r.width + 'px';
+  document.body.appendChild(g);
+  st.tile.classList.add('bd-placeholder');
+  document.body.classList.add('dnd-active');
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+  try{ const s = window.getSelection(); if(s) s.removeAllRanges(); }catch(e){}
+  dndMove(); st.raf = requestAnimationFrame(dndTick);
 }
+function dndMove(){
+  const st = DND.st; if(!st || !st.active) return;
+  st.ghost.style.left = (st.x - st.ox) + 'px'; st.ghost.style.top = (st.y - st.oy) + 'px';
+  dndUpdateOver();
+}
+function dndUpdateOver(){
+  const st = DND.st; if(!st) return;
+  const el = document.elementFromPoint(st.x, st.y), col = el && el.closest ? el.closest('.bd-col') : null;
+  st.hover = (col && col.closest('.bd-board') === st.board) ? col : null;   // never across pipelines: only columns of the tile's own board
+  const ok = (st.hover && st.hover.dataset.stage && st.hover.dataset.stage !== st.from) ? st.hover : null;
+  if(ok !== st.over){ if(st.over) st.over.classList.remove('bd-over'); if(ok) ok.classList.add('bd-over'); st.over = ok; }
+}
+function dndTick(){   // edge auto-scroll: sideways across columns, up/down inside the hovered column
+  const st = DND.st; if(!st || !st.active) return;
+  const b = st.board.getBoundingClientRect(), edge = 56; let moved = false;
+  if(st.x < b.left + edge){ st.board.scrollLeft -= Math.ceil((b.left + edge - st.x) / 4); moved = true; }
+  else if(st.x > b.right - edge){ st.board.scrollLeft += Math.ceil((st.x - (b.right - edge)) / 4); moved = true; }
+  if(st.hover){
+    const body = st.hover.querySelector('.bd-col-body'), r = body.getBoundingClientRect();
+    if(st.y < r.top + 36){ body.scrollTop -= 8; moved = true; } else if(st.y > r.bottom - 36){ body.scrollTop += 8; moved = true; }
+  }
+  if(moved) dndUpdateOver();
+  st.raf = requestAnimationFrame(dndTick);
+}
+function dndEnd(drop){
+  const st = DND.st; if(!st) return;
+  clearTimeout(st.timer); cancelAnimationFrame(st.raf);
+  const target = (drop && st.active && st.over) ? st.over.dataset.stage : null;
+  if(st.active){
+    if(st.ghost) st.ghost.remove();
+    st.tile.classList.remove('bd-placeholder');
+    if(st.over) st.over.classList.remove('bd-over');
+    document.body.classList.remove('dnd-active');
+    DND.suppress = true; setTimeout(() => { DND.suppress = false; }, 80);
+  }
+  DND.st = null;
+  if(target) moveRecord(st.pl, st.id, target);
+}
+
+/* ---------- record detail drawer: the table's own expanded detail, shown beside the board / Gantt ---------- */
+let detailRef = null;   // { pl, id }
+function openDetail(pl, id){
+  if(!findRec(pl, id)) return;
+  detailRef = { pl, id };
+  document.getElementById('drBody').scrollTop = 0;
+  renderDetail();
+}
+function closeDetail(){
+  detailRef = null;
+  document.getElementById('drPanel').hidden = true; document.getElementById('drBackdrop').hidden = true;
+  document.body.classList.remove('dr-open');
+}
+function renderDetail(){
+  if(!detailRef) return;
+  const { pl, id } = detailRef; let html = '', title = '';
+  if(pl === 'lead'){ const i = state.leads.findIndex(l => l.id === id && !l.lost); if(i >= 0){ html = leadDetailHtml(state.leads[i], i); title = 'Lead'; } }
+  else if(pl === 'sales'){ const i = state.pipeline.findIndex(r => r.id === id); if(i >= 0){ html = salesDetailHtml(state.pipeline[i], i); title = 'Sales deal'; } }
+  else { const i = state.projects.findIndex(p => p.id === id); if(i >= 0){ html = projectDetailHtml(state.projects[i], i); title = 'Project'; } }
+  if(!html){ closeDetail(); return; }   // moved on (promoted, lost, deleted) — nothing left to show here
+  const body = document.getElementById('drBody'), keep = body.scrollTop;
+  document.getElementById('drTitle').textContent = title;
+  body.innerHTML = html; rtApply(body); body.scrollTop = keep;
+  document.getElementById('drPanel').hidden = false; document.getElementById('drBackdrop').hidden = false;
+  document.body.classList.add('dr-open');
+}
+
+/* ---------- Gantt (Sales + Project) ---------- */
+const GANTT_ZOOMS = { weeks: { label: 'Weeks', px: 16 }, months: { label: 'Months', px: 6 }, quarters: { label: 'Quarters', px: 2 } };
+const ganttZoom = { sales: 'months', project: 'months' };   // session-only
+const ganttOpen = new Set();                                // 'sales:12' rows expanded this session
+const ganttNoDatesOpen = {}, ganttSeen = {};
+function dayIdx(d, start){ return Math.round((d - start) / 86400000); }
+function monthStart(d, n){ return new Date(d.getFullYear(), d.getMonth() + (n||0), 1); }
+function mondayOf(d){ return addCalendarDays(d, -((d.getDay() + 6) % 7)); }
+function boundsList(start, endEx, align, next){ const out = []; let d = align(start); while(d < endEx){ out.push(d); d = next(d); } out.push(d); return out; }
+function ganttScale(zoom, lo, hi){
+  const px = GANTT_ZOOMS[zoom].px, yearAlign = d => new Date(d.getFullYear(), 0, 1), yearNext = d => new Date(d.getFullYear() + 1, 0, 1);
+  let start, endEx, b1, b2, l1, l2;
+  if(zoom === 'weeks'){
+    start = addCalendarDays(mondayOf(lo), -7); endEx = addCalendarDays(mondayOf(hi), 28);
+    b2 = boundsList(start, endEx, d => d, d => addCalendarDays(d, 7)); l2 = d => String(d.getDate());
+    b1 = boundsList(start, endEx, d => monthStart(d), d => monthStart(d, 1)); l1 = d => monthLabel(d);
+  } else if(zoom === 'months'){
+    start = monthStart(lo, -1); endEx = monthStart(hi, 2);
+    b2 = boundsList(start, endEx, d => d, d => monthStart(d, 1)); l2 = d => d.toLocaleDateString('en-GB', { month: 'short' });
+    b1 = boundsList(start, endEx, yearAlign, yearNext); l1 = d => String(d.getFullYear());
+  } else {
+    const q = d => new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1);
+    start = q(lo); endEx = new Date(q(hi).getFullYear(), q(hi).getMonth() + 6, 1);
+    b2 = boundsList(start, endEx, d => d, d => new Date(d.getFullYear(), d.getMonth() + 3, 1)); l2 = d => 'Q' + (Math.floor(d.getMonth() / 3) + 1);
+    b1 = boundsList(start, endEx, yearAlign, yearNext); l1 = d => String(d.getFullYear());
+  }
+  const seg = (b, lab) => { const out = []; for(let i = 0; i < b.length - 1; i++){
+    const s = b[i] < start ? start : b[i], e = b[i+1] > endEx ? endEx : b[i+1];
+    if(e > s) out.push({ left: dayIdx(s, start) * px, w: (dayIdx(e, start) - dayIdx(s, start)) * px, label: lab(b[i]) });
+  } return out; };
+  return { px, start, total: dayIdx(endEx, start), t1: seg(b1, l1), t2: seg(b2, l2) };
+}
+
+function subStageItems(r){   // a sales deal's / project's own dated sub-stages
+  const out = [];
+  (r.stages||[]).forEach(s => {
+    if(!s.start && !s.end) return;
+    let a = toDate(s.start || s.end), b = toDate(s.end || s.start);
+    if(isNaN(a) || isNaN(b)) return;
+    if(b < a){ const t = a; a = b; b = t; }
+    const k = STAGE_KINDS[s.kind];
+    out.push({ label: s.label || 'Stage', s: a, e: b, note: k ? k.label : '' });
+  });
+  return out;
+}
+function milestonePhases(p){   // each dated delivery milestone runs until the day before the next one (names follow Settings)
+  const m = p.milestones || {}, dated = [];
+  state.pipelineStages.project.forEach((st, i) => { if(st.key && m[st.key]){ const d = toDate(m[st.key]); if(d && !isNaN(d)) dated.push({ st, i, d }); } });
+  dated.sort((x, y) => x.d - y.d || x.i - y.i);
+  return dated.map((x, k) => { const nx = dated[k+1]; const e = (nx && nx.d > x.d) ? addCalendarDays(nx.d, -1) : x.d; return { label: x.st.name, s: x.d, e, note: 'Milestone', ms: x.d }; });
+}
+function ganttRows(pl){
+  const sales = pl === 'sales';
+  return viewRecords(pl).map(r => {
+    const subs = subStageItems(r), phases = sales ? [] : milestonePhases(r), all = phases.concat(subs);
+    const row = { r, id: r.id, code: recordCode(r.id, pl), name: boardTitle(pl, r), stage: stageName(pl, r.stageId), color: stageColor(pl, r.stageId), phases, subs, kids: sales ? subs : all, dated: all.length > 0 };
+    if(row.dated){ row.s = new Date(Math.min(...all.map(x => x.s))); row.e = new Date(Math.max(...all.map(x => x.e))); }
+    return row;
+  });
+}
+function dateRangeText(s, e){ return s.getTime() === e.getTime() ? fmtDisplay(s) : fmtDisplay(s) + ' – ' + fmtDisplay(e); }
+function ganttBar(pl, row, it, o){
+  const l = dayIdx(it.s, o.start) * o.px, w = Math.max(6, (dayIdx(it.e, o.start) - dayIdx(it.s, o.start) + 1) * o.px);
+  const tip = [row.code + ' · ' + row.name, it.label, dateRangeText(it.s, it.e), 'Stage: ' + row.stage].concat(it.note ? [it.note] : []).join('\n');
+  return `<div class="gantt-bar${o.cls ? ' ' + o.cls : ''}${w < 70 ? ' tiny' : ''}" style="left:${l}px;width:${w}px;background:${row.color}" data-action="open-detail" data-pl="${pl}" data-id="${row.id}" data-tip="${escHtml(tip)}"><span>${escHtml(it.label)}</span></div>`;
+}
+function renderGanttView(pl){
+  const wrap = document.getElementById(VIEW_CFG[pl].gantt);
+  if(getView(pl) !== 'gantt'){ wrap.innerHTML = ''; return; }
+  const zoom = ganttZoom[pl], prev = wrap.querySelector('.gantt-scroll');
+  const keep = (prev && ganttSeen[pl] === zoom) ? { l: prev.scrollLeft, t: prev.scrollTop } : null;
+  const rows = ganttRows(pl), dated = rows.filter(x => x.dated), undated = rows.filter(x => !x.dated);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const controls = `<div class="gantt-controls"><div class="gantt-legend">${state.pipelineStages[pl].map(s => `<span class="lg"><i style="background:${stageColor(pl, s.id)}"></i>${escHtml(s.name)}</span>`).join('')}</div>
+    <div class="view-toggle" title="Zoom">${Object.keys(GANTT_ZOOMS).map(z => `<button data-action="gantt-zoom" data-pl="${pl}" data-zoom="${z}" class="${z===zoom?'active':''}">${GANTT_ZOOMS[z].label}</button>`).join('')}</div></div>`;
+  const noDates = undated.length ? `<details class="gantt-nodates" data-ndpl="${pl}"${ganttNoDatesOpen[pl] ? ' open' : ''}><summary>No dates set (${undated.length})</summary>
+    <ul>${undated.map(x => `<li><button class="link-btn" data-action="open-detail" data-pl="${pl}" data-id="${x.id}">${x.code} · ${escHtml(x.name)}</button> <span style="color:var(--muted)">— ${escHtml(x.stage)}</span></li>`).join('')}</ul></details>` : '';
+  if(!dated.length){
+    wrap.innerHTML = controls + `<div class="placeholder"><div class="tag">No dated ${pl === 'sales' ? 'deals' : 'projects'}</div><h3>Nothing to plot yet</h3><p>${pl === 'sales' ? 'Add start &amp; end dates to a deal\'s stages (in Table view)' : 'Add delivery milestone dates or sub-stage dates to a project (in Table view)'} and it will appear here as a timeline.</p></div>` + noDates;
+    ganttSeen[pl] = zoom; return;
+  }
+  let lo = today, hi = today;
+  dated.forEach(x => { if(x.s < lo) lo = x.s; if(x.e > hi) hi = x.e; });
+  const sc = ganttScale(zoom, lo, hi), W = sc.total * sc.px, o = { px: sc.px, start: sc.start };
+  const ticks = arr => arr.map(t => `<div class="gantt-tick" style="left:${t.left}px;width:${t.w}px" title="${escHtml(t.label)}">${escHtml(t.label)}</div>`).join('');
+  const todayX = dayIdx(today, sc.start) * sc.px + Math.round(sc.px / 2);
+  let body = '';
+  dated.forEach(x => {
+    const key = pl + ':' + x.id, open = x.kids.length > 0 && ganttOpen.has(key);
+    let bars;
+    if(pl === 'sales' && !open) bars = x.subs.map(it => ganttBar(pl, x, it, o)).join('');
+    else {
+      bars = ganttBar(pl, x, { label: x.stage, s: x.s, e: x.e, note: pl === 'sales' ? '' : 'Whole project' }, Object.assign({ cls: 'span' }, o));
+      if(pl === 'project') bars += x.phases.map(ph => `<div class="gantt-dot" style="left:${dayIdx(ph.ms, sc.start) * sc.px + Math.round(sc.px / 2)}px;border-color:${x.color}" title="${escHtml(ph.label)}"></div>`).join('');
+    }
+    body += `<div class="gantt-row"><div class="gantt-label">${x.kids.length
+        ? `<button class="icon-btn expand${open ? ' open' : ''}" data-action="gantt-toggle" data-pl="${pl}" data-id="${x.id}" title="${open ? 'Hide' : 'Show'} ${pl === 'sales' ? 'stages' : 'milestones &amp; sub-stages'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>`
+        : '<span class="gantt-nochev"></span>'}<span class="code-cell">${x.code}</span>${tierBadgeSmall(x.id, x.r)}<span class="gantt-name" data-action="open-detail" data-pl="${pl}" data-id="${x.id}" title="${escHtml(x.name)}">${escHtml(x.name)}</span></div>
+      <div class="gantt-track" style="width:${W}px">${bars}</div></div>`;
+    if(open) x.kids.forEach(it => {
+      body += `<div class="gantt-row child"><div class="gantt-label child"><span title="${escHtml(it.label)}">${escHtml(it.label)}</span></div>
+        <div class="gantt-track" style="width:${W}px">${ganttBar(pl, x, it, o)}</div></div>`;
+    });
+  });
+  wrap.innerHTML = controls + `<div class="gantt-scroll"${keep ? '' : ' data-center="1"'}><div class="gantt" style="min-width:calc(var(--lw) + ${W}px)">
+    <div class="gantt-headrow"><div class="gantt-label head">${pl === 'sales' ? 'Deal' : 'Project'}</div>
+      <div class="gantt-tiers" style="width:${W}px"><div class="gantt-t1">${ticks(sc.t1)}</div><div class="gantt-t2">${ticks(sc.t2)}</div><div class="gantt-today-tag" style="left:${todayX}px">Today</div></div></div>
+    <div class="gantt-body"><div class="gantt-grid" style="left:var(--lw);width:${W}px">${sc.t2.map(t => `<i style="left:${t.left}px"></i>`).join('')}<div class="gantt-today" style="left:${todayX}px"></div></div>${body}</div>
+  </div></div>` + noDates;
+  ganttSeen[pl] = zoom;
+  const s2 = wrap.querySelector('.gantt-scroll'); if(keep){ s2.scrollLeft = keep.l; s2.scrollTop = keep.t; }
+}
+/* first show / zoom change: bring "today" into view. Panels that are not on screen have no width, so this waits until they are. */
+function ganttCenter(){
+  document.querySelectorAll('.gantt-scroll[data-center]').forEach(sc => {
+    if(!sc.clientWidth) return;
+    const lw = sc.querySelector('.gantt-label').offsetWidth, tx = sc.querySelector('.gantt-today');
+    sc.scrollLeft = Math.max(0, lw + (tx ? parseFloat(tx.style.left) : 0) - sc.clientWidth * 0.4);
+    sc.removeAttribute('data-center');
+  });
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setTimeout(ganttCenter, 0)));
+document.addEventListener('toggle', (e) => { const d = e.target; if(d && d.dataset && d.dataset.ndpl) ganttNoDatesOpen[d.dataset.ndpl] = d.open; }, true);
+
+/* hover tooltip with dates + stage */
+(() => {
+  const tip = document.getElementById('ganttTip');
+  const place = (e) => {
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, e.clientX + 14)) + 'px';
+    tip.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, e.clientY + 16)) + 'px';
+  };
+  document.addEventListener('mouseover', (e) => {
+    const bar = e.target.closest && e.target.closest('.gantt-bar[data-tip]');
+    if(!bar){ tip.hidden = true; return; }
+    const lines = bar.dataset.tip.split('\n');
+    tip.innerHTML = `<b>${escHtml(lines[0])}</b>` + lines.slice(1).map((l, i) => `<br><span${i > 2 ? ' class="tp-dim"' : ''}>${escHtml(l)}</span>`).join('');
+    tip.hidden = false; place(e);
+  });
+  document.addEventListener('mousemove', (e) => { if(!tip.hidden) place(e); });
+  document.addEventListener('scroll', () => { tip.hidden = true; }, true);
+})();
+
+/* ---------- view actions + keyboard ---------- */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-action]'); if(!b) return;
+  const a = b.dataset.action;
+  if(a === 'set-view') setView(b.dataset.pl, b.dataset.view);
+  else if(a === 'open-detail') openDetail(b.dataset.pl, Number(b.dataset.id));
+  else if(a === 'close-detail') closeDetail();
+  else if(a === 'gantt-zoom'){ ganttZoom[b.dataset.pl] = b.dataset.zoom; renderGanttView(b.dataset.pl); ganttCenter(); }
+  else if(a === 'gantt-toggle'){
+    const key = b.dataset.pl + ':' + b.dataset.id;
+    if(ganttOpen.has(key)) ganttOpen.delete(key); else ganttOpen.add(key);
+    renderGanttView(b.dataset.pl);
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && detailRef && document.getElementById('modalOverlay').hidden) closeDetail();
+  else if((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('bd-tile')){ e.preventDefault(); openDetail(e.target.dataset.pl, Number(e.target.dataset.id)); }
+});
+
 
 /* ---------- Tiers ---------- */
 function escHtml(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -2019,33 +2494,12 @@ function sortedComms(l){
     (b.c.date||'').localeCompare(a.c.date||'') || ((b.c.created||0) - (a.c.created||0)) || (b.ci - a.ci));
 }
 const LEADS_TABLE_ID = 'leadsTableWrap';
-function renderLeads(){
-  const leadStages = state.pipelineStages.lead;
-  let html = rtTable('leadsTableWrap', ['','Code','Tier','Project name','Contact','Company','Postcode','Last contacted','Lead status',''], 'leads-table');
-  state.leads.forEach((l,i) => {
-    if(l.lost) return;   // lost leads live in the Lost leads bar below; i stays the real index into state.leads
-    const isOpen = expandedLeads.has(l.id);
-    const isCommercial = l.leadType === 'Commercial';
-    const last = leadLastContact(l);
-    html += `<tr class="lead-row ${isCommercial?'lead-com':'lead-res'}">
-      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Detail & comms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
-      <td class="code-cell">${recordCode(l.id,'lead')}</td>
-      <td class="tier-cell">${tierById(l.tierId) ? tierBadgeHtml(tierById(l.tierId)) : '<span class="tier-none">—</span>'}</td>
-      <td><input class="lead-proj" data-tab="leads" data-idx="${i}" data-field="projectName" value="${escAttr(l.projectName||'')}" placeholder="Click to add"></td>
-      <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="${isCommercial?'Contact person':'Homeowner name'}"></td>
-      <td>${isCommercial
-        ? `<input data-tab="leads" data-idx="${i}" data-field="company" value="${escAttr(l.company||'')}" placeholder="Company">`
-        : `<input class="computed" disabled value="—" title="Residential — no company">`}</td>
-      <td><input class="lead-pc${l.postcodeManual?' manual':''}" data-tab="leads" data-idx="${i}" data-field="postcode" value="${escAttr(l.postcode||'')}" title="${l.postcodeManual?'Set manually — clear this cell to go back to automatic':'Filled automatically from the address — type to override'}"></td>
-      <td class="computed" title="Pulled from the latest communication entry">${last?fmtDisplay(toDate(last)):'—'}</td>
-      <td><select class="lead-pill" data-tab="leads" data-idx="${i}" data-field="stageId" style="${leadStatusStyle(l.stageId)}">${leadStages.map(s=>`<option value="${escHtml(s.id)}"${l.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
-      <td><button class="icon-btn" data-action="delete-lead" data-idx="${i}" title="Delete lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
-    </tr>`;
-    if(isOpen){
+function leadDetailHtml(l, i){
+  const isCommercial = l.leadType === 'Commercial';
       const miss = f => l[f] ? '' : ' missing';
       const qualified = leadQualified(l);
       const comms = sortedComms(l);
-      html += `<tr class="detail-row"><td colspan="10"><div class="detail-box lead-detail">
+      let html = `<div class="detail-box lead-detail">
         <div class="detail-head"><span class="detail-code" style="background:var(--g-growth);">${recordCode(l.id,'lead')}</span><span>${escAttr(leadPrimaryName(l))}</span><span class="detail-meta">${l.leadType}${isCommercial&&l.company?' · '+escAttr(l.company):''}</span></div>
         <div class="lead-cols">
           <div class="lead-col-left">
@@ -2087,8 +2541,33 @@ function renderLeads(){
             </div>
           </div>
         </div>
-      </div></td></tr>`;
-    }
+      </div>`;
+  return html;
+}
+
+function renderLeads(){
+  const leadStages = state.pipelineStages.lead;
+  let html = rtTable('leadsTableWrap', ['','Code','Tier','Project name','Contact','Company','Postcode','Last contacted','Lead status',''], 'leads-table');
+  state.leads.forEach((l,i) => {
+    if(l.lost) return;   // lost leads live in the Lost leads bar below; i stays the real index into state.leads
+    const isOpen = expandedLeads.has(l.id);
+    const isCommercial = l.leadType === 'Commercial';
+    const last = leadLastContact(l);
+    html += `<tr class="lead-row ${isCommercial?'lead-com':'lead-res'}">
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-lead" data-id="${l.id}" title="Detail & comms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td class="code-cell">${recordCode(l.id,'lead')}</td>
+      <td class="tier-cell">${tierById(l.tierId) ? tierBadgeHtml(tierById(l.tierId)) : '<span class="tier-none">—</span>'}</td>
+      <td><input class="lead-proj" data-tab="leads" data-idx="${i}" data-field="projectName" value="${escAttr(l.projectName||'')}" placeholder="Click to add"></td>
+      <td><input data-tab="leads" data-idx="${i}" data-field="contact" value="${escAttr(l.contact||'')}" placeholder="${isCommercial?'Contact person':'Homeowner name'}"></td>
+      <td>${isCommercial
+        ? `<input data-tab="leads" data-idx="${i}" data-field="company" value="${escAttr(l.company||'')}" placeholder="Company">`
+        : `<input class="computed" disabled value="—" title="Residential — no company">`}</td>
+      <td><input class="lead-pc${l.postcodeManual?' manual':''}" data-tab="leads" data-idx="${i}" data-field="postcode" value="${escAttr(l.postcode||'')}" title="${l.postcodeManual?'Set manually — clear this cell to go back to automatic':'Filled automatically from the address — type to override'}"></td>
+      <td class="computed" title="Pulled from the latest communication entry">${last?fmtDisplay(toDate(last)):'—'}</td>
+      <td><select class="lead-pill" data-tab="leads" data-idx="${i}" data-field="stageId" style="${leadStatusStyle(l.stageId)}">${leadStages.map(s=>`<option value="${escHtml(s.id)}"${l.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
+      <td><button class="icon-btn" data-action="delete-lead" data-idx="${i}" title="Delete lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+    if(isOpen){ html += `<tr class="detail-row"><td colspan="10">${leadDetailHtml(l, i)}</td></tr>`; }
   });
   html += '</tbody></table>';
   const wrap = document.getElementById(LEADS_TABLE_ID);
@@ -2199,28 +2678,9 @@ document.addEventListener('pointerdown', (e) => {
 
 /* ---------- Project Pipeline ---------- */
 const expandedProjectsP = new Set();
-function renderProjects(){
-  if(state.projects.length === 0){
-    document.getElementById('projectsTableWrap').innerHTML = `<div class="placeholder" style="border:none;background:none;"><div class="tag">No live projects yet</div><h3>Nothing here yet</h3><p>When a Sales Pipeline deal has its contract marked signed, promote it here and it becomes a live project.</p></div>`;
-    return;
-  }
-  const projStages = state.pipelineStages.project;
-  let html = rtTable('projectsTableWrap', ['','Code','Project','Agreed value','Stage','Budget vs actual','']);
-  state.projects.forEach((p,i) => {
-    const isOpen = expandedProjectsP.has(p.id);
-    const m = p.milestones || {};
-    const costFlag = (Number(p.actualCost)||0) > (Number(p.budgetedCost)||0);
-    html += `<tr>
-      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-projrec" data-id="${p.id}" title="Delivery detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
-      <td class="code-cell">${recordCode(p.id,'project')}${tierBadgeSmall(p.id, p)}</td>
-      <td><input data-tab="projects" data-idx="${i}" data-field="name" value="${escAttr(p.name)}"></td>
-      <td><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="agreedValue" value="${p.agreedValue||0}"></td>
-      <td><select class="lead-pill progress-pill" data-tab="projects" data-idx="${i}" data-field="stageId" title="Project stage">${projStages.map(s=>`<option value="${escHtml(s.id)}"${p.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
-      <td class="${costFlag?'':''}" style="${costFlag?'color:#b3453f;font-weight:600;':''}">${money(p.budgetedCost)} / ${money(p.actualCost)}</td>
-      <td><button class="icon-btn" data-action="delete-projrec" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
-    </tr>`;
-    if(isOpen){
-      html += `<tr class="detail-row"><td colspan="7"><div class="detail-box">
+function projectDetailHtml(p, i){
+  const m = p.milestones || {}, projStages = state.pipelineStages.project;
+      let html = `<div class="detail-box">
         <div class="detail-head"><span class="detail-code" style="background:var(--green);">${recordCode(p.id,'project')}</span><span>${escAttr(p.name)}</span><span class="detail-meta">Stage: ${escHtml(stageName('project', p.stageId))}</span></div>
         <div class="stage-label-row">Delivery milestones</div>
         <div class="milestone-grid">
@@ -2248,8 +2708,31 @@ function renderProjects(){
         <div class="btn-row" style="margin-top:8px;"><button class="btn secondary" data-action="add-payline" data-idx="${i}">+ Add payment line</button></div>
         <div class="detail-notes"><label>Testimonial</label><input data-tab="projects" data-idx="${i}" data-field="testimonial" value="${escAttr(p.testimonial||'')}" placeholder="Capture the client's words at sign-off"></div>
         <div class="detail-notes"><label>Notes</label><input data-tab="projects" data-idx="${i}" data-field="notes" value="${escAttr(p.notes||'')}"></div>
-      </div></td></tr>`;
-    }
+      </div>`;
+  return html;
+}
+
+function renderProjects(){
+  if(state.projects.length === 0){
+    document.getElementById('projectsTableWrap').innerHTML = `<div class="placeholder" style="border:none;background:none;"><div class="tag">No live projects yet</div><h3>Nothing here yet</h3><p>When a Sales Pipeline deal has its contract marked signed, promote it here and it becomes a live project.</p></div>`;
+    return;
+  }
+  const projStages = state.pipelineStages.project;
+  let html = rtTable('projectsTableWrap', ['','Code','Project','Agreed value','Stage','Budget vs actual','']);
+  state.projects.forEach((p,i) => {
+    const isOpen = expandedProjectsP.has(p.id);
+    const m = p.milestones || {};
+    const costFlag = (Number(p.actualCost)||0) > (Number(p.budgetedCost)||0);
+    html += `<tr>
+      <td><button class="icon-btn expand${isOpen?' open':''}" data-action="toggle-projrec" data-id="${p.id}" title="Delivery detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></td>
+      <td class="code-cell">${recordCode(p.id,'project')}${tierBadgeSmall(p.id, p)}</td>
+      <td><input data-tab="projects" data-idx="${i}" data-field="name" value="${escAttr(p.name)}"></td>
+      <td><input type="number" step="1" data-tab="projects" data-idx="${i}" data-field="agreedValue" value="${p.agreedValue||0}"></td>
+      <td><select class="lead-pill progress-pill" data-tab="projects" data-idx="${i}" data-field="stageId" title="Project stage">${projStages.map(s=>`<option value="${escHtml(s.id)}"${p.stageId===s.id?' selected':''}>${escHtml(s.name)}</option>`).join('')}</select></td>
+      <td class="${costFlag?'':''}" style="${costFlag?'color:#b3453f;font-weight:600;':''}">${money(p.budgetedCost)} / ${money(p.actualCost)}</td>
+      <td><button class="icon-btn" data-action="delete-projrec" data-idx="${i}" title="Delete project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+    </tr>`;
+    if(isOpen){ html += `<tr class="detail-row"><td colspan="7">${projectDetailHtml(p, i)}</td></tr>`; }
   });
   html += '</tbody></table>';
   const wrap = document.getElementById('projectsTableWrap');
@@ -2702,6 +3185,8 @@ function render(){
   renderLeads();
   renderPipeline();
   renderProjects();
+  renderAllPipelineViews();
+  renderDetail();
   renderPricing();
   renderRevenue();
   renderCashflow();
@@ -2733,6 +3218,7 @@ function newRowFor(tab){
 document.addEventListener('change', (e) => {
   const el = e.target; const tab = el.dataset.tab; if(!tab) return;
   const field = el.dataset.field; let value = el.value;
+  touchFromEl(el);
   if(el.type === 'number') value = value==='' ? 0 : Number(value);
   if(field === 'priority') value = Number(value);
   if(tab==='assumptions') state.assumptions[field] = value;
@@ -2827,7 +3313,6 @@ document.addEventListener('click', (e) => {
     const p = Number(btn.dataset.proj), s = Number(btn.dataset.sidx);
     state.pipeline[p].stages.splice(s,1); render(); saveState();
   }
-  else if(action === 'set-pipeline-view'){ pipelineView = btn.dataset.view; renderPipeline(); }
   else if(action === 'add-lead'){ const l = newRowFor('leads'); l.id = state.nextRecordId++; expandedLeads.add(l.id); state.leads.push(l); render(); saveState(); }
   else if(action === 'delete-lead'){ state.leads.splice(Number(btn.dataset.idx),1); render(); saveState(); }
   else if(action === 'toggle-lead'){ const id = Number(btn.dataset.id); if(expandedLeads.has(id)) expandedLeads.delete(id); else expandedLeads.add(id); renderLeads(); }
