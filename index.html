@@ -1360,6 +1360,19 @@ create policy "app update" on tracker_data for update using (true) with check (t
 </div>
 
 <script>
+/* =====================================================================
+   ENVIRONMENT SETTINGS — the ONLY block that differs between LIVE and TEST.
+   LIVE: ENV_LABEL 'LIVE', DOC_ID 1, STORAGE_PREFIX ''
+   TEST: ENV_LABEL 'TEST', DOC_ID 2, STORAGE_PREFIX 'bt-test-'
+   (SUPABASE_URL / SUPABASE_KEY are the same for both: same project.)
+   ===================================================================== */
+const ENV_LABEL      = 'LIVE';                                              // 'LIVE' or 'TEST'
+const SUPABASE_URL   = 'https://dunbyxxpgpfewvelwtpv.supabase.co';          // Supabase project URL
+const SUPABASE_KEY   = 'sb_publishable_dK-dM7lx9Qt_IkamJlzQGw_kz4GWzrh';    // publishable key (leave blank to use the key saved on this device)
+const DOC_ID         = 1;                                                   // tracker_data row this site reads/writes (LIVE = 1, TEST = 2)
+const STORAGE_PREFIX = '';                                                  // prepended to EVERY localStorage key ('' for LIVE)
+/* ===================== end of environment settings ===================== */
+
 /* ---------- date helpers ---------- */
 function toDate(s){ return s ? new Date(s+'T00:00:00') : null; }
 function fmt(d){ if(!d) return ''; const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return y+'-'+m+'-'+day; }
@@ -1608,7 +1621,7 @@ function defaultState(){
 }
 
 let state = null;
-const STORAGE_KEY = 'business-tracker-state-v7';
+const STORAGE_KEY = STORAGE_PREFIX + 'business-tracker-state-v7';
 
 /* ---------- persistence with merge ---------- */
 /* a lead's contact data: primary contact = contact / phone / email; extra people = contacts[] { id, name, role, phone, email }
@@ -1656,11 +1669,7 @@ const Store = {
 };
 
 /* cloud config lives per-device in localStorage (not in the shared doc) */
-const CLOUD_CONFIG_KEY = 'business-tracker-cloud-config';
-const DEFAULT_PROJECT_URL = 'https://dunbyxxpgpfewvelwtpv.supabase.co';
-// ▼▼▼ To auto-connect EVERY device with no key entry, paste your sb_publishable_… key between the quotes below ▼▼▼
-const BAKED_SUPABASE_KEY = 'sb_publishable_dK-dM7lx9Qt_IkamJlzQGw_kz4GWzrh';
-// ▲▲▲ (leave blank to use the key saved on this device) ▲▲▲
+const CLOUD_CONFIG_KEY = STORAGE_PREFIX + 'business-tracker-cloud-config';
 let cloud = { url: '', key: '', enabled: false };
 let usingCloud = false;
 let cloudLoadedAt = null;
@@ -1668,28 +1677,28 @@ let cloudConflict = false;
 
 function loadCloudConfig(){
   try{ const c = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || 'null'); if(c) cloud = Object.assign(cloud, c); }catch(e){}
-  if(!cloud.url) cloud.url = DEFAULT_PROJECT_URL;
-  if(!cloud.key && BAKED_SUPABASE_KEY) cloud.key = BAKED_SUPABASE_KEY;
+  if(!cloud.url) cloud.url = SUPABASE_URL;
+  if(!cloud.key && SUPABASE_KEY) cloud.key = SUPABASE_KEY;
   if(cloud.url && cloud.key) cloud.enabled = true;
 }
 function saveCloudConfig(){ try{ localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cloud)); }catch(e){} }
 function cloudBase(){ return (cloud.url || '').replace(/\/+$/, ''); }
 function sbHeaders(extra){ return Object.assign({ 'apikey': cloud.key, 'Authorization': 'Bearer ' + cloud.key, 'Content-Type': 'application/json' }, extra || {}); }
 async function sbGetRow(){
-  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.1&select=doc,updated_at`, { headers: sbHeaders() });
+  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.${DOC_ID}&select=doc,updated_at`, { headers: sbHeaders() });
   if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
   const rows = await r.json();
   return rows[0] || null;
 }
 async function sbSaveRow(doc){
   const body = JSON.stringify({ doc: doc, updated_at: new Date().toISOString() });
-  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.1`, { method: 'PATCH', headers: sbHeaders({ 'Prefer': 'return=representation' }), body });
+  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.${DOC_ID}`, { method: 'PATCH', headers: sbHeaders({ 'Prefer': 'return=representation' }), body });
   if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
   const rows = await r.json();
   return rows[0];
 }
 async function sbTest(){
-  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.1&select=id`, { headers: sbHeaders() });
+  const r = await fetch(`${cloudBase()}/rest/v1/tracker_data?id=eq.${DOC_ID}&select=id`, { headers: sbHeaders() });
   if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (await r.text()).slice(0,160));
   return true;
 }
@@ -1802,7 +1811,7 @@ function renderCloudStatus(){
 
 /* ---------- auth: Option A client-side gate ---------- */
 let session = null;
-const SESSION_KEY = 'business-tracker-session';
+const SESSION_KEY = STORAGE_PREFIX + 'business-tracker-session';
 function loadSession(){ try{ session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ session = null; } }
 function saveSession(){ try{ localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }catch(e){} }
 function clearSession(){ session = null; try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
@@ -4315,7 +4324,7 @@ document.addEventListener('keydown', (e) => {   // Ctrl/Cmd+Enter in the note bo
    actions: both are read defensively and only written when used. */
 const todayUi = { scope: 'mine', od: { crm: false, act: false }, key: '' };
 const actUi = { colsOpen: false };
-function todayScopeKey(){ return 'business-tracker-today-scope:' + meName(); }
+function todayScopeKey(){ return STORAGE_PREFIX + 'business-tracker-today-scope:' + meName(); }
 function loadTodayScope(){ try{ todayUi.scope = localStorage.getItem(todayScopeKey()) === 'all' ? 'all' : 'mine'; }catch(e){ todayUi.scope = 'mine'; } }
 function setTodayScope(v){ todayUi.scope = v === 'all' ? 'all' : 'mine'; try{ localStorage.setItem(todayScopeKey(), todayUi.scope); }catch(e){} renderToday(); }
 function sameUser(a, b){ return String(a == null ? '' : a).trim().toLowerCase() === String(b == null ? '' : b).trim().toLowerCase(); }
