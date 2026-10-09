@@ -371,16 +371,17 @@
   .leads-table th { overflow: hidden; text-overflow: ellipsis; }
   .leads-table td { overflow: hidden; }
   .leads-table tr.lead-row td { background: var(--lead-tint); }
-  .leads-table tr.lead-row td:first-child { border-left: 3px solid var(--lead-edge); }
+  .leads-table tr.lead-row td:first-child { border-left: 6px solid var(--lead-edge); }
+  .leads-table tr.lead-row:focus-within td { background: var(--lead-tint-hover); }
   .leads-table tr.lead-row:hover td { background: var(--lead-tint-hover); }
-  .leads-table tr.lead-res { --lead-tint: rgba(29,158,117,0.08); --lead-tint-hover: rgba(29,158,117,0.14); --lead-edge: #1D9E75; }
-  .leads-table tr.lead-com { --lead-tint: rgba(55,138,221,0.09); --lead-tint-hover: rgba(55,138,221,0.15); --lead-edge: #378ADD; }
+  .leads-table tr.lead-res { --lead-tint: rgba(29,158,117,0.05); --lead-tint-hover: rgba(29,158,117,0.12); --lead-edge: #14805f; }
+  .leads-table tr.lead-com { --lead-tint: rgba(55,138,221,0.06); --lead-tint-hover: rgba(55,138,221,0.13); --lead-edge: #2a6fb5; }
   .leads-table td.computed { background: var(--lead-tint) !important; border-radius: 0; }   /* let the row tint show through the grey 'computed' look */
   .leads-table input.computed { background: transparent !important; color: #a8a398; }
   .leads-table input.lead-proj::placeholder { color: #aaa59a; font-style: italic; }
   .leads-table input.lead-pc { text-transform: uppercase; }
   .leads-table input.lead-pc.manual { font-weight: 600; }
-  .lead-pill { width: auto; max-width: 100%; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #efece6; color: #6c675e; border: 1px solid transparent; }
+  .lead-pill { width: auto; min-width: 190px; max-width: 100%; text-overflow: clip; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #efece6; color: #6c675e; border: 1px solid transparent; }
   .type-toggle { display: inline-flex; background: #efece6; border-radius: 8px; padding: 2px; gap: 2px; }
   .type-toggle button { border: none; background: none; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 5px 14px; border-radius: 6px; cursor: pointer; color: var(--muted); }
   .type-toggle button.active { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
@@ -390,6 +391,10 @@
   /* tiers: badge (image or short label), settings card */
   .tier-img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; border-radius: 3px; }
   .tier-pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; background: #efe6d6; color: #7a5a2c; vertical-align: middle; }
+  .tier-pill.tier-i0 { background: #e3dcf3; color: #4b3a86; }
+  .tier-pill.tier-i1 { background: #d3ecec; color: #1d6666; }
+  .tier-pill.tier-i2 { background: #f6dcc4; color: #8a4a12; }
+  .tier-pill.tier-i3 { background: #f4d6e2; color: #8a2f55; }
   .tier-none { color: #b5b0a5; }
   .tier-badge-sm { margin-left: 7px; display: inline-block; vertical-align: middle; }
   .tier-badge-sm .tier-pill { font-size: 9.5px; padding: 1px 6px; }
@@ -2143,7 +2148,7 @@ function tileHtml(pl, r, color){
   let sub = [r.contact, r.company].filter(x => x && x !== title).join(' · ');
   let rows = '', flag = '', edge = color;
   if(pl === 'lead'){
-    edge = r.leadType === 'Commercial' ? '#378ADD' : '#1D9E75';
+    edge = r.leadType === 'Commercial' ? '#2a6fb5' : '#14805f';
     if(Number(r.estValue) > 0) rows += `<div class="bd-t-row"><span class="k">Est. value</span><span>${money(r.estValue)}</span></div>`;
     const last = leadLastContact(r);
     rows += `<div class="bd-t-row"><span class="k">Last contacted</span><span>${last ? fmtDisplay(toDate(last)) : '—'}</span></div>`;
@@ -2506,7 +2511,8 @@ function tierBadgeHtml(t){
   if(!t) return '';
   const lab = escHtml(tierLabel(t));
   if(t.image && /^data:image\//.test(t.image)) return `<img class="tier-img" src="${escHtml(t.image)}" alt="${lab}" title="${lab}">`;
-  return `<span class="tier-pill" title="${escHtml(t.name)}">${lab}</span>`;
+  const ti = Math.max(0, state.tiers.indexOf(t)) % 4;
+  return `<span class="tier-pill tier-i${ti}" title="${escHtml(t.name)}">${lab}</span>`;
 }
 /* the tier for a record, by shared id: the lead if it still exists, else the tierId carried over when it was promoted */
 function tierForRecord(id, rec){
@@ -2626,11 +2632,14 @@ document.addEventListener('change', (e) => {
 const expandedLeads = new Set();
 /* pill colours follow the stage id (so renaming keeps the colour); stages you add get the neutral grey */
 function leadStatusStyle(stageId){
-  if(stageId==='stg_lead_qualified') return 'background:#e4f0e6;color:#4f8a5b;';
-  if(stageId==='stg_lead_possible') return 'background:#fbf1cf;color:#c9822f;';
-  if(stageId==='stg_lead_contacted') return 'background:#e6ecf5;color:#4a6b8a;';
-  if(stageId==='stg_lead_closed') return 'background:#f0eae9;color:#a08a87;';
-  return 'background:#efece6;color:#6c675e;';
+  // one hue per stage, cool to warm to green; dark text for contrast, a border so pills stand out on tinted rows
+  const c = (bg,fg,bd) => `background:${bg};color:${fg};border-color:${bd};`;
+  if(stageId==='stg_lead_qualified') return c('#d5ecd9','#1e5c2e','#9fcfa8');
+  if(stageId==='stg_lead_possible') return c('#fde9bd','#7a4a07','#efc66b');
+  if(stageId==='stg_lead_contacted') return c('#d9e6f7','#1f4f82','#a9c5e8');
+  if(stageId==='stg_lead_no_opportunity') return c('#eceae5','#5a564e','#d3cfc6');
+  if(stageId==='stg_lead_closed') return c('#f3dfdc','#8a3a33','#e2b8b3');
+  return c('#e4e2dd','#4b4840','#c9c5bb');   // Not Contacted
 }
 function leadQualified(l){ return !!(l.budget && l.decisionMaker && l.timeline && l.competition); }
 function leadLastContact(l){
