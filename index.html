@@ -623,19 +623,86 @@
   .lyr.weighted { background: #fbf1cf; color: #c9822f; }
 
   /* dashboard */
-  .stagebar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 11px; }
-  .stagebar-row:last-child { margin-bottom: 0; }
-  .stagebar-label { width: 120px; font-size: 12.5px; flex-shrink: 0; }
-  .stagebar-track { flex: 1; height: 10px; background: #efece6; border-radius: 6px; overflow: hidden; }
-  .stagebar-fill { height: 100%; background: linear-gradient(90deg, var(--g-growth), var(--green)); border-radius: 6px; min-width: 2px; }
-  .stagebar-val { width: 76px; text-align: right; font-size: 12.5px; font-weight: 600; color: var(--slate); flex-shrink: 0; }
-  .fs-block { margin-bottom: 16px; }
-  .fs-block:last-child { margin-bottom: 0; }
-  .fs-head { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
-  .fs-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  .db-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px 24px; flex-wrap: wrap; margin-bottom: 24px; }
+  .db-head h2 { font-family: var(--serif); font-weight: 600; font-size: 29px; margin: 0; line-height: 1.1; letter-spacing: -0.3px; }
+  .db-date { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .db-head .view-toggle { margin-bottom: 0; }
+  .db-head .view-toggle button { font-size: 13px; }
+  .db-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .db-kpi { display: block; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; font-family: inherit; color: inherit; cursor: pointer; }
+  .db-kpi:hover { border-color: var(--stone-deep); background: #fdfcfa; }
+  .db-kpi:focus-visible, .db-row:focus-visible, .db-viewall:focus-visible, .db-more:focus-visible { outline: 2px solid var(--oak); outline-offset: 2px; }
+  .db-kpi .l { display: block; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+  .db-kpi .v { display: block; font-family: var(--serif); font-weight: 600; font-size: 28px; margin-top: 6px; color: var(--ink); line-height: 1.1; letter-spacing: -0.3px; }
+  .db-kpi .v.flag { color: #b3453f; }
+  .db-kpi .s { display: block; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .db-bad { color: #b3453f; font-weight: 600; }
+  .db-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 20px; min-width: 0; }
+  .db-card h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.2px; }
+  .db-card .db-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; line-height: 1.5; }
+  .db-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .db-card-head .view-toggle { margin: 0 0 12px; }
+  .db-card-head .view-toggle button { padding: 5px 12px; }
+  .db-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .db-empty { color: var(--muted); font-size: 13.5px; line-height: 1.6; padding: 14px 0 6px; }
+  .db-clear { display: flex; align-items: center; gap: 12px; color: var(--green); font-size: 14px; padding: 10px 0 2px; }
+  .db-clear svg { width: 22px; height: 22px; flex-shrink: 0; }
+  .db-group + .db-group { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .db-group-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .db-group-head h4 { margin: 0; font-size: 14px; font-weight: 600; }
+  .db-count { font-size: 12.5px; color: var(--muted); }
+  .db-viewall, .db-more { margin-left: auto; background: none; border: none; padding: 2px 0; font-family: inherit; font-size: 12.5px; color: var(--slate); text-decoration: underline; cursor: pointer; }
+  .db-viewall:hover, .db-more:hover { color: var(--ink); }
+  .db-more { display: block; margin: 10px 0 0; }
+  .db-row { display: flex; align-items: center; gap: 12px; width: calc(100% + 20px); margin: 0 -10px; text-align: left; background: none; border: none; border-radius: 8px; padding: 9px 10px; font-family: inherit; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+  .db-row:hover { background: #faf9f6; }
+  .db-row .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .db-row .m { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .db-row .d { width: 92px; flex-shrink: 0; color: var(--muted); font-size: 12.5px; }
+  .db-row .ic { width: 18px; height: 18px; flex-shrink: 0; color: var(--slate); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .db-row .amt { font-weight: 600; font-size: 13px; white-space: nowrap; }
+  .db-row .amt.in { color: var(--green); }
+  .db-row .amt.out { color: #b3453f; }
+  .db-chart svg { display: block; width: 100%; height: auto; max-width: 100%; }
+  .db-chart text { font-family: var(--sans); font-size: 12px; fill: var(--muted); }
+  .db-chart text.lbl { font-size: 12.5px; fill: var(--ink); }
+  .db-chart text.val { font-size: 12.5px; font-weight: 600; fill: var(--slate); }
+  .db-chart text.pt { fill: var(--ink); font-weight: 600; }
+  .db-track { fill: #efece6; }
+  .db-hit { fill: transparent; }
+  .db-hit:hover { fill: rgba(28,31,34,0.045); }
+  .db-fill-green { fill: var(--green); }
+  .db-fill-slate { fill: var(--slate); }
+  .db-fill-oak { fill: var(--oak); }
+  .db-fill-red { fill: #b3453f; }
+  .db-cf-line { fill: none; stroke: var(--green); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .db-cf-area { fill: var(--green); fill-opacity: 0.08; }
+  .db-cf-zero { stroke: #cfc9bd; stroke-width: 1; stroke-dasharray: 3 3; }
+  .db-cf-dot { fill: var(--green); stroke: #fff; stroke-width: 1.5; }
+  .db-cf-neg { fill: #b3453f; stroke: #fff; stroke-width: 1.5; }
+  .db-conv { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .db-conv .big { font-family: var(--serif); font-weight: 600; font-size: 28px; letter-spacing: -0.3px; }
+  .db-conv .note { color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+  .db-tip { position: fixed; z-index: 60; background: var(--ink); color: #fff; font-size: 12.5px; line-height: 1.45; padding: 7px 11px; border-radius: 8px; pointer-events: none; max-width: 260px; }
+  .db-fc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 36px; }
+  .fs-block { margin-bottom: 4px; }
+  .fs-head { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .fs-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 6px 0; border-bottom: 1px solid var(--line); }
   .fs-row:last-child { border-bottom: none; }
   .fs-row.total { font-weight: 700; border-top: 1.5px solid var(--stone-deep); margin-top: 2px; }
   .fs-row.total span:last-child { font-family: var(--serif); font-size: 15px; }
+  @media (max-width: 1000px) { .db-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 699px) {
+    .db-kpis, .db-grid, .db-fc { grid-template-columns: minmax(0, 1fr); }
+    .db-card { padding: 18px 16px; }
+    .db-row { flex-wrap: wrap; row-gap: 2px; }
+    .db-row .t { flex-basis: calc(100% - 30px); white-space: normal; }
+    .db-row .d { width: auto; }
+  }
+  .db-dash-set { max-width: 360px; }
+  .db-dash-set label { display: block; font-size: 12.5px; color: var(--slate); margin-bottom: 6px; font-weight: 500; }
+  .db-dash-set input { border: 1px solid var(--line); background: #fff; padding: 8px 10px; font-size: 13px; max-width: 120px; }
 
   /* cloud sync */
   .cloud-badge { font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
@@ -1233,25 +1300,27 @@
 
   <!-- DASHBOARD -->
   <div class="panel" id="panel-dashboard">
-    <div class="page-head">
-      <h2>Dashboard</h2>
-      <div class="desc">The board view — everything in one screen. Weighted pipeline, work in progress, bank balance and open actions up top; the projected cash-flow curve, the pipeline by stage, and the forecast-vs-actuals summary below.</div>
-    </div>
-    <div class="kpi-row" id="kpiRow"></div>
-    <div id="overviewFlags"></div>
-    <div class="section-label">Projected cash-flow balance</div>
-    <div class="card" id="cashChart"></div>
-    <div class="two-col">
+    <div class="db-head">
       <div>
-        <div class="section-label">Sales pipeline by stage</div>
-        <div class="card" id="stageBars"></div>
+        <h2 id="dbGreeting">Dashboard</h2>
+        <div class="db-date" id="dbDate"></div>
       </div>
-      <div>
-        <div class="section-label">Forecast &amp; actuals</div>
-        <div class="card" id="forecastSummary"></div>
-      </div>
+      <div class="view-toggle" id="dbPeriod" role="group" aria-label="Period for the period-based widgets"></div>
     </div>
+    <div class="db-kpis" id="dbKpis"></div>
+    <section class="db-card" id="dbAttention" aria-label="Needs attention"></section>
+    <div class="db-grid">
+      <section class="db-card" id="dbCash" aria-label="Cash flow"></section>
+      <section class="db-card" id="dbPipe" aria-label="Sales pipeline"></section>
+    </div>
+    <div class="db-grid">
+      <section class="db-card" id="dbFunnel" aria-label="Lead funnel"></section>
+      <section class="db-card" id="dbLost" aria-label="Lost leads by reason"></section>
+    </div>
+    <section class="db-card" id="dbSoon" aria-label="Coming up"></section>
+    <section class="db-card" id="dbForecast" aria-label="Forecast and actuals"></section>
   </div>
+  <div class="db-tip" id="dbTip" role="tooltip" hidden></div>
 
   <!-- BUSINESS PLAN -->
   <div class="panel" id="panel-businessplan">
@@ -1437,6 +1506,11 @@
     <div class="card">
       <div class="assumptions-grid" id="financeSettingsGrid"></div>
     </div>
+        </section>
+
+        <section class="set-sec" data-sec="dashboard">
+    <div class="section-label">Needs attention thresholds</div>
+    <div class="card" id="dashSettingsCard"></div>
         </section>
 
         <section class="set-sec" data-sec="data">
@@ -1748,7 +1822,8 @@ function defaultState(){
       paymentTermsDays: 7,
       startingCash: 2000,
       forecastMonths: 6,
-      defaultTierId: ''
+      defaultTierId: '',
+      leadStaleDays: 14
     },
     // Tiers: records reference a tier by its permanent id, never by name. Each tier may carry a small
     // image as a data URL (resized client-side to max 64x64 PNG, typically 1-4 KB) so the document stays small.
@@ -1902,6 +1977,7 @@ function mergeDefaults(loaded){
   out.tableModes = Object.assign({}, loaded.tableModes || {});
   out.colWidths = Object.assign({}, loaded.colWidths || {});
   out.settings = Object.assign({}, d.settings, loaded.settings || {});
+  { const n = Math.floor(Number(out.settings.leadStaleDays)); out.settings.leadStaleDays = n >= 1 ? n : 14; }   // Dashboard: days without contact before a lead is flagged
   ['goals','pricingTiers','pipeline','capability','network','milestones','admin','actions','archivedActions','leads','projects','transactions','tiers','crmTasks','suppliers'].forEach(k => {
     if(!Array.isArray(out[k])) out[k] = d[k];
   });
@@ -2257,91 +2333,377 @@ function getMonthRange(){
   return months;
 }
 
-/* ---------- dashboard ---------- */
-function cashFlowChartSVG(cf){
-  if(!cf.length) return '<div class="breakdown-hint">No dated cash movements yet — add project payment lines or dated pipeline work.</div>';
-  const W=780, H=210, padL=58, padR=14, padT=14, padB=36;
-  const vals = cf.map(c=>c.closing);
-  const maxV = Math.max(0, ...vals), minV = Math.min(0, ...vals);
-  const span = (maxV-minV)||1;
-  const x = i => padL + (cf.length===1 ? (W-padL-padR)/2 : (i/(cf.length-1))*(W-padL-padR));
-  const y = v => padT + (1-(v-minV)/span)*(H-padT-padB);
-  const line = cf.map((c,i)=>`${x(i).toFixed(1)},${y(c.closing).toFixed(1)}`).join(' ');
-  const area = `${x(0).toFixed(1)},${y(minV).toFixed(1)} ` + line + ` ${x(cf.length-1).toFixed(1)},${y(minV).toFixed(1)}`;
-  const zeroY = y(0).toFixed(1);
-  const dots = cf.map((c,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(c.closing).toFixed(1)}" r="3.5" fill="${c.closing<0?'#b3453f':'var(--green)'}"/>`).join('');
-  const labels = cf.map((c,i)=>`<text x="${x(i).toFixed(1)}" y="${H-12}" font-size="10" fill="#8b867c" text-anchor="middle">${c.label.split(' ')[0]}</text>`).join('');
-  const yLabels = [maxV, (maxV+minV)/2, minV].map(v=>`<text x="${padL-8}" y="${(y(v)+3).toFixed(1)}" font-size="9.5" fill="#8b867c" text-anchor="end">${money(v)}</text>`).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="cfg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3f6b4f" stop-opacity="0.18"/><stop offset="100%" stop-color="#3f6b4f" stop-opacity="0.01"/></linearGradient></defs>
-    <line x1="${padL}" y1="${zeroY}" x2="${W-padR}" y2="${zeroY}" stroke="#cfc9bd" stroke-width="1" stroke-dasharray="3 3"/>
-    <polygon points="${area}" fill="url(#cfg)"/>
-    <polyline points="${line}" fill="none" stroke="#3f6b4f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-    ${dots}${labels}${yLabels}
-  </svg>`;
+/* ---------- dashboard ----------
+   Read-only: every figure comes from data the tracker already holds, nothing here writes to a record. The only things remembered are
+   the chosen period and the pipeline chart toggle (per device, in localStorage) and the stale-lead threshold in Settings → Dashboard.
+   Charts are plain inline SVG drawn at the card's real pixel width (so text stays a true 12px+) and redrawn when that width changes. */
+const DASH_PERIOD_KEY = STORAGE_PREFIX + 'business-tracker-dash-period';
+const DASH_PIPE_KEY   = STORAGE_PREFIX + 'business-tracker-dash-pipemode';
+const DASH_PERIODS = [['month', 'This month'], ['quarter', 'This quarter'], ['year', 'This year']];
+const DASH_CHARTS = ['dbCash', 'dbPipe', 'dbFunnel', 'dbLost'];   // the cards that hold an SVG chart
+const DASH_DEFAULT_STALE_DAYS = 14;
+const dashUi = { period: null, pipeMode: null, soonAll: false, w: {}, sig: '', ro: null };
+function dashLoadPrefs(){
+  if(dashUi.period) return;
+  let p = 'month', m = 'stage';
+  try{ p = localStorage.getItem(DASH_PERIOD_KEY) || p; m = localStorage.getItem(DASH_PIPE_KEY) || m; }catch(e){}
+  dashUi.period = DASH_PERIODS.some(x => x[0] === p) ? p : 'month';
+  dashUi.pipeMode = m === 'tier' ? 'tier' : 'stage';
 }
-function renderDashboard(){
-  const sales = state.pipeline;
-  const weightedPipeline = sales.reduce((s,r)=> s + (Number(r.quoteValue)||0)*effectiveProb(r), 0);
-  const totalPipeline = sales.reduce((s,r)=> s + (Number(r.quoteValue)||0), 0);
-  const projectsValue = state.projects.reduce((s,p)=> s + (Number(p.agreedValue)||0), 0);
-  const startCash = (state.settings && Number(state.settings.startingCash)) || 0;
-  const totIn = state.transactions.reduce((a,t)=>a+(Number(t.moneyIn)||0),0);
-  const totOut = state.transactions.reduce((a,t)=>a+(Number(t.moneyOut)||0),0);
-  const bank = startCash + totIn - totOut;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const openActions = state.actions.filter(a=>a.status!=='Done').length;
-  const overdue = state.actions.filter(a=>a.deadline && a.status!=='Done' && toDate(a.deadline)<today).length;
-  const contactedWeek = activeLeads().filter(l=>{ if(!l.lastContacted) return false; const diff=(today-toDate(l.lastContacted))/86400000; return diff>=0 && diff<=7; }).length;
+function dashSavePref(key, v){ try{ localStorage.setItem(key, v); }catch(e){} }
+function dashRange(now){
+  const y = now.getFullYear(), m = now.getMonth();
+  if(dashUi.period === 'year') return { start: fmt(new Date(y, 0, 1)), end: fmt(new Date(y, 11, 31)), label: String(y), noun: 'this year' };
+  if(dashUi.period === 'quarter'){ const q = Math.floor(m / 3); return { start: fmt(new Date(y, q * 3, 1)), end: fmt(new Date(y, q * 3 + 3, 0)), label: 'Q' + (q + 1) + ' ' + y, noun: 'this quarter' }; }
+  return { start: fmt(new Date(y, m, 1)), end: fmt(new Date(y, m + 1, 0)), label: now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }), noun: 'this month' };
+}
+const dashIn = (d, r) => typeof d === 'string' && d.length >= 10 && d.slice(0, 10) >= r.start && d.slice(0, 10) <= r.end;
+function dashStaleDays(){ const n = Math.floor(Number(state.settings && state.settings.leadStaleDays)); return n >= 1 ? n : DASH_DEFAULT_STALE_DAYS; }
+const dashDays = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
+const dashPlural = (n, one, many) => n + ' ' + (n === 1 ? one : (many || one + 's'));
+function moneySigned(n){ n = Math.round(Number(n) || 0); return n < 0 ? '−' + money(-n) : money(n); }
+function moneyShort(n){
+  n = Number(n) || 0; const a = Math.abs(n), sg = n < 0 ? '−' : '';
+  if(a >= 1e6) return sg + '£' + (a / 1e6).toFixed(1).replace(/\.0$/, '') + 'm';
+  if(a >= 1e3) return sg + '£' + (a / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+  return sg + '£' + Math.round(a);
+}
+function dashFirstName(){
+  const u = String(meName() || '').trim(); if(!u) return '';
+  const f = u.split(/[\s._@-]+/)[0]; return f ? f.charAt(0).toUpperCase() + f.slice(1) : '';
+}
+function dashShortDate(d, today){
+  if(d === today) return 'Today';
+  if(d === fmt(addCalendarDays(toDate(today), 1))) return 'Tomorrow';
+  return toDate(d).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+/* a lead's created date, if the record carries one (older leads don't) */
+function leadCreatedDate(l){
+  const v = (l.createdAt !== undefined && l.createdAt !== null && l.createdAt !== '') ? l.createdAt : l.created;
+  if(typeof v === 'number' && v > 0) return fmt(new Date(v));
+  if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+  return '';
+}
 
-  const kpis = [
-    { label:'Weighted pipeline', value: money(weightedPipeline), sub:`of ${money(totalPipeline)} total`, accent:'var(--g-growth)' },
-    { label:'Work in progress', value: money(projectsValue), sub:`${state.projects.length} live project${state.projects.length!==1?'s':''}`, accent:'var(--green)' },
-    { label:'Bank balance', value: money(bank), sub:'actual, from transactions', accent:'var(--g-finance)', flag: bank<0 },
-    { label:'Open actions', value: openActions, sub: overdue>0?`${overdue} overdue`:(contactedWeek?`${contactedWeek} lead${contactedWeek!==1?'s':''} contacted this week`:'none overdue'), accent:'var(--slate)', flag: overdue>0 }
-  ];
-  document.getElementById('kpiRow').innerHTML = kpis.map(k =>
-    `<div class="kpi" style="--accent:${k.accent}"><div class="label">${k.label}</div><div class="value${k.flag?' flag':''}">${k.value}</div>${k.sub?`<div class="sub">${k.sub}</div>`:''}</div>`
-  ).join('');
-
-  const flaggedRows = sales.filter(r => r.type === 'real' && (r.tier === 'Needs re-scoping' || !r.quoteValue));
-  document.getElementById('overviewFlags').innerHTML = flaggedRows.length
-    ? `<div class="callout"><strong>Needs attention:</strong> ${flaggedRows.map(r=>r.name).join(', ')} — real leads not yet re-scoped or priced against the pivoted offer. See Sales Pipeline.</div>`
-    : '';
-
-  const months = getMonthRange();
-  const cf = computeCashFlow(months);
-  document.getElementById('cashChart').innerHTML = cashFlowChartSVG(cf);
-
-  // pipeline by stage
-  const byStage = state.pipelineStages.sales.map(stg => {
-    const rows = sales.filter(r=>r.stageId===stg.id);
-    return { st: escHtml(stg.name), count: rows.length, val: rows.reduce((s,r)=>s+(Number(r.quoteValue)||0),0) };
+/* ---- data ---- */
+/* the same lists as the Today tab (so the totals always match it, and follow its My items / Everyone choice), open items only */
+function dashTasks(today){
+  const d = todayData(today);
+  return { crmToday: d.crmToday.filter(t => t.status === 'open'), crmOver: d.crmOver.filter(t => t.status === 'open'),
+           actToday: d.actToday.filter(x => x.r.status !== 'Done'), actOver: d.actOver.filter(x => x.r.status !== 'Done') };
+}
+function dashMine(){ const me = meName(); return todayUi.scope === 'mine' && !!me ? me : ''; }
+function dashWon(range, today){
+  let count = 0, value = 0;
+  state.pipeline.forEach(r => { if(dashIn(r.contractSigned, range) && r.contractSigned.slice(0, 10) <= today){ count++; value += Number(r.quoteValue) || 0; } });
+  state.projects.forEach(p => { const d = (p.milestones || {}).contractSigned; if(dashIn(d, range) && d.slice(0, 10) <= today){ count++; value += Number(p.agreedValue) || 0; } });
+  return { count, value };
+}
+function dashLostInPeriod(range){ return state.leads.filter(l => l.lost && dashIn(l.lostDate, range)); }
+function dashStaleLeads(today){
+  const N = dashStaleDays();
+  return activeLeads().map(l => {
+    const last = leadLastContact(l), ref = last || leadCreatedDate(l);
+    if(!ref) return null;   // no contact logged and no created date: its age can't be known, so it is not flagged
+    const age = dashDays(ref, today);
+    return age >= N ? { l, ref, age, fromCreated: !last } : null;
+  }).filter(Boolean).sort((a, b) => b.age - a.age);
+}
+function dashHasOpenTask(rec){
+  return state.crmTasks.some(t => t.status === 'open' && linkedMatches(t, rec.id)) || state.actions.some(a => a.status !== 'Done' && linkedMatches(a, rec.id));
+}
+/* a delivery milestone is overdue when its date has passed but the project has not reached that stage yet */
+function dashOverdueMilestone(p, today){
+  const list = state.pipelineStages.project, cur = list.findIndex(s => s.id === p.stageId), m = p.milestones || {}; let hit = null;
+  list.forEach((s, i) => { const d = s.key && m[s.key]; if(d && d < today && i > cur && (!hit || d < hit.date)) hit = { name: s.name, date: d }; });
+  return hit;
+}
+function dashUpcoming(today){
+  const end = fmt(addCalendarDays(toDate(today), 14)), me = dashMine(), items = [], inWin = d => !!d && d >= today && d <= end;
+  state.crmTasks.forEach(t => {
+    if(t.status !== 'open' || taskOnLostLead(t) || (me && t.owner !== me) || !inWin(t.dueDate)) return;
+    items.push({ date: t.dueDate, kind: 'task', title: t.title, meta: 'Task due', attr: `data-dash="open-task" data-id="${escAttr(t.id)}"` });
   });
-  const maxVal = Math.max(1, ...byStage.map(b=>b.val));
-  document.getElementById('stageBars').innerHTML = byStage.map(b => `
-    <div class="stagebar-row">
-      <div class="stagebar-label">${b.st} <span style="color:var(--muted)">(${b.count})</span></div>
-      <div class="stagebar-track"><div class="stagebar-fill" style="width:${Math.round(b.val/maxVal*100)}%"></div></div>
-      <div class="stagebar-val">${money(b.val)}</div>
-    </div>`).join('') || '<div class="breakdown-hint">No pipeline yet.</div>';
+  state.actions.forEach((a, i) => {
+    if(a.status === 'Done' || (me && !sameUser(a.owner, me)) || !inWin(a.deadline)) return;
+    items.push({ date: a.deadline, kind: 'task', title: a.action || '(untitled action)', meta: 'Action due', attr: `data-dash="open-act" data-idx="${i}"` });
+  });
+  const tradeDays = Number(state.settings && state.settings.tradeAccountDays) || 30;
+  state.projects.forEach(p => {
+    const attr = `data-dash="open-proj" data-id="${p.id}"`;
+    state.pipelineStages.project.forEach(s => { const d = s.key && (p.milestones || {})[s.key]; if(inWin(d)) items.push({ date: d, kind: 'milestone', title: p.name, meta: s.name, attr }); });
+    (p.paymentLines || []).forEach(pl => {
+      const amt = Number(pl.amount) || 0;
+      if(!pl.paidDate && amt > 0 && inWin(pl.dueDate)) items.push({ date: pl.dueDate, kind: 'in', title: p.name, meta: pl.desc || 'Payment due', amt, attr });
+    });
+    (p.stages || []).filter(s => s.kind === 'materials' && s.start && (Number(s.cost) || 0) > 0).forEach(s => {
+      const d = fmt(addCalendarDays(toDate(s.start), tradeDays));
+      if(inWin(d)) items.push({ date: d, kind: 'out', title: p.name, meta: (s.label || 'Materials') + ' payment due', amt: Number(s.cost) || 0, attr });
+    });
+  });
+  const rank = { task: 0, milestone: 1, in: 2, out: 3 };
+  return items.sort((a, b) => a.date.localeCompare(b.date) || rank[a.kind] - rank[b.kind] || cmpText(a.title, b.title));
+}
 
-  // forecast & actuals
-  const rev = computeRevenue(months);
-  const committed = rev.reduce((s,r)=>s+r.committed,0);
-  const weighted = rev.reduce((s,r)=>s+r.weighted,0);
-  const net = totIn - totOut;
-  document.getElementById('forecastSummary').innerHTML = `
-    <div class="fs-block"><div class="fs-head">Forecast over next ${months.length} month${months.length!==1?'s':''}</div>
+/* ---- small pieces ---- */
+const DASH_ICONS = {
+  task: '<path d="M8.5 12.2l2.4 2.4 4.6-5"/><rect x="4" y="4" width="16" height="16" rx="3"/>',
+  milestone: '<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
+  in: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/>',
+  out: '<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 20h14"/>'
+};
+const DASH_KIND_LABEL = { task: 'Task', milestone: 'Milestone', in: 'Money in', out: 'Money out' };
+const dashIcon = k => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${DASH_ICONS[k]}</svg>`;
+function dashInnerW(el){
+  if(!el) return 0;
+  const cs = getComputedStyle(el), w = el.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+  return w > 0 ? Math.floor(w) : 0;
+}
+function dashWidth(id, fallback){ const w = dashInnerW(document.getElementById(id)); if(w > 40){ dashUi.w[id] = w; return w; } return dashUi.w[id] || fallback; }
+const dashTrunc = (s, n) => { s = String(s); return s.length > n ? s.slice(0, Math.max(1, n - 1)) + '…' : s; };
+const dashEmpty = (msg, link) => `<div class="db-empty">${msg}${link ? ` <button class="db-viewall" style="margin-left:6px" data-dash="go" data-tab="${link[0]}">${link[1]}</button>` : ''}</div>`;
+function dashCardHead(title, sub, extra){ return `<div class="db-card-head"><div><h3>${title}</h3>${sub ? `<p class="db-sub">${sub}</p>` : ''}</div>${extra || ''}</div>`; }
+
+/* horizontal bars: label + value above each bar, so nothing needs a left-hand label column and the text never shrinks */
+function dashBarsSVG(o){
+  const W = o.W, rowH = 46, rows = o.rows, maxV = Math.max(1, ...rows.map(r => r.value));
+  const valW = Math.max(...rows.map(r => r.valueText.length)) * 7.4 + 8, H = rows.length * rowH;
+  const hatch = rows.some(r => r.hatch);
+  let g = '';
+  rows.forEach((r, i) => {
+    const y = i * rowH, ix = r.image ? 20 : 0, maxCh = Math.max(4, Math.floor((W - valW - ix - 8) / 7.2));
+    const bw = r.value > 0 ? Math.max(4, Math.round(r.value / maxV * W)) : 0;
+    g += `<g data-dtip="${escHtml(r.tip)}"><rect class="db-hit" x="-6" y="${y}" width="${W + 12}" height="${rowH - 4}" rx="6"/>
+      ${r.image ? `<image href="${escHtml(r.image)}" x="0" y="${y + 3}" width="14" height="14"/>` : ''}
+      <text class="lbl" x="${ix}" y="${y + 16}">${escHtml(dashTrunc(r.label, maxCh))}</text>
+      <text class="val" x="${W}" y="${y + 16}" text-anchor="end">${escHtml(r.valueText)}</text>
+      <rect class="db-track" x="0" y="${y + 24}" width="${W}" height="10" rx="5"/>
+      ${bw ? `<rect class="${r.hatch ? '' : 'db-fill-' + o.color}" ${r.hatch ? `fill="url(#${o.id}Hatch)" stroke="var(--oak)" stroke-width="1"` : ''} x="0" y="${y + 24}" width="${bw}" height="10" rx="5"/>` : ''}</g>`;
+  });
+  const defs = hatch ? `<defs><pattern id="${o.id}Hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#f3ead9"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--oak)" stroke-width="2"/></pattern></defs>` : '';
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${escHtml(o.title + '. ' + o.desc)}" xmlns="http://www.w3.org/2000/svg">${defs}${g}</svg>`;
+}
+function dashCashSVG(cf, W){
+  const H = 236, padR = 38, padT = 24, padB = 34;
+  const vals = cf.map(c => c.closing), maxV = Math.max(0, ...vals), minV = Math.min(0, ...vals), span = (maxV - minV) || 1;
+  const yl = [maxV, (maxV + minV) / 2, minV].map(v => moneySigned(v)), padL = Math.max(...yl.map(s => s.length)) * 7.2 + 14;
+  const n = cf.length, plotW = Math.max(10, W - padL - padR), sp = n > 1 ? plotW / (n - 1) : plotW;
+  const x = i => padL + (n === 1 ? plotW / 2 : i * sp), y = v => padT + (1 - (v - minV) / span) * (H - padT - padB);
+  const line = cf.map((c, i) => `${x(i).toFixed(1)},${y(c.closing).toFixed(1)}`).join(' ');
+  const area = `${x(0).toFixed(1)},${y(minV).toFixed(1)} ${line} ${x(n - 1).toFixed(1)},${y(minV).toFixed(1)}`;
+  const full = sp >= 70, step = full ? 1 : Math.max(1, Math.ceil(40 / sp)), allPts = sp >= 70;
+  let marks = '', labels = '', cols = '';
+  cf.forEach((c, i) => {
+    const neg = c.closing < 0, cx = x(i), cy = y(c.closing);
+    marks += neg ? `<path class="db-cf-neg" d="M${cx.toFixed(1)} ${(cy - 5.5).toFixed(1)} L${(cx + 5.5).toFixed(1)} ${cy.toFixed(1)} L${cx.toFixed(1)} ${(cy + 5.5).toFixed(1)} L${(cx - 5.5).toFixed(1)} ${cy.toFixed(1)} Z"/>` : `<circle class="db-cf-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4"/>`;
+    if(i % step === 0) labels += `<text x="${cx.toFixed(1)}" y="${H - 10}" text-anchor="middle">${escHtml(full ? c.label : c.label.split(' ')[0])}</text>`;
+    if(allPts || i === n - 1) labels += `<text class="pt" x="${Math.min(cx, W - 4).toFixed(1)}" y="${(cy - 10).toFixed(1)}" text-anchor="${i === n - 1 && !allPts ? 'end' : 'middle'}">${escHtml(moneyShort(c.closing))}</text>`;
+    const tip = `${c.label}: closing balance ${moneySigned(c.closing)}${neg ? ' (below zero)' : ''}. Net this month ${moneySigned(c.net)}.`;
+    cols += `<rect class="db-hit" data-dtip="${escHtml(tip)}" x="${(cx - (n === 1 ? plotW / 2 : sp / 2)).toFixed(1)}" y="${padT - 14}" width="${(n === 1 ? plotW : sp).toFixed(1)}" height="${H - padT - padB + 22}"/>`;
+  });
+  const ylab = [maxV, (maxV + minV) / 2, minV].map(v => `<text x="${padL - 8}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end">${escHtml(moneySigned(v))}</text>`).join('');
+  const desc = 'Closing balance by month: ' + cf.map(c => `${c.label} ${moneySigned(c.closing)}`).join('; ') + '.';
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${escHtml('Projected cash-flow balance. ' + desc)}" xmlns="http://www.w3.org/2000/svg">
+    <line class="db-cf-zero" x1="${padL}" y1="${y(0).toFixed(1)}" x2="${W - padR}" y2="${y(0).toFixed(1)}"/>
+    <polygon class="db-cf-area" points="${area}"/><polyline class="db-cf-line" points="${line}"/>${cols}${marks}${labels}${ylab}</svg>`;
+}
+
+/* ---- widgets ---- */
+function dashKpis(o){
+  const { weighted, total, projCount, projValue, bank, leadN, leadSub, taskN, dueToday, over, won, range } = o;
+  const tile = (tab, label, value, sub, flag) => `<button type="button" class="db-kpi" data-dash="go" data-tab="${tab}"><span class="l">${label}</span><span class="v${flag ? ' flag' : ''}">${value}</span><span class="s">${sub}</span></button>`;
+  return [
+    tile('salespipeline', 'Weighted pipeline', money(weighted), `of ${money(total)} total`),
+    tile('projectpipeline', 'Work in progress', money(projValue), dashPlural(projCount, 'live project')),
+    tile('transactions', 'Bank balance', money(bank), 'actual, from transactions', bank < 0),
+    tile('leads', 'Active leads', leadN, leadSub),
+    tile('today', 'Tasks', taskN, `${dueToday} due today${over ? ` · <span class="db-bad">${over} overdue</span>` : ''}`),
+    tile('projectpipeline', 'Won ' + range.noun, won.count, `${money(won.value)} signed`)
+  ].join('');
+}
+function dashAttentionHtml(today, T){
+  const N = dashStaleDays(), groups = [];
+  const over = T.crmOver.map(t => ({ date: t.dueDate, title: t.title, attr: `data-dash="open-task" data-id="${escAttr(t.id)}"` }))
+    .concat(T.actOver.map(x => ({ date: x.r.deadline, title: x.r.action || '(untitled action)', attr: `data-dash="open-act" data-idx="${x.i}"` })))
+    .sort((a, b) => a.date.localeCompare(b.date) || cmpText(a.title, b.title));
+  groups.push({ title: 'Overdue tasks', go: ['today', 'od'], items: over.map(i => ({ attr: i.attr, title: i.title, meta: `${dashPlural(dashDays(i.date, today), 'day')} overdue · due ${fmtDisplay(toDate(i.date))}` })) });
+  groups.push({ title: `Leads with no contact in ${dashPlural(N, 'day')}`, go: ['leads'], items: dashStaleLeads(today).map(x => ({
+    attr: `data-dash="open-lead" data-id="${x.l.id}"`, title: boardTitle('lead', x.l),
+    meta: `${x.fromCreated ? 'created' : 'last contact'} ${dashPlural(x.age, 'day')} ago` })) });
+  groups.push({ title: 'Sales deals with no open task', go: ['salespipeline'], items: state.pipeline.filter(r => !dashHasOpenTask(r)).map(r => ({
+    attr: `data-dash="open-sales" data-id="${r.id}"`, title: boardTitle('sales', r), meta: `${stageName('sales', r.stageId)} · ${money(r.quoteValue)}` })) });
+  groups.push({ title: 'Projects with an overdue milestone', go: ['projectpipeline'], items: state.projects.map(p => ({ p, m: dashOverdueMilestone(p, today) })).filter(x => x.m).map(x => ({
+    attr: `data-dash="open-proj" data-id="${x.p.id}"`, title: boardTitle('project', x.p), meta: `${x.m.name} was due ${fmtDisplay(toDate(x.m.date))}` })) });
+  const shown = groups.filter(g => g.items.length);
+  const head = dashCardHead('Needs attention', 'Things that have slipped or could use a nudge.');
+  if(!shown.length) return head + `<div class="db-clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16.2 9.5"/></svg><span><strong>All clear.</strong> Nothing is overdue or waiting on a follow-up.</span></div>`;
+  return head + shown.map(g => `<div class="db-group"><div class="db-group-head"><h4>${escHtml(g.title)}</h4><span class="db-count">${g.items.length}</span>
+      <button type="button" class="db-viewall" data-dash="viewall" data-tab="${g.go[0]}"${g.go[1] ? ` data-od="1"` : ''}>View all<span class="sr-only"> ${escHtml(g.title)}</span></button></div>
+      ${g.items.slice(0, 5).map(i => `<button type="button" class="db-row" ${i.attr}><span class="t">${escHtml(i.title)}</span><span class="m">${escHtml(i.meta)}</span></button>`).join('')}</div>`).join('');
+}
+function dashCashHtml(){
+  const months = getMonthRange(), cf = computeCashFlow(months), W = dashWidth('dbCash', 520);
+  const dated = state.projects.some(p => (p.paymentLines || []).some(l => l.dueDate || l.paidDate)) ||
+    state.pipeline.some(r => { const d = derivePipelineRow(r); return d.invoice || d.paymentDue || d.materialsPaymentDue || d.materialsOrder; });
+  const head = dashCardHead('Projected cash-flow balance', 'Closing balance at the end of each month, from the cash flow forecast.');
+  if(!dated || !cf.length) return head + dashEmpty('No dated cash movements yet — add project payment lines or dated pipeline work.', ['cashflow', 'Open cash flow']);
+  return head + `<div class="db-chart">${dashCashSVG(cf, W)}</div>`;
+}
+function dashPipeRows(mode){
+  const sales = state.pipeline, sum = (recs, f) => recs.reduce((s, r) => s + f(r), 0);
+  const mk = (label, recs, extra) => Object.assign({ label, count: recs.length, val: sum(recs, r => Number(r.quoteValue) || 0), w: sum(recs, r => (Number(r.quoteValue) || 0) * effectiveProb(r)) }, extra || {});
+  const out = [];
+  if(mode === 'tier'){
+    state.tiers.forEach(t => out.push(mk(t.name, sales.filter(r => { const x = tierForRecord(r.id, r); return x && x.id === t.id; }), { image: (t.image && /^data:image\//.test(t.image)) ? t.image : '' })));
+    const none = sales.filter(r => !tierForRecord(r.id, r)); if(none.length) out.push(mk('No tier', none, { hatch: true }));
+  } else state.pipelineStages.sales.forEach(s => out.push(mk(s.name, sales.filter(r => r.stageId === s.id))));
+  return out;
+}
+function dashPipeHtml(){
+  const mode = dashUi.pipeMode, W = dashWidth('dbPipe', 520);
+  const toggle = `<div class="view-toggle" role="group" aria-label="Group the pipeline by"><button type="button" data-dash="pipemode" data-v="stage" aria-pressed="${mode === 'stage'}" class="${mode === 'stage' ? 'active' : ''}">By stage</button><button type="button" data-dash="pipemode" data-v="tier" aria-pressed="${mode === 'tier'}" class="${mode === 'tier' ? 'active' : ''}">By tier</button></div>`;
+  const head = dashCardHead('Sales pipeline by ' + mode, 'Total quote value; hover or tap a bar for the weighted figure.', toggle);
+  if(!state.pipeline.length) return head + dashEmpty('No deals in the sales pipeline yet.', ['salespipeline', 'Open Sales Pipeline']);
+  const data = dashPipeRows(mode);
+  const rows = data.map(d => ({ label: `${d.label} (${d.count})`, value: d.val, valueText: money(d.val), image: d.image, hatch: d.hatch,
+    tip: `${d.label}: ${dashPlural(d.count, 'deal')}, ${money(d.val)} total, ${money(d.w)} weighted` }));
+  const title = 'Sales pipeline by ' + mode, desc = data.map(d => `${d.label}: ${dashPlural(d.count, 'deal')}, ${money(d.val)}`).join('; ') + '.';
+  return head + `<div class="db-chart">${dashBarsSVG({ id: 'dbPipeSvg', W, rows, color: 'green', title, desc })}</div>`;
+}
+function dashFunnelHtml(range, won, lostN){
+  const W = dashWidth('dbFunnel', 520), leads = activeLeads();
+  const head = dashCardHead('Lead funnel', 'Active leads in each stage right now. Lost leads are not counted.');
+  const decided = won.count + lostN, rate = decided ? Math.round(won.count / decided * 100) : null;
+  let body;
+  if(!leads.length) body = dashEmpty('No active leads yet — add one to start the funnel.', ['leads', 'Open Leads']);
+  else {
+    const stages = state.pipelineStages.lead, rows = stages.map(s => { const c = leads.filter(l => l.stageId === s.id).length; return { label: s.name, value: c, valueText: String(c), tip: `${s.name}: ${dashPlural(c, 'lead')}` }; });
+    const desc = rows.map(r => `${r.label}: ${r.valueText}`).join('; ') + '.';
+    body = `<div class="db-chart">${dashBarsSVG({ id: 'dbFunnelSvg', W, rows, color: 'slate', title: 'Lead funnel', desc })}</div>`;
+  }
+  const conv = `<div class="db-conv"><span class="big">${rate === null ? '—' : rate + '%'}</span><span class="note"><strong>Lead-to-sales conversion, ${escHtml(range.noun)}.</strong> ${rate === null
+    ? 'No deals won and no leads lost yet this period.'
+    : `${dashPlural(won.count, 'deal')} won out of ${dashPlural(decided, 'decided lead')} (${won.count} won + ${lostN} lost).`}</span></div>`;
+  return head + body + conv;
+}
+function dashLostHtml(range, lost){
+  const W = dashWidth('dbLost', 520), head = dashCardHead('Lost leads by reason', `Leads marked lost ${range.noun} (${escHtml(range.label)}).`);
+  if(!lost.length) return head + dashEmpty('No leads lost ' + range.noun + ' — nothing to show.');
+  const reasons = state.lostReasons.map(r => ({ id: r.id, name: r.name })), known = new Set(reasons.map(r => r.id));
+  const rows = reasons.map(r => ({ label: r.name, c: lost.filter(l => l.lostReason === r.id).length }));
+  const other = lost.filter(l => !known.has(l.lostReason)).length; if(other) rows.push({ label: 'No reason given', c: other });
+  const shown = rows.filter(r => r.c > 0).map(r => ({ label: r.label, value: r.c, valueText: String(r.c), tip: `${r.label}: ${dashPlural(r.c, 'lost lead')}` }));
+  const desc = shown.map(r => `${r.label}: ${r.valueText}`).join('; ') + '.';
+  return head + `<div class="db-chart">${dashBarsSVG({ id: 'dbLostSvg', W, rows: shown, color: 'oak', title: 'Lost leads by reason', desc })}</div>`;
+}
+function dashSoonHtml(today){
+  const items = dashUpcoming(today), head = dashCardHead('Coming up (next 14 days)', 'Tasks, project milestones and payments, in date order.');
+  if(!items.length) return head + dashEmpty('Nothing due in the next 14 days.');
+  const show = dashUi.soonAll ? items : items.slice(0, 10);
+  const rows = show.map(i => `<button type="button" class="db-row" ${i.attr}><span class="d">${escHtml(dashShortDate(i.date, today))}</span>${dashIcon(i.kind)}<span class="sr-only">${DASH_KIND_LABEL[i.kind]}: </span><span class="t">${escHtml(i.title)}</span><span class="m">${escHtml(i.meta)}</span>${i.amt ? `<span class="amt ${i.kind}">${i.kind === 'in' ? '+' : '−'}${money(i.amt)}</span>` : ''}</button>`).join('');
+  const more = items.length > 10 ? `<button type="button" class="db-more" data-dash="soonmore">${dashUi.soonAll ? 'Show fewer' : `Show more (${items.length - 10})`}</button>` : '';
+  return head + rows + more;
+}
+function dashForecastHtml(months, totIn, totOut){
+  const head = dashCardHead('Forecast & actuals');
+  if(!state.projects.length && !state.pipeline.length && !state.transactions.length) return head + dashEmpty('Nothing to forecast yet — once you have projects, deals or transactions, the totals appear here.');
+  const rev = computeRevenue(months), committed = rev.reduce((s, r) => s + r.committed, 0), weighted = rev.reduce((s, r) => s + r.weighted, 0), net = totIn - totOut;
+  return head + `<div class="db-fc">
+    <div class="fs-block"><div class="fs-head">Forecast over next ${months.length} month${months.length !== 1 ? 's' : ''}</div>
       <div class="fs-row"><span>Committed (projects)</span><span>${money(committed)}</span></div>
       <div class="fs-row"><span>Weighted pipeline (sales)</span><span>${money(weighted)}</span></div>
-      <div class="fs-row total"><span>Total expected</span><span>${money(committed+weighted)}</span></div>
+      <div class="fs-row total"><span>Total expected</span><span>${money(committed + weighted)}</span></div>
     </div>
     <div class="fs-block"><div class="fs-head">Actuals to date (transactions)</div>
       <div class="fs-row"><span>Money in</span><span>${money(totIn)}</span></div>
       <div class="fs-row"><span>Money out</span><span>-${money(totOut)}</span></div>
-      <div class="fs-row total"><span>Net movement</span><span style="${net<0?'color:#b3453f;':''}">${money(net)}</span></div>
-    </div>`;
+      <div class="fs-row total"><span>Net movement</span><span style="${net < 0 ? 'color:#b3453f;' : ''}">${money(net)}</span></div>
+    </div></div>`;
+}
+
+function renderDashboard(){
+  if(!state || !document.getElementById('dbKpis')) return;
+  dashLoadPrefs(); dbTipHide();
+  const now = new Date(), today = fmt(now), range = dashRange(now), hour = now.getHours();
+  const first = dashFirstName();
+  document.getElementById('dbGreeting').textContent = (hour < 12 ? 'Good morning' : (hour < 18 ? 'Good afternoon' : 'Good evening')) + (first ? ', ' + first : '');
+  document.getElementById('dbDate').textContent = dateLabel(now);
+  document.getElementById('dbPeriod').innerHTML = DASH_PERIODS.map(([k, l]) => `<button type="button" data-dash="period" data-v="${k}" aria-pressed="${dashUi.period === k}" class="${dashUi.period === k ? 'active' : ''}">${l}</button>`).join('');
+
+  const sales = state.pipeline, T = dashTasks(today), won = dashWon(range, today), lost = dashLostInPeriod(range);
+  const weighted = sales.reduce((s, r) => s + (Number(r.quoteValue) || 0) * effectiveProb(r), 0), total = sales.reduce((s, r) => s + (Number(r.quoteValue) || 0), 0);
+  const projValue = state.projects.reduce((s, p) => s + (Number(p.agreedValue) || 0), 0);
+  const startCash = (state.settings && Number(state.settings.startingCash)) || 0;
+  const totIn = state.transactions.reduce((a, t) => a + (Number(t.moneyIn) || 0), 0), totOut = state.transactions.reduce((a, t) => a + (Number(t.moneyOut) || 0), 0);
+  const leads = activeLeads(), anyCreated = leads.some(l => leadCreatedDate(l));
+  const leadSub = anyCreated ? `${leads.filter(l => dashIn(leadCreatedDate(l), range)).length} new ${range.noun}`
+    : `${leads.filter(l => dashIn(leadLastContact(l), range)).length} contacted ${range.noun}`;   // older leads carry no created date, so show what can be counted
+  const over = T.crmOver.length + T.actOver.length, dueToday = T.crmToday.length + T.actToday.length;
+  document.getElementById('dbKpis').innerHTML = dashKpis({ weighted, total, projCount: state.projects.length, projValue, bank: startCash + totIn - totOut,
+    leadN: leads.length, leadSub, taskN: dueToday + over, dueToday, over, won, range });
+
+  document.getElementById('dbAttention').innerHTML = dashAttentionHtml(today, T);
+  const months = getMonthRange();
+  document.getElementById('dbCash').innerHTML = dashCashHtml();
+  document.getElementById('dbPipe').innerHTML = dashPipeHtml();
+  document.getElementById('dbFunnel').innerHTML = dashFunnelHtml(range, won, lost.length);
+  document.getElementById('dbLost').innerHTML = dashLostHtml(range, lost);
+  document.getElementById('dbSoon').innerHTML = dashSoonHtml(today);
+  document.getElementById('dbForecast').innerHTML = dashForecastHtml(months, totIn, totOut);
+  dashUi.sig = DASH_CHARTS.map(id => dashInnerW(document.getElementById(id))).join('|');
+  dashObserve();
+}
+/* redraw the charts when their cards change width (window resize, phone rotation, the tab becoming visible) */
+function dashObserve(){
+  if(dashUi.ro || !window.ResizeObserver) return;
+  dashUi.ro = new ResizeObserver(() => {
+    if(!state) return;
+    const sig = DASH_CHARTS.map(id => dashInnerW(document.getElementById(id))).join('|');
+    if(sig !== dashUi.sig && !/(^|\|)0(\||$)/.test(sig)) renderDashboard();
+  });
+  dashUi.ro.observe(document.getElementById('panel-dashboard'));
+}
+
+/* ---- tooltip (hover on a mouse, tap on a touch screen) ---- */
+function dbTipHide(){ const t = document.getElementById('dbTip'); if(t) t.hidden = true; }
+function dbTipShow(txt, x, y){
+  const t = document.getElementById('dbTip'); if(!t) return;
+  t.textContent = txt; t.hidden = false;
+  const w = t.offsetWidth, h = t.offsetHeight;
+  t.style.left = Math.min(Math.max(8, x - w / 2), window.innerWidth - w - 8) + 'px';
+  t.style.top = (y - h - 14 < 8 ? y + 18 : y - h - 14) + 'px';
+}
+document.addEventListener('mousemove', (e) => { const el = e.target.closest && e.target.closest('[data-dtip]'); if(el) dbTipShow(el.dataset.dtip, e.clientX, e.clientY); else dbTipHide(); });
+document.addEventListener('scroll', dbTipHide, true);
+
+/* ---- clicks ---- */
+document.addEventListener('click', (e) => {
+  const tip = e.target.closest && e.target.closest('[data-dtip]');
+  if(tip) dbTipShow(tip.dataset.dtip, e.clientX, e.clientY); else dbTipHide();
+  const b = e.target.closest && e.target.closest('[data-dash]'); if(!b) return;
+  const a = b.dataset.dash, id = Number(b.dataset.id);
+  const go = (tab) => { activateTab(tab); window.scrollTo(0, 0); };
+  if(a === 'go') go(b.dataset.tab);
+  else if(a === 'viewall'){
+    if(b.dataset.od){ todayUi.od.crm = true; todayUi.od.act = true; renderToday(); }
+    go(b.dataset.tab);
+  }
+  else if(a === 'period'){ dashUi.period = b.dataset.v; dashSavePref(DASH_PERIOD_KEY, dashUi.period); renderDashboard(); }
+  else if(a === 'pipemode'){ dashUi.pipeMode = b.dataset.v === 'tier' ? 'tier' : 'stage'; dashSavePref(DASH_PIPE_KEY, dashUi.pipeMode); renderDashboard(); }
+  else if(a === 'soonmore'){ dashUi.soonAll = !dashUi.soonAll; renderDashboard(); }
+  else if(a === 'open-lead') openDetail('lead', id);
+  else if(a === 'open-sales') openDetail('sales', id);
+  else if(a === 'open-proj') openDetail('project', id);
+  else if(a === 'open-task') openTaskPanel(b.dataset.id);
+  else if(a === 'open-act') openActionPanel(state.actions[Number(b.dataset.idx)]);
+});
+
+/* ---- Settings → Dashboard ---- */
+function renderDashSettings(){
+  const el = document.getElementById('dashSettingsCard'); if(!el) return;
+  el.innerHTML = `<p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;max-width:760px;">The Dashboard's <strong>Needs attention</strong> card flags a lead when this many days have passed since its last contact (or since it was created, if it has never been contacted).</p>
+    <div class="db-dash-set"><label for="dashStaleDays">Days without contact before a lead is flagged</label>
+      <input id="dashStaleDays" type="number" min="1" step="1" inputmode="numeric" data-tab="dashsettings" data-field="leadStaleDays" value="${dashStaleDays()}"></div>`;
 }
 
 /* ---------- business plan sections ---------- */
@@ -3915,6 +4277,7 @@ function renderSettings(){
      <div><label>Client payment terms (days)</label><input type="number" step="1" data-tab="settings" data-field="paymentTermsDays" value="${s.paymentTermsDays}"></div>
      <div><label>Forecast horizon (months, if no dated work)</label><input type="number" step="1" data-tab="settings" data-field="forecastMonths" value="${s.forecastMonths}"></div>`;
   renderTiers();
+  renderDashSettings();
 }
 function renderTransactions(){
   const txns = state.transactions;
@@ -5512,6 +5875,7 @@ const SET_SECTIONS = [
   { id: 'crm',       label: 'CRM & tasks' },
   { id: 'suppliers', label: 'Suppliers' },
   { id: 'finance',   label: 'Finance' },
+  { id: 'dashboard', label: 'Dashboard' },
   { id: 'data',      label: 'Data' },
   { id: 'admin',     label: 'Admin', admin: true }   // same admin-only gating as the cards inside it
 ];
@@ -5589,7 +5953,7 @@ function newRowFor(tab){
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
     case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'', linkedIds:[], description:'', notesMigrated:true, descNoteIds:[] };
-    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', contacts:[], source:'', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', stageId:firstStageId('lead'), lost:false, projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
+    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', contacts:[], source:'', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', stageId:firstStageId('lead'), lost:false, createdAt:fmt(new Date()), projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
   }
@@ -5604,6 +5968,7 @@ function applyFieldChange(el){
   if(field === 'priority') value = Number(value);
   if(tab==='assumptions') state.assumptions[field] = value;
   else if(tab==='businessPlan') state.businessPlan[field] = value;
+  else if(tab==='dashsettings'){ const n = Math.floor(Number(value)); if(field === 'leadStaleDays' && n >= 1) state.settings.leadStaleDays = n; }   // below 1 is ignored and the box goes back to the saved value
   else if(tab==='settings') state.settings[field] = value;
   else if(tab==='stagename' || tab==='stagepct'){
     const item = listFor(el.dataset.pl).find(x => x.id === el.dataset.id);
