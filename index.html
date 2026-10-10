@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Playfair+Display:wght@600;700&family=Libre+Baskerville:wght@400;700&family=Montserrat:wght@500;600&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1c1f22;
@@ -124,30 +125,53 @@
     border-left-color: var(--accent);
     font-weight: 500;
   }
-  .save-status {
-    position: fixed;
-    top: 14px;
-    right: 18px;
-    z-index: 30;
-    font-size: 10.5px;
+  .save-status {   /* sits in the brand row, to the left of the brand pill */
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: right;
     color: var(--muted);
-    background: rgba(255,255,255,0.82);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 4px 12px;
-    min-height: 0;
     pointer-events: none;
     opacity: 0.9;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
   }
   .save-status:empty { display: none; }
 
   /* ---------------- Main ---------------- */
   .main {
+    --px: 44px;
     margin-left: 244px;
-    padding: 32px 44px 120px 44px;
+    padding: 0 var(--px) 120px var(--px);
     max-width: 1520px;
   }
+
+  /* ---------------- Brand row + pill (top of every page) ---------------- */
+  .brandbar {
+    position: sticky; top: 0; z-index: 12;
+    height: 44px; margin: 0 calc(-1 * var(--px)) 8px; padding: 0 var(--px);
+    background: var(--paper);
+    display: flex; align-items: center; justify-content: flex-end;
+  }
+  .brandbar-in {
+    display: flex; align-items: center; gap: 14px; min-width: 0; max-width: 100%;
+    transition: transform 0.22s ease;
+  }
+  /* a right-hand panel is open: slide left so the pill ends 16px clear of the panel (--bt-panel-w = the panel's real width, --bt-inset = the pill's normal gap from the window edge) */
+  body.bt-panel-open .brandbar-in { transform: translateX(calc(-1 * max(0px, var(--bt-panel-w, 0px) + 16px - var(--bt-inset, 0px)))); }
+  body.bt-panel-open.bt-pill-hide .brandbar-in { visibility: hidden; }
+  .brand-pill {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 9px; height: 34px; max-width: 100%;
+    padding: 0 16px 0 5px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+    color: var(--ink); white-space: nowrap; cursor: default; user-select: none;
+  }
+  .brand-pill.no-mark { padding-left: 16px; }
+  .brand-pill.full-only { padding: 0 14px; }
+  .brand-pill img { display: block; height: 24px; width: auto; max-width: 160px; object-fit: contain; }
+  .brand-pill .bp-name { font-size: 16px; line-height: 1; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+  @media (max-width: 700px) { body.bt-panel-open .brandbar-in { visibility: hidden; } }
   .panel { display: none; animation: fade 0.18s ease; }
   .panel.active { display: block; }
   @keyframes fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none; } }
@@ -621,7 +645,13 @@
 
   /* auth */
   body.logged-out .sidebar, body.logged-out .main, body.logged-out .save-status, body.logged-out .mobile-bar, body.logged-out .sidebar-backdrop { display: none !important; }
-  .login-overlay { position: fixed; inset: 0; background: var(--ink); display: grid; place-items: center; z-index: 200; }
+  .login-overlay { position: fixed; inset: 0; background: var(--ink); display: flex; overflow-y: auto; z-index: 200; }
+  .login-stack { margin: auto; padding: 24px 0; display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
+  .login-brand { display: flex; align-items: center; justify-content: center; gap: 12px; max-width: calc(100% - 32px); color: #f4f2ed; text-align: center; }
+  .login-brand img { display: block; max-width: 100%; object-fit: contain; }
+  .login-brand img.lb-full { max-height: 72px; max-width: 300px; }
+  .login-brand img.lb-badge { height: 44px; width: auto; max-width: 120px; }
+  .login-brand .lb-name { font-size: 30px; line-height: 1.1; overflow-wrap: anywhere; }
   .login-overlay.hidden { display: none; }
   .login-box { background: #fff; border-radius: 16px; padding: 32px 34px; width: 340px; max-width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
   .login-box h1 { font-family: var(--serif); font-weight: 600; font-size: 26px; margin: 0 0 2px; letter-spacing: -0.3px; }
@@ -639,6 +669,61 @@
   .logout-bar .role { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: #9a958b; border: 1px solid #3a3d41; padding: 1px 6px; border-radius: 20px; margin-left: 6px; }
   .logout-bar .logout-link { background: none; border: none; color: #9a958b; font-size: 11.5px; cursor: pointer; text-decoration: underline; font-family: inherit; padding: 0; }
   .logout-bar .logout-link:hover { color: #fff; }
+
+
+  /* ---------------- Settings: secondary menu + section content ---------------- */
+  .set-wrap { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 28px; align-items: start; }
+  .set-menu { position: sticky; top: 60px; display: flex; flex-direction: column; gap: 2px; max-height: calc(100vh - 80px); overflow-y: auto; }
+  .set-menu button { border: none; background: none; font-family: inherit; font-size: 13px; color: var(--slate); text-align: left; padding: 9px 12px; border-radius: var(--radius-sm); border-left: 2.5px solid transparent; cursor: pointer; }
+  .set-menu button:hover { background: #efece6; color: var(--ink); }
+  .set-menu button.active { background: var(--card); color: var(--ink); font-weight: 600; border-left-color: var(--oak); box-shadow: var(--shadow); }
+  .set-menu button:focus-visible { outline: 2px solid var(--oak); outline-offset: 1px; }
+  .set-menu-select { display: none; }
+  .set-content { min-width: 0; container-type: inline-size; container-name: setc; }
+  .set-sec { display: none; }
+  .set-sec.active { display: block; animation: fade 0.18s ease; }
+  .set-sec > .section-label:first-child { margin-top: 0; }
+  .set-content .tier-row { grid-template-columns: 56px minmax(100px, 1.4fr) 70px minmax(120px, 150px) 100px 100px 34px; gap: 8px; }
+  @container setc (max-width: 720px) { .set-content .tier-row { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 700px) {
+    .set-wrap { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .set-menu { display: none; }
+    .set-menu-select { display: block; width: 100%; border: 1px solid var(--stone-deep); background: var(--card); padding: 10px 12px; font-size: 14px; font-weight: 600; border-radius: var(--radius-sm); }
+  }
+
+  /* ---------------- Branding card ---------------- */
+  .br-note { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 0 0 14px; }
+  .br-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; margin-bottom: 14px; }
+  .br-f > label, .br-h { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 5px; }
+  .br-h { font-weight: 600; color: var(--slate); margin: 22px 0 8px; }
+  .br-h small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .br-card input[type=text], .br-card select { border: 1px solid var(--line); background: #fff; padding: 8px 10px; font-size: 13px; border-radius: 8px; }
+  .br-card input[type=text]:hover, .br-card select:hover { border-color: var(--stone-deep); }
+  .br-card input[type=text]:disabled, .br-card select:disabled { background: #faf8f4; color: var(--ink); opacity: 1; }
+  .br-sample { margin-top: 8px; font-size: 24px; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+  .br-logos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+  .br-slot-label { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 5px; }
+  .br-swatch { display: flex; align-items: center; justify-content: center; height: 84px; border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 10px; overflow: hidden; }
+  .br-swatch.dark { background: var(--ink); border-color: var(--ink); }
+  .br-swatch img { display: block; max-width: 100%; max-height: 62px; object-fit: contain; }
+  .br-swatch .br-empty { font-size: 12px; color: #aaa59a; }
+  .br-swatch.dark .br-empty { color: #8b867c; }
+  .br-slot-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .br-slot-actions .btn { padding: 6px 12px; font-size: 12px; }
+  .br-upload { margin: 0; cursor: pointer; text-transform: none; letter-spacing: 0; color: var(--ink); display: inline-block; }
+  .br-err { font-size: 12px; color: #b3453f; min-height: 16px; margin-top: 4px; }
+  .br-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 18px; }
+  .br-col-row { display: flex; align-items: center; gap: 8px; }
+  .br-col-row input[type=color] { width: 40px; height: 36px; padding: 2px; border: 1px solid var(--line); background: #fff; border-radius: 8px; cursor: pointer; flex: 0 0 auto; }
+  .br-col-row input[type=color]:disabled { cursor: default; opacity: 0.8; }
+  .br-col-row input[type=text] { flex: 1 1 auto; min-width: 0; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  .br-col-row input[type=text].invalid { border-color: #e3c4c1; background: #fdf3ee; }
+  .br-swatch-dot { width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(28,31,34,0.15); flex: 0 0 auto; }
+  .br-preview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+  .br-pv { border: 1px solid var(--line); border-radius: 10px; min-height: 92px; display: flex; align-items: center; justify-content: center; padding: 14px; overflow: hidden; }
+  .br-pv.paper { background: var(--paper); justify-content: flex-end; }
+  .br-pv.dark { background: var(--ink); }
+  @media (max-width: 700px) { .br-grid, .br-logos, .br-preview { grid-template-columns: minmax(0, 1fr); } .br-cols { grid-template-columns: minmax(0, 1fr); } }
 
   /* view toggle */
   .view-toggle { display: inline-flex; background: #efece6; border-radius: 9px; padding: 3px; margin-bottom: 14px; gap: 2px; }
@@ -754,7 +839,7 @@
   .placeholder ul { text-align: left; max-width: 460px; margin: 14px auto 0 auto; font-size: 12.5px; line-height: 1.9; color: #6f6a60; }
 
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 900px){ .two-col { grid-template-columns: 1fr; } .main { padding: 24px 18px 110px 18px; } }
+  @media (max-width: 900px){ .two-col { grid-template-columns: 1fr; } .main { --px: 18px; padding: 0 var(--px) 110px var(--px); } }
 
   .field-block { margin-bottom: 16px; }
   .field-block label { display:block; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-bottom: 5px; }
@@ -799,8 +884,8 @@
       z-index: 21;
     }
     .sidebar.open { transform: translateX(0); }
-    .main { margin-left: 0; margin-top: 52px; padding: 20px 16px 100px 16px; }
-    .save-status { top: 62px; right: 12px; }
+    .main { --px: 16px; margin-left: 0; margin-top: 52px; padding: 0 var(--px) 100px var(--px); }
+    .brandbar { top: 52px; }
     .page-head h2 { font-size: 23px; }
     .kpi-row { grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; }
     .assumptions-grid, .assumptions-grid.two, .milestone-grid, .qual-grid { grid-template-columns: 1fr !important; }
@@ -1041,9 +1126,9 @@
 
 </div>
 
-<div class="save-status" id="saveStatus"></div>
-
 <div class="login-overlay hidden" id="loginOverlay">
+  <div class="login-stack">
+  <div class="login-brand" id="loginBrand"></div>
   <div class="login-box">
     <h1>Business Tracker</h1>
     <div class="sub">Sign in</div>
@@ -1052,9 +1137,17 @@
     <button class="login-btn" data-action="do-login">Log in</button>
     <div class="login-err" id="loginErr"></div>
   </div>
+  </div>
 </div>
 
 <div class="main">
+
+  <div class="brandbar" id="brandBar">
+    <div class="brandbar-in" id="brandBarIn">
+      <div class="save-status" id="saveStatus"></div>
+      <div class="brand-pill" id="brandPill"></div>
+    </div>
+  </div>
 
   <!-- TODAY -->
   <div class="panel active" id="panel-today">
@@ -1240,27 +1333,59 @@
       <div class="desc">Central configuration — the knobs that drive the rest of the system. Change them here and everything downstream re-calculates.</div>
     </div>
 
+    <div class="set-wrap">
+      <nav class="set-menu" id="setMenu" aria-label="Settings sections"></nav>
+      <div class="set-content" id="setContent">
+        <select class="set-menu-select" id="setMenuSelect" aria-label="Settings section"></select>
+
+        <section class="set-sec" data-sec="general">
+    <div class="section-label">Branding</div>
+    <div class="card br-card" id="brandingCard"></div>
+        </section>
+
+        <section class="set-sec" data-sec="pipelines">
     <div class="section-label">Pipeline stages</div>
     <p style="font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.55;max-width:760px;">The stages each pipeline moves through. Rename, reorder, add or delete them — records keep their place because they follow a stage's hidden id, not its name. Each Sales stage carries a <strong>weighted percentage</strong> that weights the forecast, cash flow and dashboard; you can still override a single deal in its Sales Pipeline detail. Deleting a stage that holds records asks where to move them.</p>
     <div class="stage-cards" id="stageCards"></div>
 
+    <div class="section-label">Tiers</div>
+    <div class="card" id="tiersCard"></div>
+
     <div class="section-label">Lost reasons</div>
     <div class="card" id="lostReasonsCard"></div>
+        </section>
 
+        <section class="set-sec" data-sec="crm">
     <div class="section-label">CRM task options</div>
     <div class="card" id="taskOptionsCard"></div>
+        </section>
 
+        <section class="set-sec" data-sec="suppliers">
     <div class="section-label">Supply categories</div>
     <div class="card" id="supplyCatsCard"></div>
+        </section>
 
+        <section class="set-sec" data-sec="finance">
     <div class="section-label">Cash &amp; payment terms</div>
     <div class="card">
       <div class="assumptions-grid" id="financeSettingsGrid"></div>
     </div>
+        </section>
 
-    <div class="section-label">Tiers</div>
-    <div class="card" id="tiersCard"></div>
+        <section class="set-sec" data-sec="data">
+    <div class="section-label">Data &amp; backup</div>
+    <div class="card">
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;">Your changes save automatically to <strong>this browser on this device</strong>. They stay put when you close and reopen — but they don't yet sync across devices (that's the next upgrade). Export a backup regularly so nothing can be lost; Import restores a backup or moves your data to another device.</p>
+      <div class="btn-row" style="margin-bottom:0;">
+        <button class="btn" data-action="export-data">↓ Export backup (.json)</button>
+        <button class="btn secondary" data-action="import-data">↑ Import backup</button>
+        <button class="btn secondary" data-action="reset-data" style="margin-left:auto;color:#b3453f;border-color:#e3c4c1;">Reset to sample data</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    </div>
+        </section>
 
+        <section class="set-sec" data-sec="admin">
     <div data-admin-only>
     <div class="section-label">Cloud database — multi-device sync</div>
     <div class="card">
@@ -1304,16 +1429,8 @@ create policy "app update" on tracker_data for update using (true) with check (t
       <div id="usersWrap"></div>
     </div>
     </div><!-- /admin-only -->
-
-    <div class="section-label">Data &amp; backup</div>
-    <div class="card">
-      <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55;">Your changes save automatically to <strong>this browser on this device</strong>. They stay put when you close and reopen — but they don't yet sync across devices (that's the next upgrade). Export a backup regularly so nothing can be lost; Import restores a backup or moves your data to another device.</p>
-      <div class="btn-row" style="margin-bottom:0;">
-        <button class="btn" data-action="export-data">↓ Export backup (.json)</button>
-        <button class="btn secondary" data-action="import-data">↑ Import backup</button>
-        <button class="btn secondary" data-action="reset-data" style="margin-left:auto;color:#b3453f;border-color:#e3c4c1;">Reset to sample data</button>
+        </section>
       </div>
-      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
     </div>
   </div>
 
@@ -1691,7 +1808,8 @@ function defaultState(){
     ],
     archivedActions: [],
     crmTasks: [], nextTaskNo: 1, crmPrefs: { hiddenCols: [] },
-    suppliers: [], nextSupplierId: 1
+    suppliers: [], nextSupplierId: 1,
+    branding: defaultBranding()
   })));
 }
 
@@ -1728,6 +1846,7 @@ function mergeDefaults(loaded){
   ensureTaskModel(out);   // old backups with no tasks / options / timelines get the seeded defaults
   normaliseLeadContacts(out.leads);   // old backups: blank phone / email, no additional contacts
   ensureSupplierModel(out);   // old backups: no suppliers, seeded supply categories
+  out.branding = normaliseBranding(loaded.branding);   // old backups: default name and font, no logos
   return out;
 }
 /* ---------- storage layer: cloud (Supabase REST) with localStorage fallback ---------- */
@@ -4914,6 +5033,281 @@ document.addEventListener('click', (e) => {
   else if(a === 'act-cols'){ actUi.colsOpen = !actUi.colsOpen; renderActions(); }
 });
 
+/* ---------- branding (Settings → General): name, font, logos, colours; shown in the brand pill and on the login screen ---------- */
+const BRAND_DEFAULT_NAME = 'Brookwood Rural';
+const BRAND_FONTS = [   // each stack ends in Georgia / system fonts so nothing breaks offline
+  { name: 'Cormorant Garamond', desc: 'refined serif',       weight: 600, stack: "'Cormorant Garamond', Georgia, 'Times New Roman', serif" },
+  { name: 'Playfair Display',   desc: 'high-contrast serif', weight: 600, stack: "'Playfair Display', Georgia, 'Times New Roman', serif" },
+  { name: 'Libre Baskerville',  desc: 'classic serif',       weight: 400, stack: "'Libre Baskerville', Baskerville, Georgia, 'Times New Roman', serif" },
+  { name: 'Montserrat',         desc: 'clean sans',          weight: 600, stack: "'Montserrat', 'Segoe UI', system-ui, Arial, sans-serif" },
+  { name: 'Oswald',             desc: 'condensed sans',      weight: 500, stack: "'Oswald', 'Arial Narrow', 'Roboto Condensed', Arial, sans-serif" }
+];
+const BRAND_SLOTS = [
+  { key: 'fullStd',  group: 'full',  label: 'Standard', dark: false },
+  { key: 'fullRev',  group: 'full',  label: 'Reversed', dark: true },
+  { key: 'badgeStd', group: 'badge', label: 'Standard', dark: false },
+  { key: 'badgeRev', group: 'badge', label: 'Reversed', dark: true }
+];
+const BRAND_LIMITS = { full: { w: 600, h: 200 }, badge: { w: 160, h: 160 } };   // raster logos are shrunk to fit (never enlarged)
+const BRAND_COLOURS = [['primary', 'Primary'], ['secondary', 'Secondary'], ['accent', 'Accent']];
+const BRAND_CACHE_KEY = STORAGE_PREFIX + 'business-tracker-branding';   // the login screen has no data yet, so it reads this copy
+const BRAND_IMG_RE = /^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+\/]+=*$/;
+function defaultBranding(){
+  return { name: BRAND_DEFAULT_NAME, tagline: '', font: BRAND_FONTS[0].name,
+    logos: { fullStd: '', fullRev: '', badgeStd: '', badgeRev: '' },
+    colours: { primary: '#1c1f22', secondary: '#a8763e', accent: '#3f6b4f' } };
+}
+function normHex(v){
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(v == null ? '' : v).trim()); if(!m) return '';
+  let h = m[1].toLowerCase(); if(h.length === 3) h = h.split('').map(c => c + c).join('');
+  return '#' + h;
+}
+/* idempotent; used by defaultState() and mergeDefaults() so old backups (no branding) and hand-edited ones load cleanly */
+function normaliseBranding(b){
+  const d = defaultBranding(); b = (b && typeof b === 'object') ? b : {};
+  const lg = (b.logos && typeof b.logos === 'object') ? b.logos : {}, cl = (b.colours && typeof b.colours === 'object') ? b.colours : {};
+  const out = {
+    name: typeof b.name === 'string' ? b.name.slice(0, 60) : d.name,
+    tagline: typeof b.tagline === 'string' ? b.tagline.slice(0, 100) : '',
+    font: BRAND_FONTS.some(f => f.name === b.font) ? b.font : d.font,
+    logos: {}, colours: {}
+  };
+  BRAND_SLOTS.forEach(s => { const u = lg[s.key]; out.logos[s.key] = (typeof u === 'string' && u.length < 3000000 && BRAND_IMG_RE.test(u)) ? u : ''; });
+  BRAND_COLOURS.forEach(([k]) => { out.colours[k] = normHex(cl[k]) || d.colours[k]; });
+  return out;
+}
+function brandFont(name){ return BRAND_FONTS.find(f => f.name === name) || BRAND_FONTS[0]; }
+function brandName(b){ return (b && String(b.name || '').trim()) || BRAND_DEFAULT_NAME; }
+function brandNameStyle(b){ const f = brandFont(b && b.font); return `font-family:${f.stack};font-weight:${f.weight}`; }
+/* the pill: Badge (Standard) + name, else the Full logo (Standard) alone, else the name */
+function brandPillParts(b){
+  const lg = b.logos || {}, name = brandName(b);
+  const nm = `<span class="bp-name" style="${brandNameStyle(b)}">${escHtml(name)}</span>`;
+  if(lg.badgeStd) return { cls: 'brand-pill', html: `<img src="${escHtml(lg.badgeStd)}" alt="">${nm}` };
+  if(lg.fullStd) return { cls: 'brand-pill full-only', html: `<img src="${escHtml(lg.fullStd)}" alt="${escHtml(name)}">` };
+  return { cls: 'brand-pill no-mark', html: nm };
+}
+/* the login screen: Reversed Full logo, else Reversed Badge + name, else the name (light) — b needs only name, font, logos.fullRev / badgeRev */
+function brandLoginHtml(b){
+  const lg = b.logos || {}, name = brandName(b);
+  if(lg.fullRev) return `<img class="lb-full" src="${escHtml(lg.fullRev)}" alt="${escHtml(name)}">`;
+  return (lg.badgeRev ? `<img class="lb-badge" src="${escHtml(lg.badgeRev)}" alt="">` : '') + `<span class="lb-name" style="${brandNameStyle(b)}">${escHtml(name)}</span>`;
+}
+function renderLoginBrand(b){
+  const el = document.getElementById('loginBrand'); if(!el) return;
+  if(!b){
+    let c = null; try{ c = JSON.parse(localStorage.getItem(BRAND_CACHE_KEY) || 'null'); }catch(e){}
+    b = normaliseBranding(c && typeof c === 'object' ? { name: c.name, font: c.font, logos: { fullRev: c.fullRev, badgeRev: c.badgeRev } } : null);   // no cache yet: default name, default font
+  }
+  el.innerHTML = brandLoginHtml(b);
+}
+let _brandSig = '', _brandPillSig = '';
+function applyBranding(){
+  const b = state && state.branding; if(!b) return;
+  const parts = brandPillParts(b), pillSig = parts.cls + parts.html;
+  const pill = document.getElementById('brandPill');
+  if(pill && pillSig !== _brandPillSig){ _brandPillSig = pillSig; pill.className = parts.cls; pill.innerHTML = parts.html; }
+  const cache = JSON.stringify({ name: b.name, font: b.font, fullRev: b.logos.fullRev, badgeRev: b.logos.badgeRev });
+  if(cache !== _brandSig){   // refreshed after every data load / change so the login screen can use it next time
+    _brandSig = cache;
+    try{ localStorage.setItem(BRAND_CACHE_KEY, cache); }catch(e){}
+    renderLoginBrand();
+  }
+  const sample = document.getElementById('brSample');
+  if(sample){ sample.style.cssText = brandNameStyle(b); sample.textContent = brandName(b); }
+  const pv = document.getElementById('brPvPill');
+  if(pv) pv.innerHTML = `<div class="${parts.cls}">${parts.html}</div>`;
+  const pl = document.getElementById('brPvLogin');
+  if(pl) pl.innerHTML = brandLoginHtml(b);
+}
+/* the pill slides clear of any open right-hand panel (record drawer, lead / supplier panel, task / action panel) */
+function brandPanelSync(){
+  const body = document.body;
+  const open = ['drPanel', 'lpPanel', 'tkPanel'].map(id => document.getElementById(id)).filter(p => p && !p.hidden && p.offsetWidth > 0);
+  if(!open.length){ body.classList.remove('bt-panel-open', 'bt-pill-hide'); return; }
+  const w = Math.max(...open.map(p => p.offsetWidth));
+  const bar = document.getElementById('brandBar'), pill = document.getElementById('brandPill'), main = document.querySelector('.main');
+  const vw = document.documentElement.clientWidth;
+  const inset = vw - bar.getBoundingClientRect().right + (parseFloat(getComputedStyle(main).paddingRight) || 0);   // the pill's normal gap from the window edge
+  body.style.setProperty('--bt-panel-w', w + 'px');
+  body.style.setProperty('--bt-inset', inset + 'px');
+  body.classList.toggle('bt-pill-hide', vw - w - 16 - pill.offsetWidth < main.getBoundingClientRect().left + 8);   // no room left of the panel: hide rather than sit under the sidebar
+  body.classList.add('bt-panel-open');
+}
+function renderBranding(){
+  const el = document.getElementById('brandingCard'); if(!el || !state || !state.branding) return;
+  const ae = document.activeElement;
+  if(ae && el.contains(ae) && ae.matches('input[type=text]')){ applyBranding(); return; }   // don't rebuild under someone who is typing
+  const b = state.branding, ed = isAdmin(), dis = ed ? '' : ' disabled';
+  const slot = s => { const url = b.logos[s.key]; return `<div>
+      <div class="br-slot-label">${s.label}</div>
+      <div class="br-swatch${s.dark ? ' dark' : ''}">${url ? `<img src="${escHtml(url)}" alt="${s.label} ${s.group === 'full' ? 'full logo' : 'badge'}">` : '<span class="br-empty">Not set</span>'}</div>
+      ${ed ? `<div class="br-slot-actions"><label class="btn secondary br-upload">Upload<input type="file" hidden accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml" data-brlogo="${s.key}"></label>
+        <button class="btn secondary" data-br-remove="${s.key}"${url ? '' : ' disabled'}>Remove</button></div>` : ''}
+      <div class="br-err" id="brErr-${s.key}" role="status"></div></div>`; };
+  const colour = ([k, label]) => { const hx = b.colours[k]; return `<div class="br-f"><label>${label}</label>
+      <div class="br-col-row"><input type="color" value="${hx}" data-br-col="${k}" aria-label="${label} colour picker"${dis}>
+        <input type="text" value="${hx}" maxlength="7" spellcheck="false" autocomplete="off" data-br-hex="${k}" aria-label="${label} hex colour"${dis}>
+        <span class="br-swatch-dot" id="brDot-${k}" style="background:${hx}"></span></div>
+      <div class="br-err" id="brColErr-${k}"></div></div>`; };
+  el.innerHTML = `
+    ${ed ? '' : '<p class="br-note">Only admins can change the branding.</p>'}
+    <div class="br-grid">
+      <div class="br-f"><label for="brName">Business name</label><input type="text" id="brName" data-br="name" maxlength="60" value="${escHtml(b.name)}" placeholder="${escHtml(BRAND_DEFAULT_NAME)}"${dis}></div>
+      <div class="br-f"><label for="brTag">Tagline (optional)</label><input type="text" id="brTag" data-br="tagline" maxlength="100" value="${escHtml(b.tagline)}"${dis}>
+        <div class="lp-hint">Stored for quotes and documents. Not shown in the app yet.</div></div>
+    </div>
+    <div class="br-f"><label for="brFont">Name font</label>
+      <select id="brFont" data-br="font"${dis}>${BRAND_FONTS.map(f => `<option value="${escHtml(f.name)}" style="font-family:${f.stack}"${f.name === b.font ? ' selected' : ''}>${escHtml(f.name)} — ${f.desc}</option>`).join('')}</select>
+      <div class="br-sample" id="brSample"></div></div>
+
+    <div class="br-h">Full logo <small>name or wordmark · PNG, JPEG, WebP or SVG · shown up to 600×200</small></div>
+    <div class="br-logos">${slot(BRAND_SLOTS[0])}${slot(BRAND_SLOTS[1])}</div>
+    <div class="br-h">Badge or mark <small>icon only · PNG, JPEG, WebP or SVG · shown up to 160×160</small></div>
+    <div class="br-logos">${slot(BRAND_SLOTS[2])}${slot(BRAND_SLOTS[3])}</div>
+
+    <div class="br-h">Brand colours</div>
+    <div class="br-cols">${BRAND_COLOURS.map(colour).join('')}</div>
+    <p class="br-note" style="margin:10px 0 0;">Used on quotes and documents. App theming comes later.</p>
+
+    <div class="br-h">Preview</div>
+    <div class="br-preview">
+      <div><div class="br-slot-label">Badge at the top of every page</div><div class="br-pv paper" id="brPvPill"></div></div>
+      <div><div class="br-slot-label">Login screen</div><div class="br-pv dark"><div class="login-brand" id="brPvLogin"></div></div></div>
+    </div>`;
+  applyBranding();
+}
+/* upload: raster images (≤ 2 MB) are shrunk on a canvas, keeping transparency; SVGs (≤ 300 KB) are cleaned of scripts / on* attributes */
+function resizeRaster(file, maxW, maxH){
+  return new Promise((resolve, reject) => {
+    const bad = () => reject(new Error('Sorry, that image could not be read.'));
+    const fr = new FileReader();
+    fr.onerror = bad;
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = bad;
+      img.onload = () => {
+        const w0 = img.naturalWidth, h0 = img.naturalHeight; if(!w0 || !h0){ bad(); return; }
+        const sc = Math.min(1, maxW / w0, maxH / h0);
+        const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w0 * sc)); c.height = Math.max(1, Math.round(h0 * sc));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve(file.type === 'image/jpeg' ? c.toDataURL('image/jpeg', 0.92) : c.toDataURL('image/png'));   // PNG keeps transparency
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function svgToSafeDataUrl(text){
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml'), root = doc.documentElement;
+  if(!root || doc.getElementsByTagName('parsererror').length || String(root.localName).toLowerCase() !== 'svg') throw new Error('That file is not a valid SVG.');
+  const all = [root, ...root.getElementsByTagName('*')];
+  all.forEach(n => { if(n !== root && String(n.localName).toLowerCase() === 'script') n.remove(); });
+  all.forEach(n => Array.from(n.attributes).forEach(a => {
+    const nm = a.name.toLowerCase();
+    if(nm.startsWith('on') || ((nm === 'href' || nm.endsWith(':href')) && /^\s*javascript:/i.test(a.value))) n.removeAttribute(a.name);
+  }));
+  const clean = new XMLSerializer().serializeToString(root);
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(clean)));   // only ever shown through an <img>
+}
+async function handleBrandLogo(key, file){
+  if(!isAdmin()) return;
+  const slot = BRAND_SLOTS.find(s => s.key === key); if(!slot) return;
+  const err = t => { const m = document.getElementById('brErr-' + key); if(m) m.textContent = t; };
+  err('');
+  const isSvg = file.type === 'image/svg+xml' || /\.svg$/i.test(file.name);
+  try{
+    let url;
+    if(isSvg){
+      if(file.size > 300 * 1024){ err('That SVG is over 300 KB — please use a smaller file.'); return; }
+      url = svgToSafeDataUrl(await file.text());
+    } else {
+      if(!/^image\/(png|jpeg|webp)$/.test(file.type)){ err('Please choose a PNG, JPEG, WebP or SVG image.'); return; }
+      if(file.size > 2 * 1024 * 1024){ err('That image is over 2 MB — please pick a smaller one.'); return; }
+      url = await resizeRaster(file, BRAND_LIMITS[slot.group].w, BRAND_LIMITS[slot.group].h);
+    }
+    state.branding.logos[key] = url;
+    renderBranding(); saveState();
+  }catch(e){ err((e && e.message) || 'Sorry, that image could not be read.'); }
+}
+document.addEventListener('input', (e) => {
+  const el = e.target, d = el.dataset; if(!d || !isAdmin() || !state) return;
+  const b = state.branding;
+  if(d.br === 'name' || d.br === 'tagline'){ b[d.br] = el.value.slice(0, d.br === 'name' ? 60 : 100); applyBranding(); saveState(); }
+  else if(d.brCol !== undefined || d.brHex !== undefined){
+    const k = d.brCol !== undefined ? d.brCol : d.brHex, hx = normHex(el.value);
+    const hexEl = document.querySelector(`[data-br-hex="${k}"]`), colEl = document.querySelector(`[data-br-col="${k}"]`), er = document.getElementById('brColErr-' + k);
+    if(hx){
+      b.colours[k] = hx; saveState();
+      if(colEl) colEl.value = hx;
+      if(hexEl){ hexEl.classList.remove('invalid'); if(d.brCol !== undefined) hexEl.value = hx; }
+      const dot = document.getElementById('brDot-' + k); if(dot) dot.style.background = hx;
+      if(er) er.textContent = '';
+    } else if(hexEl){ hexEl.classList.add('invalid'); if(er) er.textContent = 'Enter a hex colour, e.g. #3f6b4f'; }
+  }
+});
+document.addEventListener('change', (e) => {
+  const el = e.target, d = el.dataset; if(!d) return;
+  if(d.brlogo !== undefined){ const f = el.files && el.files[0]; el.value = ''; if(f) handleBrandLogo(d.brlogo, f); }
+  else if(d.br === 'font' && isAdmin() && state){ state.branding.font = brandFont(el.value).name; applyBranding(); saveState(); }
+  else if(d.brHex !== undefined && state){   // leaving the box: show the saved colour again if what was typed isn't one
+    const k = d.brHex; el.value = state.branding.colours[k]; el.classList.remove('invalid');
+    const er = document.getElementById('brColErr-' + k); if(er) er.textContent = '';
+  }
+});
+document.addEventListener('click', (e) => {
+  const rm = e.target.closest('[data-br-remove]'); if(!rm || !isAdmin() || !state) return;
+  state.branding.logos[rm.dataset.brRemove] = '';
+  renderBranding(); saveState();
+});
+
+/* ---------- Settings: secondary menu (sections), the last one used is remembered on this device ---------- */
+const SET_SECTIONS = [
+  { id: 'general',   label: 'General' },
+  { id: 'pipelines', label: 'Pipelines' },
+  { id: 'crm',       label: 'CRM & tasks' },
+  { id: 'suppliers', label: 'Suppliers' },
+  { id: 'finance',   label: 'Finance' },
+  { id: 'data',      label: 'Data' },
+  { id: 'admin',     label: 'Admin', admin: true }   // same admin-only gating as the cards inside it
+];
+const SET_SECTION_KEY = STORAGE_PREFIX + 'business-tracker-settings-section';
+let setCurrent = null, setMenuSig = '';
+function settingsVisible(){ return SET_SECTIONS.filter(s => !s.admin || isAdmin()); }
+function settingsShow(id, byUser){
+  const vis = settingsVisible(), sec = vis.find(s => s.id === id) || vis[0];
+  setCurrent = sec.id;
+  document.querySelectorAll('#setContent > .set-sec').forEach(el => el.classList.toggle('active', el.dataset.sec === sec.id));
+  document.querySelectorAll('#setMenu button').forEach(b => { const on = b.dataset.sec === sec.id; b.classList.toggle('active', on); if(on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const sel = document.getElementById('setMenuSelect'); if(sel) sel.value = sec.id;
+  if(byUser){
+    try{ localStorage.setItem(SET_SECTION_KEY, sec.id); }catch(e){}
+    if(window.scrollY > 0) window.scrollTo(0, 0);
+  }
+}
+function settingsMenuSync(){
+  const vis = settingsVisible(), sig = vis.map(s => s.id).join('|');
+  if(sig !== setMenuSig){
+    setMenuSig = sig;
+    document.getElementById('setMenu').innerHTML = vis.map(s => `<button type="button" data-sec="${s.id}">${escHtml(s.label)}</button>`).join('');
+    document.getElementById('setMenuSelect').innerHTML = vis.map(s => `<option value="${s.id}">${escHtml(s.label)}</option>`).join('');
+  }
+  if(setCurrent === null){ try{ setCurrent = localStorage.getItem(SET_SECTION_KEY); }catch(e){} }
+  settingsShow(setCurrent);
+}
+document.getElementById('setMenu').addEventListener('click', (e) => { const b = e.target.closest('button[data-sec]'); if(b) settingsShow(b.dataset.sec, true); });
+document.getElementById('setMenuSelect').addEventListener('change', (e) => settingsShow(e.target.value, true));
+
+/* brand pill follows the right-hand panels; login screen shows the cached brand straight away */
+(function(){
+  const els = ['drPanel', 'lpPanel', 'tkPanel'].map(id => document.getElementById(id)).filter(Boolean);
+  const mo = new MutationObserver(brandPanelSync);
+  els.forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['hidden'] }));
+  if(window.ResizeObserver){ const ro = new ResizeObserver(brandPanelSync); els.forEach(el => ro.observe(el)); }
+  window.addEventListener('resize', brandPanelSync);
+  renderLoginBrand();
+})();
+
 /* ---------- master render ---------- */
 function render(){
   renderDashboard();
@@ -4930,6 +5324,8 @@ function render(){
   renderCashflow();
   renderTransactions();
   renderSettings();
+  renderBranding();
+  settingsMenuSync();
   renderAdmin();
   renderActions();
   renderCrm();
