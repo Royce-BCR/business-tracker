@@ -383,6 +383,7 @@
   .comms-scroll { max-height: 232px; overflow-y: auto; padding-right: 6px; margin-top: 4px; }
   .comm-entry { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); }
   .comm-entry:last-child { border-bottom: none; }
+  .comm-t { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 5px; background: #e6ecf5; color: #2a6fb5; font-size: 12px; font-weight: 700; line-height: 1; cursor: help; }
   .comm-entry .comm-date { width: 120px; flex-shrink: 0; border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 5px 6px; font-size: 11.5px; }
   .comm-entry .comm-note { flex: 1; border: 1px solid transparent; background: transparent; padding: 5px 6px; font-size: 12.5px; border-radius: 6px; }
   .comm-entry .comm-note:hover { border-color: var(--stone-deep); background: #fff; }
@@ -415,7 +416,6 @@
   .qual-chip { flex: 0 0 auto; font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 8px; border-radius: 999px; background: #eceae5; color: #5a564e; border: 1px solid #d3cfc6; white-space: nowrap; }
   .qual-chip.q-some { background: #fde9bd; color: #7a4a07; border-color: #efc66b; }
   .qual-chip.q-full { background: #d5ecd9; color: #1e5c2e; border-color: #9fcfa8; }
-  .leads-table.lp-on tr.lead-row:not(.lead-active) td, .leads-table.lp-on tr.detail-row:not(.lead-active) > td { opacity: 0.45; }
   .leads-table tr.lead-active td { background: var(--lead-tint-hover); box-shadow: inset 0 2px 0 var(--lead-edge), inset 0 -2px 0 var(--lead-edge); }
   .leads-table tr.lead-active td:last-child { box-shadow: inset 0 2px 0 var(--lead-edge), inset 0 -2px 0 var(--lead-edge), inset -2px 0 0 var(--lead-edge); }
 
@@ -474,13 +474,12 @@
   @media (max-width: 560px) { .lc { margin: 8px 6px 10px; } .lc-sum { gap: 8px; padding: 12px 10px 2px; } .lc-block { padding: 10px 30px 10px 10px; } .lc-cols { padding: 12px 10px; } .lc-note-add { flex-wrap: wrap; } .lc-foot .edit-btn { margin-left: 0; } }
 
   /* leads: editor panel (slides in from the right) */
-  .lp-backdrop { position: fixed; inset: 0; background: rgba(28,31,34,0.3); z-index: 62; animation: lpFade 0.15s ease; }
-  .lp-panel { --lc-edge: #14805f; --lc-tint: rgba(29,158,117,0.13); --lc-line: rgba(20,128,95,0.4); position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 100%); background: var(--card); z-index: 63; box-shadow: -8px 0 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: lpIn 0.18s ease; outline: none; }
+  .lp-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.11); z-index: 62; animation: lpFade 0.15s ease; }
+  .lp-panel { --lc-edge: #14805f; --lc-tint: rgba(29,158,117,0.13); --lc-line: rgba(20,128,95,0.4); position: fixed; top: 10px; right: 10px; bottom: 10px; width: min(400px, calc(100% - 20px)); background: var(--card); z-index: 63; display: flex; flex-direction: column; animation: lpIn 0.18s ease; outline: none; }
   .lp-panel.lc-com { --lc-edge: #2a6fb5; --lc-tint: rgba(55,138,221,0.14); --lc-line: rgba(42,111,181,0.4); }
   .lp-backdrop[hidden], .lp-panel[hidden] { display: none; }
   @keyframes lpIn { from { transform: translateX(28px); opacity: 0; } to { transform: none; opacity: 1; } }
   @keyframes lpFade { from { opacity: 0; } to { opacity: 1; } }
-  @media (max-width: 700px) { .lp-panel { width: 100%; } }
   body.lp-open { overflow: hidden; }
   .lp-head { flex: 0 0 auto; background: linear-gradient(var(--lc-tint), var(--lc-tint)), var(--card); border-top: 4px solid var(--lc-edge); border-bottom: 1px solid var(--lc-line); padding: 12px 12px 14px 20px; }
   .lp-top { display: flex; align-items: center; gap: 10px; }
@@ -494,7 +493,7 @@
   .lp-chips { flex: 0 0 auto; display: flex; gap: 6px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); overflow-x: auto; }
   .lp-chips button { border: 1px solid var(--line); background: #faf8f4; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--slate); padding: 6px 13px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
   .lp-chips button:hover { border-color: var(--lc-edge); color: var(--ink); background: #fff; }
-  .lp-body { flex: 1 1 auto; position: relative; overflow-y: auto; padding: 6px 20px 60px; -webkit-overflow-scrolling: touch; }
+  .lp-body { flex: 1 1 auto; position: relative; overflow-y: auto; padding: 6px 20px 28px; -webkit-overflow-scrolling: touch; }
   .lp-sec { padding: 18px 0 20px; border-bottom: 1px solid var(--line); scroll-margin-top: 8px; border-radius: 8px; }
   .lp-sec:last-child { border-bottom: none; }
   .lp-sec h3 { margin: 0 0 14px; font-size: 14px; font-weight: 600; }
@@ -544,7 +543,6 @@
   .suppliers-table td.sup-dim { color: var(--muted); }
   .suppliers-table tr.sup-row { cursor: pointer; }
   .suppliers-table tr.sup-row:focus-visible { outline: 2px solid #8a7048; outline-offset: -2px; }
-  .suppliers-table.lp-on tr.sup-row:not(.sup-active) td { opacity: 0.45; }
   .suppliers-table tr.sup-active td { background: rgba(198,184,157,0.22); box-shadow: inset 0 2px 0 #8a7048, inset 0 -2px 0 #8a7048; }
   .suppliers-table tr.sup-active td:first-child { box-shadow: inset 0 2px 0 #8a7048, inset 0 -2px 0 #8a7048, inset 2px 0 0 #8a7048; }
   .suppliers-table tr.sup-active td:last-child { box-shadow: inset 0 2px 0 #8a7048, inset 0 -2px 0 #8a7048, inset -2px 0 0 #8a7048; }
@@ -950,13 +948,13 @@
   }
 
   /* record detail drawer (reuses the table's expanded detail markup) */
-  .dr-backdrop { position: fixed; inset: 0; background: rgba(28,31,34,0.4); z-index: 60; animation: fade 0.15s ease; }
-  .dr-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(780px, 100%); background: var(--paper); z-index: 61; box-shadow: -8px 0 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: drIn 0.18s ease; }
+  .dr-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.11); z-index: 60; animation: fade 0.15s ease; }
+  .dr-panel { position: fixed; top: 10px; right: 10px; bottom: 10px; width: min(780px, calc(100% - 20px)); background: var(--paper); z-index: 61; display: flex; flex-direction: column; animation: drIn 0.18s ease; }
   .dr-backdrop[hidden], .dr-panel[hidden], .toast[hidden] { display: none; }
   @keyframes drIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-  .dr-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 10px 18px; background: var(--card); border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .dr-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 12px 20px; background: var(--card); border-bottom: 1px solid var(--line); flex-shrink: 0; }
   .dr-title { font-family: var(--serif); font-weight: 600; font-size: 17px; }
-  .dr-body { flex: 1; overflow-y: auto; padding: 14px 16px 60px; -webkit-overflow-scrolling: touch; }
+  .dr-body { flex: 1; overflow-y: auto; padding: 18px 20px 28px; -webkit-overflow-scrolling: touch; }
   .dr-body .detail-box { background: var(--card); border-radius: var(--radius-sm); margin: 0; }
   body.dr-open { overflow: hidden; }
   .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 110; background: var(--ink); color: #fff; font-size: 12.5px; padding: 10px 12px 10px 16px; border-radius: 10px; box-shadow: var(--shadow-lift); display: flex; align-items: center; gap: 14px; max-width: calc(100% - 24px); }
@@ -1002,7 +1000,7 @@
   .crm-link:hover { color: var(--ink); text-decoration: underline; }
   .crm-link.dim { color: var(--muted); }
   .tk-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
-  .tk-pill { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .tk-pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
   .tk-ico { display: inline-flex; color: var(--slate); vertical-align: middle; }
   .tk-ico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   .tk-input { border: 1px solid var(--line) !important; background: #fff !important; padding: 7px 9px; border-radius: 7px; }
@@ -1023,30 +1021,83 @@
   .tkr-due.over { color: #b3453f; font-weight: 600; }
   .tkr-empty { font-size: 12px; color: var(--muted); padding: 6px 0 2px; }
   .tkr-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; padding: 10px 0 4px; }
-  .tkr-form label, .tk-form label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .tkr-form label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
   .tkr-form .tkf-wide { grid-column: 1 / -1; }
   .tkr-form .tkf-actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
   .tkf-err { color: #b3453f; font-size: 12px; }
   /* task side panel */
-  .tk-backdrop { position: fixed; inset: 0; background: rgba(28,31,34,0.32); z-index: 66; animation: fade 0.15s ease; }
-  .tk-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(470px, 100%); background: var(--paper); z-index: 67; box-shadow: -8px 0 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: drIn 0.18s ease; }
+  .tk-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.11); z-index: 66; animation: fade 0.15s ease; }
+  .tk-panel { position: fixed; top: 10px; right: 10px; bottom: 10px; width: min(520px, calc(100% - 20px)); background: var(--card); z-index: 67; display: flex; flex-direction: column; animation: drIn 0.18s ease; }
+  /* shared floating-card look for every right-hand panel (record drawer, lead / supplier editor, task / action) */
+  .lp-panel, .dr-panel, .tk-panel { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(28,31,34,0.06), 0 6px 16px rgba(28,31,34,0.08), 0 22px 48px rgba(28,31,34,0.12); }
+  @media (max-width: 700px) { .lp-panel, .dr-panel, .tk-panel { top: 0; right: 0; bottom: 0; width: 100%; border: none; border-radius: 0; box-shadow: none; } }
+  @media (prefers-reduced-motion: reduce) { .lp-panel, .dr-panel, .tk-panel, .lp-backdrop, .dr-backdrop, .tk-backdrop { animation: none; } .brandbar-in { transition: none; } }
   .tk-backdrop[hidden], .tk-panel[hidden] { display: none; }
-  .tk-form .field { margin-bottom: 14px; }
-  .tk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .tk-grid > div label, .tk-form .field label { display: block; }
-  .tk-linkinfo { font-size: 12px; color: var(--muted); margin-top: 5px; min-height: 16px; }
-  .tk-linkinfo .link-btn { font-size: 12px; }
-  .tk-linkinfo.err { color: #b3453f; }
-  .tk-status { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 12.5px; }
-  .tk-status .cbx { margin: 0; flex-shrink: 0; }
-  .tk-status .sub { color: var(--muted); font-size: 11.5px; }
-  .tk-notes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-  .tk-note { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
-  .tk-note .meta { display: block; font-size: 10.5px; color: var(--muted); margin-bottom: 2px; white-space: normal; }
-  .tk-addnote textarea { border: 1px solid var(--line); background: #fff; min-height: 60px; padding: 8px 10px; }
-  .tk-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
-  .tk-actions .btn.del { background: transparent; color: #b3453f; border: 1px solid #e3c4c1; }
-  .tk-actions .btn.del:hover { background: #fbeeed; }
+  .tk-head { flex: 0 0 auto; display: flex; align-items: flex-start; gap: 12px; padding: 16px 14px 14px 20px; background: #faf8f4; border-bottom: 1px solid var(--line); }
+  .tk-head .cbx { margin: 5px 0 0; flex-shrink: 0; width: 20px; height: 20px; }
+  .tk-head .cbx svg { width: 14px; height: 14px; }
+  .tk-titlein { flex: 1; min-width: 0; min-height: 0; resize: none; overflow: hidden; border: 1px solid transparent; background: transparent; border-radius: 8px; padding: 4px 8px; margin: 0 0 0 -8px; font-family: var(--serif); font-size: 20px; font-weight: 600; line-height: 1.3; color: var(--ink); }
+  .tk-titlein:hover { border-color: var(--line); background: #fff; }
+  .tk-titlein:focus { border-color: var(--oak); background: #fff; outline: none; box-shadow: 0 0 0 3px rgba(168,133,26,0.12); }
+  .tk-head.done .tk-titlein { color: var(--muted); text-decoration: line-through; }
+  .tk-head .icon-btn { flex-shrink: 0; margin-top: 1px; }
+  .tk-form { display: flex; flex-direction: column; gap: 18px; }
+  .tk-props { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 1.3fr); gap: 10px; }
+  .tk-props label, .tk-lbl label, .tk-lbl .lbl { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+  .tk-props select, .tk-props input { width: 100%; font-size: 13px; padding: 7px 8px; border: 1px solid var(--line); background: #fff; border-radius: 8px; }
+  .tk-props select:hover, .tk-props input:hover { border-color: var(--stone-deep); }
+  .tk-linkrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .tk-linkbtn { background: none; border: none; padding: 2px 0; font-family: inherit; font-size: 13px; font-weight: 600; color: #2a6fb5; cursor: pointer; text-decoration: none; }
+  .tk-linkbtn:hover { text-decoration: underline; }
+  .tk-linkbtn .chev { display: inline-block; width: 12px; height: 12px; vertical-align: -1px; margin-left: 3px; transition: transform 0.15s; }
+  .tk-linkbtn[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .tk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tk-chip { display: inline-flex; align-items: center; max-width: 100%; border: 1px solid var(--line); background: #f7f5f0; border-radius: 999px; font-size: 12px; line-height: 1.3; color: var(--slate); }
+  .tk-chip .open { background: none; border: none; font: inherit; color: inherit; cursor: pointer; padding: 3px 4px 3px 10px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tk-chip .open:hover { color: var(--ink); text-decoration: underline; }
+  .tk-chip .open b { font-weight: 700; color: var(--ink); margin-right: 4px; }
+  .tk-chip .x { background: none; border: none; font: inherit; font-size: 14px; line-height: 1; color: var(--muted); cursor: pointer; padding: 3px 8px 3px 2px; }
+  .tk-chip .x:hover { color: #b3453f; }
+  .tk-chip.dim { color: var(--muted); }
+  .tk-picker { border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 10px; margin-top: 8px; box-shadow: var(--shadow); }
+  .tk-picker[hidden] { display: none; }
+  .tk-picker input[type=search] { width: 100%; font-size: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .tk-picklist { max-height: 230px; overflow-y: auto; margin-top: 8px; }
+  .tk-form label.tk-pick { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 7px 6px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 400; line-height: 1.35; text-transform: none; letter-spacing: 0; color: var(--ink); }
+  .tk-pick:hover { background: #f7f5f0; }
+  .tk-pick input { width: auto; margin: 2px 0 0; padding: 0; flex-shrink: 0; }
+  .tk-pick .code { font-weight: 700; flex-shrink: 0; min-width: 48px; }
+  .tk-pick .nm { min-width: 0; overflow-wrap: anywhere; }
+  .tk-pick .ct { display: block; font-size: 12px; color: var(--muted); }
+  .tk-pickempty { padding: 12px 6px; font-size: 13px; color: var(--muted); text-align: center; }
+  .tk-lbl { display: flex; align-items: baseline; justify-content: space-between; }
+  .tk-saved { font-size: 12px; color: var(--green); min-height: 16px; }
+  .tk-desc { width: 100%; min-height: 140px; resize: none; overflow: hidden; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 11px 12px; font-family: inherit; font-size: 14px; line-height: 1.55; color: var(--ink); }
+  .tk-desc:hover { border-color: var(--stone-deep); }
+  .tk-desc:focus { border-color: var(--oak); outline: none; box-shadow: 0 0 0 3px rgba(168,133,26,0.12); }
+  .tk-addnote-link { background: none; border: none; padding: 2px 0; font-family: inherit; font-size: 13px; font-weight: 600; color: #2a6fb5; cursor: pointer; }
+  .tk-addnote-link:hover { text-decoration: underline; }
+  .tk-noteform { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #faf8f4; }
+  .tk-noteform[hidden] { display: none; }
+  .tk-noteform .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .tk-noteform input[type=date] { font-size: 13px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .tk-noteform textarea { width: 100%; min-height: 64px; font-size: 13px; line-height: 1.5; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; resize: vertical; }
+  .tk-noteform .hint { font-size: 12px; color: var(--muted); }
+  .tk-notelist { display: flex; flex-direction: column; margin-top: 8px; }
+  .tk-note { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .tk-note:last-child { border-bottom: none; }
+  .tk-note .meta { display: block; font-size: 12px; color: var(--muted); margin-bottom: 1px; white-space: normal; }
+  .tk-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  .tk-foot .del { background: none; border: none; padding: 0; font: inherit; color: #b3453f; cursor: pointer; text-decoration: underline; }
+  .tk-foot .del:hover { color: #8a2f2a; }
+  .tk-dyn { display: flex; flex-direction: column; gap: 18px; }
+  .tk-more-n { font-size: 12px; color: var(--muted); margin-left: 4px; white-space: nowrap; }
+  .tk-more { font-size: 13px; }
+  .tk-more summary { cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 600; }
+  .tk-more .tk-props { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; }
+  .tk-newact { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+  .tkf-err { color: #b3453f; font-size: 12px; }
+  @media (max-width: 560px) { .tk-props { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
   /* Today tab */
   .tab-count { font-size: 10.5px; font-weight: 700; line-height: 1; padding: 3px 7px; border-radius: 999px; background: rgba(255,255,255,0.14); color: #fff; }
@@ -1064,8 +1115,8 @@
   .td-row:hover .td-title { text-decoration: underline; }
   .td-row .cbx { margin: 0; flex-shrink: 0; }
   .td-title { flex: 1 1 160px; min-width: 0; font-weight: 500; font-size: 13px; overflow-wrap: anywhere; }
-  .td-meta { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 11.5px; color: var(--slate); }
-  .td-meta .link-btn { font-size: 11.5px; text-decoration: none; color: var(--slate); max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-meta { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--slate); }
+  .td-meta .link-btn { font-size: 12px; text-decoration: none; color: var(--slate); max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .td-meta .link-btn:hover { text-decoration: underline; color: var(--ink); }
   .td-meta .link-btn.dim { color: var(--muted); }
   .td-due { color: #b3453f; font-weight: 600; }
@@ -1080,7 +1131,6 @@
   .td-od-list[hidden] { display: none; }
   .stage-row input[type=checkbox], .stage-row .pct-wrap input { width: auto; }
   .modal-extra input { border: 1px solid var(--line); background: #fff; padding: 8px; }
-  @media (max-width: 860px) { .tk-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -1516,8 +1566,7 @@ create policy "app update" on tracker_data for update using (true) with check (t
 </aside>
 <div class="tk-backdrop" id="tkBackdrop" data-crm="panel-close" hidden></div>
 <aside class="tk-panel" id="tkPanel" role="dialog" aria-label="Task" hidden>
-  <div class="dr-bar"><span class="dr-title" id="tkTitleBar"></span>
-    <button class="icon-btn" data-crm="panel-close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="tk-head" id="tkHead"></div>
   <div class="dr-body" id="tkBody"></div>
 </aside>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastMsg"></span><button class="toast-btn" id="toastUndo" type="button">Undo</button></div>
@@ -4168,7 +4217,9 @@ function renderActions(){
       <td><select data-tab="actions" data-idx="${i}" data-field="priority" style="background:${pBg};color:${pFg};font-weight:700;text-align:center;border-radius:6px;">
         ${[0,1,2,3].map(p=>`<option value="${p}"${Number(r.priority)===p?' selected':''}>${p}</option>`).join('')}</select></td>
       <td><select data-tab="actions" data-idx="${i}" data-field="status" style="${statusStyle(r.status)}font-weight:600;border-radius:6px;">${statuses.map(s=>`<option${r.status===s?' selected':''}>${s}</option>`).join('')}</select></td>
-      ${showLinked ? `<td><input list="crmRecList" data-alink="${i}" value="${escAttr(actLinked(r))}" placeholder="optional" autocomplete="off" title="${escAttr(actLinked(r) ? linkedText({ linkedId: actLinked(r) }) : '')}"></td>` : ''}
+      ${showLinked ? (actLinks(r).length > 1
+        ? `<td>${linkSummaryHtml(r, `data-today="act-open" data-idx="${i}"`)}</td>`
+        : `<td><input list="crmRecList" data-alink="${i}" value="${escAttr(actLinks(r)[0] || '')}" placeholder="optional" autocomplete="off" title="${escAttr(actLinks(r).length ? linkedText(r) : '')}"></td>`) : ''}
       <td><input data-tab="actions" data-idx="${i}" data-field="notes" value="${escAttr(r.notes||'')}"></td>
       <td><button class="icon-btn" data-action="archive-action" data-idx="${i}" title="Archive without completing">${TRAY_SVG}</button></td>
     </tr>`;
@@ -4225,7 +4276,9 @@ function applyResizable(){
    priority / type options by their option id (state.taskOptions), the linked record by its code (L-xxx / S-xxx / P-xxx).
    A deal keeps one numeric id as it is promoted, so a task follows the deal: it shows on every stage that shares that root id.
    Each task: { id:'T-001', title, dueDate:'YYYY-MM-DD'|'', priorityId, typeId, status:'open'|'done', completedAt, completedBy,
-                owner, linkedId, notes:[{id,text,created(ms),author}], createdAt, createdBy }.
+                owner, linkedId (old single link, kept as a safety net), linkedIds:['L-101', ...] (the links in use), description,
+                notes:[{id,text,created(ms),author,date}], notesMigrated, descNoteIds, createdAt, createdBy }.
+   Actions carry the same linkedIds / description / notesMigrated / descNoteIds (their notes live in noteLog).
    A later "Today" tab only needs to filter this list (status 'open', dueDate <= today, owner = me). */
 const CRM_TABLE_ID = 'crmTableWrap';
 const SEED_TASK_PRIORITIES = [ ['tp_p0','P0'], ['tp_p1','P1'], ['tp_p2','P2'], ['tp_p3','P3'] ];
@@ -4252,6 +4305,35 @@ const CRM_GROUPS = [ ['none','None'], ['due','Due date'], ['prio','Priority'], [
 const COMMS_TABS = { comms: 'leads', salescomms: 'pipeline', projcomms: 'projects' };   // timeline input tabs → state arrays
 
 /* ---- model ---- */
+/* linkedIds is the list of record codes a task / action is linked to. Old data only has the single linkedId: it is copied into linkedIds once
+   (when linkedIds does not exist yet) and the old field is left exactly as it was. After that only linkedIds is read. */
+function migrateLinkedIds(x){
+  if(Array.isArray(x.linkedIds)){ const seen = new Set(), out = []; x.linkedIds.forEach(c => { const n = normLinked(c); if(n && !seen.has(n)){ seen.add(n); out.push(n); } }); return out; }
+  const one = normLinked(x.linkedId); return one ? [one] : [];
+}
+/* One-off: a task / action that has notes but an empty Description gets a Description built from them (oldest first, dated, blank line between).
+   The original notes stay untouched in the data; descNoteIds remembers which ones were folded in so the notes list does not show them twice.
+   notesMigrated makes sure this never runs again for that item. An Action's own one-line summary note (the Notes column) goes first. */
+function migrateNotesToDescription(x, notes, summary){
+  if(x.notesMigrated) return;
+  x.notesMigrated = true;
+  if(typeof x.description !== 'string') x.description = '';
+  if(x.description.trim()) return;
+  const list = (Array.isArray(notes) ? notes : []).filter(n => n && String(n.text || '').trim()).slice().sort((a, b) => (Number(a.created) || 0) - (Number(b.created) || 0));
+  const sum = typeof summary === 'string' ? summary.trim() : '';
+  if(!list.length && !sum) return;
+  const parts = [];
+  if(sum) parts.push(sum);
+  list.forEach(n => { const d = n.date || (n.created ? fmt(new Date(n.created)) : ''); parts.push((d ? fmtDisplay(toDate(d)) + ': ' : '') + String(n.text).trim()); });
+  x.description = parts.join('\n\n');
+  x.descNoteIds = list.map(n => String(n.id));
+}
+/* timeline entries written by a task or action note ("Task note: …" / "Action note: …") are marked src 'task'; the text itself is left as it was */
+const TASK_NOTE_PREFIX_RE = /^\s*(Task|Action) note:\s*/i;
+function migrateTaskTimeline(r){
+  if(!r || !Array.isArray(r.comms)) return;
+  r.comms.forEach(c => { if(c && typeof c === 'object' && (TASK_NOTE_PREFIX_RE.test(String(c.note || '')) || c.src === 'action') && c.src !== 'task') c.src = 'task'; });
+}
 function ensureTaskModel(o){
   const src = (o.taskOptions && typeof o.taskOptions === 'object') ? o.taskOptions : {};
   const clean = (list, seed, isType) => {
@@ -4276,11 +4358,20 @@ function ensureTaskModel(o){
     typeId: types.some(x => x.id === t.typeId) ? t.typeId : dType,
     status: t.status === 'done' ? 'done' : 'open',
     completedAt: iso(t.completedAt), completedBy: iso(t.completedBy),
-    owner: iso(t.owner), linkedId: normLinked(t.linkedId),
-    notes: (Array.isArray(t.notes) ? t.notes : []).filter(n => n && typeof n === 'object').map((n, i) => ({
-      id: n.id || ('n' + i), text: String(n.text == null ? '' : n.text), created: Number(n.created) || 0, author: iso(n.author) })),
+    owner: iso(t.owner), linkedId: normLinked(t.linkedId), linkedIds: migrateLinkedIds(t),
+    notes: (Array.isArray(t.notes) ? t.notes : []).filter(n => n && typeof n === 'object').map((n, i) => { const r = {
+      id: n.id || ('n' + i), text: String(n.text == null ? '' : n.text), created: Number(n.created) || 0, author: iso(n.author) };
+      if(/^\d{4}-\d{2}-\d{2}$/.test(n.date || '')) r.date = n.date; return r; }),
+    description: iso(t.description), notesMigrated: !!t.notesMigrated, descNoteIds: Array.isArray(t.descNoteIds) ? t.descNoteIds.map(String) : [],
     createdAt: iso(t.createdAt), createdBy: iso(t.createdBy)
   }));
+  o.crmTasks.forEach(t => migrateNotesToDescription(t, t.notes));
+  (Array.isArray(o.actions) ? o.actions : []).concat(Array.isArray(o.archivedActions) ? o.archivedActions : []).forEach(a => {
+    if(!a || typeof a !== 'object') return;
+    a.linkedIds = migrateLinkedIds(a);
+    migrateNotesToDescription(a, Array.isArray(a.noteLog) ? a.noteLog : [], a.notes);
+  });
+  [o.leads, o.pipeline, o.projects].forEach(list => (Array.isArray(list) ? list : []).forEach(r => migrateTaskTimeline(r)));
   o.nextTaskNo = Math.max(Number(o.nextTaskNo) || 0, maxNo + 1);
   const pr = (o.crmPrefs && typeof o.crmPrefs === 'object') ? o.crmPrefs : {};
   o.crmPrefs = { hiddenCols: (Array.isArray(pr.hiddenCols) ? pr.hiddenCols : []).filter(x => typeof x === 'string') };
@@ -4326,24 +4417,36 @@ function dealRecord(root){
 }
 function activeRecordCodes(){   // every active record, for the link pickers (lost leads are not active)
   const out = [];
-  state.leads.forEach(l => { if(!l.lost) out.push({ code: recordCode(l.id, 'lead'), name: boardTitle('lead', l) }); });
-  state.pipeline.forEach(r => out.push({ code: recordCode(r.id, 'sales'), name: boardTitle('sales', r) }));
-  state.projects.forEach(p => out.push({ code: recordCode(p.id, 'project'), name: boardTitle('project', p) }));
+  state.leads.forEach(l => { if(!l.lost) out.push({ code: recordCode(l.id, 'lead'), name: boardTitle('lead', l), contact: l.contact || l.company || '' }); });
+  state.pipeline.forEach(r => out.push({ code: recordCode(r.id, 'sales'), name: boardTitle('sales', r), contact: r.contact || r.company || '' }));
+  state.projects.forEach(p => out.push({ code: recordCode(p.id, 'project'), name: boardTitle('project', p), contact: p.contact || p.company || '' }));
   return out;
 }
-function taskOnLostLead(t){ const d = dealRecord(linkedRoot(t.linkedId)); return !!(d && d.pl === 'lead' && d.lost); }
-function linkedInfo(t){
-  if(!t.linkedId) return null;
-  const d = dealRecord(linkedRoot(t.linkedId));
-  return { code: t.linkedId, name: d ? boardTitle(d.pl, d.rec) : '', lost: !!(d && d.lost), missing: !d, d };
+/* a task / action can be linked to several records: linkedIds (codes). Everything below reads the list, never the old single linkedId. */
+function recLinks(o){ return migrateLinkedIds(o || {}); }
+function recRoots(o){ return [...new Set(recLinks(o).map(linkedRoot))]; }
+function linkedInfoFor(code){
+  const d = dealRecord(linkedRoot(code));
+  return { code, name: d ? boardTitle(d.pl, d.rec) : '', lost: !!(d && d.lost), missing: !d, d };
 }
-function linkedText(t){
-  const i = linkedInfo(t); if(!i) return '';
-  return i.code + (i.name ? ' · ' + i.name : '') + (i.lost ? ' (lost)' : '') + (i.missing ? ' (record removed)' : '');
+function linkedInfos(o){ return recLinks(o).map(linkedInfoFor); }
+function linkedInfo(t){ const l = linkedInfos(t); return l.length ? l[0] : null; }   // the first link
+function infoText(i){ return i.code + (i.name ? ' · ' + i.name : '') + (i.lost ? ' (lost)' : '') + (i.missing ? ' (record removed)' : ''); }
+function linkedText(t){ return linkedInfos(t).map(infoText).join(', '); }
+function linkedFirstText(t){ const l = linkedInfos(t); return l.length ? infoText(l[0]) : ''; }
+/* a task hides with a lost lead only when every record it is linked to is a lost lead */
+function taskOnLostLead(t){ const l = linkedInfos(t); return l.length > 0 && l.every(i => i.lost); }
+function linkedMatches(o, root){ return recRoots(o).includes(root); }   // root = a deal's numeric id: lead, sale and project of one deal share it
+function openRecordByCode(code){
+  const d = dealRecord(linkedRoot(code));
+  if(d && !d.lost){ if(taskPanel || actionPanel) closeTaskPanel(); openDetail(d.pl, d.rec.id); }
 }
-function openTaskRecord(t){
-  const d = dealRecord(linkedRoot(t.linkedId));
-  if(d && !d.lost) openDetail(d.pl, d.rec.id);
+function openTaskRecord(t){ const l = linkedInfos(t).find(i => i.d && !i.lost); if(l) openRecordByCode(l.code); }
+/* first link as a link-style button plus "+n" for the rest (CRM table, Today lists, Actions table) */
+function linkSummaryHtml(o, attrs, cls){
+  const infos = linkedInfos(o); if(!infos.length) return '';
+  const i = infos[0], more = infos.length - 1;
+  return `<button class="link-btn${cls ? ' ' + cls : ''}${i.missing || i.lost ? ' dim' : ''}" ${attrs} title="${escAttr(linkedText(o))}">${escHtml(infoText(i))}</button>${more ? `<span class="tk-more-n" title="${escAttr(linkedText(o))}">+${more}</span>` : ''}`;
 }
 
 /* ---- users (owner dropdown): the app's logins when they can be read, else whoever is already known ---- */
@@ -4370,24 +4473,32 @@ function createTask(f){
   const t = {
     id: 'T-' + String(state.nextTaskNo++).padStart(3, '0'), title: String(f.title).trim(),
     dueDate: f.dueDate || '', priorityId: prioOpt(f.priorityId) ? f.priorityId : defaultPrioId(), typeId: typeOpt(f.typeId) ? f.typeId : defaultTypeId(),
-    status: 'open', completedAt: '', completedBy: '', owner: f.owner == null ? meName() : f.owner, linkedId: normLinked(f.linkedId),
-    notes: [], createdAt: new Date().toISOString(), createdBy: meName()
+    status: 'open', completedAt: '', completedBy: '', owner: f.owner == null ? meName() : f.owner, linkedId: '', linkedIds: [],
+    description: String(f.description || ''), notes: [], notesMigrated: true, descNoteIds: [], createdAt: new Date().toISOString(), createdBy: meName()
   };
+  t.linkedIds = migrateLinkedIds({ linkedIds: Array.isArray(f.linkedIds) ? f.linkedIds : (f.linkedId ? [f.linkedId] : []) });
+  t.linkedId = t.linkedIds[0] || '';   // the old single field, kept in step only when the task is created (safety net)
   state.crmTasks.push(t); return t;
 }
-/* A note is kept on the task and, when the task is linked to a record, also written to that deal's (current) communication timeline.
+/* A note is kept on the task and also written to the timeline of EVERY record the task is linked to (one entry per deal, even if two
+   of its records share a numeric root). The entry is marked src 'task' with the task id so timelines can show the small "T" marker.
    Only types flagged "contact" (Call, Email) count towards Last contacted; To Do notes are logged but marked noContact. */
-function addTaskNote(t, text){
-  text = String(text || '').trim(); if(!text) return false;
-  const now = Date.now();
-  t.notes.push({ id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 5), text, created: now, author: meName() });
-  const d = dealRecord(linkedRoot(t.linkedId));
-  if(d){
+function logNoteToTimelines(o, text, date, now, extra, contact){
+  const seen = new Set();
+  recRoots(o).forEach(root => {
+    const d = dealRecord(root); if(!d || seen.has(d.rec)) return; seen.add(d.rec);
     d.rec.comms = Array.isArray(d.rec.comms) ? d.rec.comms : [];
-    const e = { date: fmt(new Date()), note: 'Task note: ' + t.title + ' — ' + text, created: now, src: 'task', taskId: t.id };
-    const ty = typeOpt(t.typeId); if(!(ty && ty.contact)) e.noContact = true;
+    const e = Object.assign({ date, note: text, created: now, src: 'task' }, extra);
+    if(!contact) e.noContact = true;
     d.rec.comms.push(e);
-  }
+  });
+}
+function addTaskNote(t, text, date){
+  text = String(text || '').trim(); if(!text) return false;
+  const now = Date.now(); date = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : fmt(new Date());
+  t.notes.push({ id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 5), text, created: now, author: meName(), date });
+  const ty = typeOpt(t.typeId);
+  logNoteToTimelines(t, text, date, now, { taskId: t.id, taskTitle: t.title }, !!(ty && ty.contact));
   return true;
 }
 const fadingTasks = new Set();   // ticked rows stay on screen for the short fade, then move to their new list
@@ -4429,7 +4540,7 @@ document.addEventListener('keydown', (e) => {
 const taskForms = {};    // 'pl:id' → inline add form open
 const taskDrafts = {};   // 'pl:id' → what was typed so far (survives re-renders)
 function recordTasks(rec){
-  return state.crmTasks.filter(t => linkedRoot(t.linkedId) === rec.id && (t.status === 'open' || fadingTasks.has(t.id))).sort(taskCmp('due', 'asc'));
+  return state.crmTasks.filter(t => linkedMatches(t, rec.id) && (t.status === 'open' || fadingTasks.has(t.id))).sort(taskCmp('due', 'asc'));
 }
 function recTasksHtml(pl, rec, opts){
   opts = opts || {};   // compact (the Lead card): no code chip, own heading, first `limit` rows then a "View all" link to the CRM
@@ -4440,7 +4551,7 @@ function recTasksHtml(pl, rec, opts){
       <div class="cbx${t.status === 'done' ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="Mark done">${CHECK_SVG}</div>
       ${typeIcon(t.typeId)}
       <button class="tkr-title" data-crm="open" data-id="${t.id}" title="${escAttr(t.title)}">${escHtml(t.title)}</button>
-      ${opts.compact ? '' : `<span class="tkr-code" title="Created on ${escAttr(t.linkedId)}">${escHtml(t.linkedId)}</span>`}
+      ${opts.compact ? '' : `<span class="tkr-code" title="${escAttr(linkedText(t))}">${escHtml(recLinks(t)[0] || '')}${recLinks(t).length > 1 ? ' +' + (recLinks(t).length - 1) : ''}</span>`}
       <span class="tkr-due${over ? ' over' : ''}">${t.dueDate ? fmtDisplay(toDate(t.dueDate)) : 'No date'}</span>
       ${prioPill(t.priorityId)}</div>`;
   }).join('');
@@ -4485,6 +4596,16 @@ function submitRecordTaskForm(form){
 }
 
 /* ---- shared communication timeline block (Lead, Sale, Project) ---- */
+/* entries written by a task or action note carry src 'task' and show a small "T" before the text; old "Task note: " / "Action note: " prefixes are not shown */
+function commShownText(c){ return String(c.note || '').replace(TASK_NOTE_PREFIX_RE, ''); }
+function commTaskMarker(c){
+  if(!c || c.src !== 'task') return '';
+  let title = '';
+  const t = c.taskId ? findTask(c.taskId) : null;
+  if(t) title = t.title; else if(c.taskTitle) title = c.taskTitle;
+  else if(TASK_NOTE_PREFIX_RE.test(String(c.note || ''))){ const rest = commShownText(c), k = rest.indexOf(' — '); if(k > 0) title = rest.slice(0, k); }
+  return `<span class="comm-t" title="From task${title ? ': ' + escAttr(title) : ''}" aria-label="From task${title ? ': ' + escAttr(title) : ''}">T</span>`;
+}
 function commOwner(pl, id){ const arr = pl === 'sales' ? state.pipeline : (pl === 'project' ? state.projects : state.leads); return arr.find(x => x.id === id) || null; }
 function commsBlockHtml(pl, r, i, tabKey, opts){
   const comms = sortedComms(r);
@@ -4497,7 +4618,7 @@ function commsBlockHtml(pl, r, i, tabKey, opts){
               ${comms.length ? comms.map(({c,ci})=>`
                 <div class="comm-entry">
                   <input type="date" class="comm-date" data-tab="${tabKey}" data-idx="${i}" data-cidx="${ci}" data-field="date" value="${c.date||''}">
-                  <input class="comm-note" data-tab="${tabKey}" data-idx="${i}" data-cidx="${ci}" data-field="note" value="${escAttr(c.note||'')}" placeholder="What happened?">
+                  ${commTaskMarker(c)}<input class="comm-note" data-tab="${tabKey}" data-idx="${i}" data-cidx="${ci}" data-field="note" value="${escAttr(commShownText(c))}" placeholder="What happened?">
                   <button class="icon-btn" data-action="del-comm" data-pl="${pl}" data-id="${r.id}" data-cidx="${ci}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
                 </div>`).join('')
               : `<div class="breakdown-hint">No touchpoints yet — add the first ${opts && opts.inlineAdd ? 'note' : 'contact'} above.</div>`}
@@ -4523,7 +4644,7 @@ function taskCmp(key, dir){
   const str = (x, y) => String(x).localeCompare(String(y), undefined, { sensitivity: 'base' });
   const prim = {
     title: (a, b) => str(a.title, b.title), type: (a, b) => typeRank(a) - typeRank(b), prio: (a, b) => prioRank(a) - prioRank(b),
-    linked: (a, b) => (linkedRoot(a.linkedId) || 1e9) - (linkedRoot(b.linkedId) || 1e9) || str(a.linkedId, b.linkedId),
+    linked: (a, b) => (recRoots(a)[0] || 1e9) - (recRoots(b)[0] || 1e9) || str(recLinks(a)[0] || '', recLinks(b)[0] || ''),
     owner: (a, b) => str(a.owner || '￿', b.owner || '￿'), notes: (a, b) => a.notes.length - b.notes.length
   };
   if(key === 'due') return (a, b) => dueCmp(a, b) || rest(a, b);
@@ -4537,7 +4658,7 @@ function crmFiltered(){
     if(crmUi.scope === 'mine' ? (me && t.owner !== me) : (crmUi.owner && t.owner !== crmUi.owner)) return false;
     if(crmUi.type && t.typeId !== crmUi.type) return false;
     if(crmUi.prio && t.priorityId !== crmUi.prio) return false;
-    if(crmUi.linked === 'none' ? t.linkedId : (crmUi.linked && String(linkedRoot(t.linkedId)) !== crmUi.linked)) return false;
+    if(crmUi.linked === 'none' ? recLinks(t).length : (crmUi.linked && !recRoots(t).some(r => String(r) === crmUi.linked))) return false;
     if(q){
       const hay = [t.id, t.title, linkedText(t), t.owner, typeOpt(t.typeId) && typeOpt(t.typeId).name, prioOpt(t.priorityId) && prioOpt(t.priorityId).name].concat(t.notes.map(n => n.text)).join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
@@ -4557,7 +4678,10 @@ function crmGroupOf(t, today){
   if(g === 'prio'){ const i = prioIdx(t.priorityId); return [String(i < 0 ? 99 : i).padStart(2, '0'), (prioOpt(t.priorityId) || { name: 'No priority' }).name]; }
   if(g === 'type'){ const i = typeList().findIndex(x => x.id === t.typeId); return [String(i < 0 ? 99 : i).padStart(2, '0'), (typeOpt(t.typeId) || { name: 'No type' }).name]; }
   if(g === 'owner') return [t.owner ? '0' + t.owner.toLowerCase() : '1', t.owner || 'Unassigned'];
-  if(g === 'linked') return t.linkedId ? [String(linkedRoot(t.linkedId)).padStart(8, '0'), linkedText(t) || t.linkedId] : ['z', 'No linked record'];
+  if(g === 'linked'){   // a task linked to several records is listed under each of them
+    const infos = linkedInfos(t);
+    return infos.length ? infos.map(i => [String(linkedRoot(i.code)).padStart(8, '0'), infoText(i)]) : [['z', 'No linked record']];
+  }
   return ['', ''];
 }
 function crmCell(c, t, today){
@@ -4569,8 +4693,8 @@ function crmCell(c, t, today){
     case 'prio': return `<td>${prioPill(t.priorityId)}</td>`;
     case 'due': return `<td><input type="date" class="crm-due${!done && t.dueDate && t.dueDate < today ? ' over' : ''}" data-ctask="due" data-id="${t.id}" value="${t.dueDate}"></td>`;
     case 'linked': {
-      const i = linkedInfo(t);
-      return `<td>${i ? `<button class="link-btn crm-link${i.missing || i.lost ? ' dim' : ''}" data-crm="rec" data-id="${t.id}" title="${escAttr(linkedText(t))}">${escHtml(linkedText(t))}</button>` : '<span class="tier-none">—</span>'}</td>`;
+      const sm = linkSummaryHtml(t, `data-crm="rec" data-id="${t.id}"`, 'crm-link');
+      return `<td>${sm || '<span class="tier-none">—</span>'}</td>`;
     }
     case 'owner': return `<td>${t.owner ? escHtml(t.owner) : '<span class="tier-none">—</span>'}</td>`;
     case 'notes': return `<td>${t.notes.length ? t.notes.length : '<span class="tier-none">—</span>'}</td>`;
@@ -4595,7 +4719,7 @@ function renderCrmList(){
     if(crmUi.groupBy === 'none') html += rows.map(rowHtml).join('');
     else {
       const groups = new Map();
-      rows.forEach(t => { const [k, label] = crmGroupOf(t, today); if(!groups.has(k)) groups.set(k, { label, items: [] }); groups.get(k).items.push(t); });
+      rows.forEach(t => { const g = crmGroupOf(t, today); (Array.isArray(g[0]) ? g : [g]).forEach(([k, label]) => { if(!groups.has(k)) groups.set(k, { label, items: [] }); groups.get(k).items.push(t); }); });
       [...groups.keys()].sort().forEach(k => { const g = groups.get(k);
         html += `<tr class="crm-group"><td colspan="${cols.length}">${escHtml(g.label)}<span class="gn">${g.items.length}</span></td></tr>` + g.items.map(rowHtml).join(''); });
     }
@@ -4605,8 +4729,8 @@ function renderCrmList(){
 }
 function renderCrmFilters(){
   const el = document.getElementById('crmFilters'); if(!el) return;
-  const roots = [...new Set(state.crmTasks.map(t => linkedRoot(t.linkedId)).filter(Boolean))].sort((a, b) => a - b);
-  const lname = r => { const t = state.crmTasks.find(x => linkedRoot(x.linkedId) === r); return linkedText(t); };
+  const roots = [...new Set(state.crmTasks.flatMap(t => recRoots(t)).filter(Boolean))].sort((a, b) => a - b);
+  const lname = r => { for(const t of state.crmTasks){ const i = linkedInfos(t).find(x => linkedRoot(x.code) === r); if(i) return infoText(i); } return String(r); };
   const hid = new Set(state.crmPrefs.hiddenCols);
   const sel = (k, label, opts) => `<select data-cf="${k}" aria-label="${label}"><option value="">${label}</option>${opts}</select>`;
   el.innerHTML = `<div class="view-toggle" title="Whose tasks">
@@ -4627,88 +4751,259 @@ function renderCrm(){
 }
 document.getElementById('crmSearch').addEventListener('input', (e) => { crmUi.q = e.target.value; renderCrmList(); });
 
-/* ---- task side panel ---- */
+/* ---- task / action side panel (one panel element, two kinds: a CRM task or an Action) ----
+   Layout: header (tick box, editable title, X) · one row of dropdowns · "Linked records (n)" with chips and a searchable picker ·
+   Description (autosaves) · "+ Add note" and the notes list · quiet footer. The form is drawn once; refresh only touches what the
+   user is not typing in, so focus is never lost. */
 let actionPanel = null; // { ref: the action object, isNew } — shares the task side panel (see Today tab)
 let taskPanel = null;   // { mode:'edit', id } | { mode:'new', draft }
-function openTaskPanel(id){ if(!findTask(id)) return; actionPanel = null; taskPanel = { mode: 'edit', id }; renderTaskPanel(); }
+const tkUi = { pickOpen: false, pickQ: '', noteOpen: false };
+function tkReset(){ tkUi.pickOpen = false; tkUi.pickQ = ''; tkUi.noteOpen = false; }
+function panelTask(){ return taskPanel ? (taskPanel.mode === 'new' ? taskPanel.draft : findTask(taskPanel.id)) : null; }
+function tkObj(){ return taskPanel ? panelTask() : (actionPanel ? actionPanel.ref : null); }
+function tkIsNew(){ return taskPanel ? taskPanel.mode === 'new' : !!(actionPanel && actionPanel.isNew); }
+function actionPanelValid(){ return !!actionPanel && (actionPanel.isNew || state.actions.includes(actionPanel.ref)); }
+function openTaskPanel(id){ if(!findTask(id)) return; actionPanel = null; taskPanel = { mode: 'edit', id }; tkReset(); renderTaskPanel(); }
 function openNewTask(linked){
-  actionPanel = null;
-  taskPanel = { mode: 'new', draft: { title: '', dueDate: fmt(new Date()), priorityId: defaultPrioId(), typeId: defaultTypeId(), owner: meName(), linkedId: linked || '' } };
-  renderTaskPanel(); setTimeout(() => { const el = document.querySelector('#tkBody [data-tf="title"]'); if(el) el.focus(); }, 30);
+  actionPanel = null; tkReset();
+  taskPanel = { mode: 'new', draft: { title: '', dueDate: fmt(new Date()), priorityId: defaultPrioId(), typeId: defaultTypeId(), owner: meName(), linkedIds: linked ? [linked] : [], description: '' } };
+  renderTaskPanel(); setTimeout(() => { const el = document.getElementById('tkTitle'); if(el) el.focus(); }, 30);
 }
-function closeTaskPanel(){ taskPanel = null; actionPanel = null; document.getElementById('tkPanel').hidden = true; document.getElementById('tkBackdrop').hidden = true; }
+function openActionPanel(ref){ if(!ref || !state.actions.includes(ref)) return; taskPanel = null; tkReset(); actionPanel = { ref, isNew: false }; renderActionPanel(); }
+function openNewAction(){
+  taskPanel = null; tkReset();
+  const ref = Object.assign(newRowFor('actions'), { action: '', owner: meName() || 'TBC', deadline: fmt(new Date()) });   // due today by default
+  actionPanel = { ref, isNew: true }; renderActionPanel();
+  setTimeout(() => { const el = document.getElementById('tkTitle'); if(el) el.focus(); }, 30);
+}
+function closeTaskPanel(){ taskPanel = null; actionPanel = null; tkReset(); document.getElementById('tkPanel').hidden = true; document.getElementById('tkBackdrop').hidden = true; }
 document.addEventListener('keydown', (e) => {   // Esc closes the task panel first (capture: before the record drawer's own Esc handling)
   if(e.key === 'Escape' && (taskPanel || actionPanel) && document.getElementById('modalOverlay').hidden){ closeTaskPanel(); e.stopImmediatePropagation(); }
 }, true);
-function panelTask(){ return taskPanel ? (taskPanel.mode === 'new' ? taskPanel.draft : findTask(taskPanel.id)) : null; }
-function renderTaskPanel(){
-  const panel = document.getElementById('tkPanel'), bd = document.getElementById('tkBackdrop');
-  const t = panelTask(); if(!t){ closeTaskPanel(); return; }
-  document.getElementById('tkTitleBar').textContent = taskPanel.mode === 'new' ? 'New task' : t.id;
-  document.getElementById('tkBody').innerHTML = `<div class="tk-form">
-      <div class="field"><label>Title</label><input class="tk-input" data-tf="title" value="${escAttr(t.title)}" placeholder="What needs doing?"></div>
-      <div class="tk-grid">
-        <div><label>Type</label><select class="tk-input" data-tf="typeId">${optionsHtml(typeList(), t.typeId)}</select></div>
-        <div><label>Priority</label><select class="tk-input" data-tf="priorityId">${optionsHtml(prioList(), t.priorityId)}</select></div>
-        <div><label>Due date</label><input type="date" class="tk-input" data-tf="dueDate" value="${t.dueDate}"></div>
-        <div><label>Owner</label><select class="tk-input" data-tf="owner">${userOptions(t.owner)}</select></div>
+function autosizeTa(el){ if(!el) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; }
+function whenLabel(s){ return s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; }
+let tkSavedTimer = null;
+function tkSaved(){   // the little "Saved ✓" beside Description
+  const el = document.getElementById('tkSaved'); if(!el) return;
+  el.textContent = 'Saved ✓'; clearTimeout(tkSavedTimer); tkSavedTimer = setTimeout(() => { el.textContent = ''; }, 2200);
+}
+
+function tkHeadHtml(){
+  const o = tkObj(), isNew = tkIsNew();
+  const tick = isNew ? '' : (taskPanel
+    ? `<div class="cbx" id="tkTick" role="checkbox" aria-label="Mark done" data-crm="tick" data-id="${escAttr(o.id)}">${CHECK_SVG}</div>`
+    : `<div class="cbx" id="tkTick" role="checkbox" aria-label="Complete and archive" data-action="toggle-done" data-idx="${state.actions.indexOf(o)}">${CHECK_SVG}</div>`);
+  const title = taskPanel
+    ? `<textarea class="tk-titlein" id="tkTitle" rows="1" data-tf="title" placeholder="Task title" aria-label="Task title">${escHtml(o.title)}</textarea>`
+    : `<textarea class="tk-titlein" id="tkTitle" rows="1" data-af="action" placeholder="Action title" aria-label="Action title">${escHtml(o.action)}</textarea>`;
+  return `${tick}${title}<button class="icon-btn" data-crm="panel-close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+}
+function tkPropsHtml(){
+  const o = tkObj();
+  if(taskPanel) return `<div class="tk-props">
+      <div><label for="tkpType">Type</label><select id="tkpType" data-tf="typeId">${optionsHtml(typeList(), o.typeId)}</select></div>
+      <div><label for="tkpPrio">Priority</label><select id="tkpPrio" data-tf="priorityId">${optionsHtml(prioList(), o.priorityId)}</select></div>
+      <div><label for="tkpOwner">Owner</label><select id="tkpOwner" data-tf="owner">${userOptions(o.owner)}</select></div>
+      <div><label for="tkpDue">Due date</label><input id="tkpDue" type="date" data-tf="dueDate" value="${escAttr(o.dueDate)}"></div>
+    </div>`;
+  return `<div class="tk-props">
+      <div><label for="tkpStatus">Status</label><select id="tkpStatus" data-af="status">${['Not Started', 'In Progress', 'Waiting', 'Done'].map(x => `<option${o.status === x ? ' selected' : ''}>${x}</option>`).join('')}</select></div>
+      <div><label for="tkpPrio">Priority</label><select id="tkpPrio" data-af="priority">${[0, 1, 2, 3].map(x => `<option value="${x}"${Number(o.priority) === x ? ' selected' : ''}>${x}</option>`).join('')}</select></div>
+      <div><label for="tkpOwner">Owner</label><input id="tkpOwner" list="ownersList" data-af="owner" value="${escAttr(o.owner || '')}"></div>
+      <div><label for="tkpDue">Due date</label><input id="tkpDue" type="date" data-af="deadline" value="${escAttr(o.deadline || '')}"></div>
+    </div>
+    <details class="tk-more"><summary>More details</summary><div class="tk-props">
+      <div><label for="tkpOwner2">+ Owner</label><input id="tkpOwner2" list="ownersList" data-af="owner2" value="${escAttr(o.owner2 || '')}" placeholder="optional"></div>
+      <div><label for="tkpRaised">Date raised</label><input id="tkpRaised" type="date" data-af="dateRaised" value="${escAttr(o.dateRaised || '')}"></div></div></details>`;
+}
+function tkFormHtml(){
+  const o = tkObj();
+  return `<div class="tk-form">
+      ${tkPropsHtml()}
+      <div><div class="tk-linkrow" id="tkLinks"></div><div class="tk-picker" id="tkPicker" hidden></div></div>
+      <div><div class="tk-lbl"><label for="tkDesc">Description</label><span class="tk-saved" id="tkSaved" role="status" aria-live="polite"></span></div>
+        <textarea id="tkDesc" class="tk-desc" placeholder="Add details, context or next steps…">${escHtml(o.description || '')}</textarea></div>
+      <div class="tk-dyn" id="tkDyn"></div>
+    </div>`;
+}
+function tkOpenPanel(){
+  document.getElementById('tkHead').innerHTML = tkHeadHtml();
+  document.getElementById('tkBody').innerHTML = tkFormHtml();
+  document.getElementById('tkPanel').setAttribute('aria-label', taskPanel ? 'Task' : 'Action');
+  document.getElementById('tkPanel').hidden = false; document.getElementById('tkBackdrop').hidden = false;
+  tkRefresh(true);
+  autosizeTa(document.getElementById('tkTitle')); autosizeTa(document.getElementById('tkDesc'));
+}
+function renderTaskPanel(){ if(!panelTask()){ closeTaskPanel(); return; } tkOpenPanel(); }
+function renderActionPanel(){ tkOpenPanel(); }
+function refreshTaskPanel(){ if(taskPanel) tkRefresh(); }
+function refreshActionPanel(){ if(actionPanel) tkRefresh(); }
+
+function tkLinksHtml(){
+  const infos = linkedInfos(tkObj());
+  return `<button type="button" class="tk-linkbtn" data-tk="pick-toggle" aria-expanded="${tkUi.pickOpen ? 'true' : 'false'}">Linked records (${infos.length})${CHEV_SVG}</button>
+    <span class="tk-chips">${infos.map(i => `<span class="tk-chip${i.missing || i.lost ? ' dim' : ''}"><button type="button" class="open" data-tk="chip-open" data-code="${escAttr(i.code)}" title="${escAttr(infoText(i))}"><b>${escHtml(i.code)}</b>${escHtml(i.name)}${i.lost ? ' (lost)' : ''}</button><button type="button" class="x" data-tk="chip-x" data-code="${escAttr(i.code)}" aria-label="Remove link to ${escAttr(i.code)}" title="Remove link">×</button></span>`).join('')}</span>`;
+}
+function tkPickRows(){
+  const q = tkUi.pickQ.trim().toLowerCase();
+  return activeRecordCodes().filter(r => !q || (r.code + ' ' + r.name + ' ' + (r.contact || '')).toLowerCase().includes(q));
+}
+function tkPickListHtml(){
+  const have = new Set(recRoots(tkObj())), rows = tkPickRows();
+  if(!rows.length) return `<div class="tk-pickempty">${tkUi.pickQ.trim() ? 'No active records match.' : 'No active leads, sales or projects yet.'}</div>`;
+  return rows.map(r => `<label class="tk-pick"><input type="checkbox" data-tk="pick" data-code="${escAttr(r.code)}"${have.has(linkedRoot(r.code)) ? ' checked' : ''}><span class="code">${escHtml(r.code)}</span><span class="nm">${escHtml(r.name)}${r.contact && r.contact !== r.name ? `<span class="ct">${escHtml(r.contact)}</span>` : ''}</span></label>`).join('');
+}
+function tkRenderPicker(focusSearch){
+  const box = document.getElementById('tkPicker'); if(!box) return;
+  box.hidden = !tkUi.pickOpen;
+  if(!tkUi.pickOpen){ box.innerHTML = ''; box.dataset.sig = ''; return; }
+  if(!box.querySelector('#tkPickQ')) box.innerHTML = `<input type="search" id="tkPickQ" data-tk="pick-q" placeholder="Search by code, project or contact" aria-label="Search records" autocomplete="off"><div class="tk-picklist" id="tkPickList"></div>`;
+  const q = box.querySelector('#tkPickQ'); if(q.value !== tkUi.pickQ) q.value = tkUi.pickQ;
+  const list = document.getElementById('tkPickList'), html = tkPickListHtml();
+  if(list.dataset.sig !== html){
+    const top = list.scrollTop, ae = document.activeElement, code = ae && ae.dataset && ae.dataset.tk === 'pick' ? ae.dataset.code : null;
+    list.innerHTML = html; list.dataset.sig = html; list.scrollTop = top;
+    if(code){ const again = list.querySelector(`[data-code="${code}"]`); if(again) again.focus(); }
+  }
+  if(focusSearch) q.focus();
+}
+function tkNotesList(o){
+  const hidden = new Set(o.descNoteIds || []), list = (taskPanel ? o.notes : actNotes(o)).filter(n => !hidden.has(String(n.id)));
+  const dOf = n => n.date || (n.created ? fmt(new Date(n.created)) : '');
+  return list.slice().sort((a, b) => dOf(b).localeCompare(dOf(a)) || (b.created || 0) - (a.created || 0));
+}
+function tkDynHtml(){
+  const o = tkObj(), isNew = tkIsNew();
+  if(isNew) return `<div class="tkf-err" id="tkErr"></div><div class="tk-newact"><button class="btn secondary" data-crm="panel-close">Cancel</button><button class="btn" data-tk="create">${taskPanel ? 'Create task' : 'Create action'}</button></div>`;
+  const notes = tkNotesList(o), nLinks = recRoots(o).length;
+  const list = notes.map(n => { const d = n.date || (n.created ? fmt(new Date(n.created)) : '');
+    return `<div class="tk-note"><span class="meta">${escHtml(d ? fmtDisplay(toDate(d)) : '')}${n.author ? ' · ' + escHtml(n.author) : ''}</span>${escHtml(n.text)}</div>`; }).join('');
+  let foot;
+  if(taskPanel){
+    const done = o.status === 'done';
+    foot = `<span>Created${o.createdBy ? ' by ' + escHtml(o.createdBy) : ''}${o.createdAt ? ' on ' + escHtml(whenLabel(o.createdAt)) : ''}${done && o.completedAt ? ` · Completed ${escHtml(whenLabel(o.completedAt))}${o.completedBy ? ' by ' + escHtml(o.completedBy) : ''}` : ''}</span>
+      <button type="button" class="del" data-crm="panel-delete">Delete task</button>`;
+  } else foot = `<span>${o.dateRaised ? 'Raised on ' + escHtml(fmtDisplay(toDate(o.dateRaised))) : 'Action'}</span><button type="button" class="del" data-tk="act-archive">Archive action</button>`;
+  return `<div><button type="button" class="tk-addnote-link" data-tk="note-toggle">+ Add note</button>
+      <div class="tk-noteform" id="tkNoteForm"${tkUi.noteOpen ? '' : ' hidden'}>
+        <div class="row"><input type="date" id="tkNoteDate" value="${fmt(new Date())}" aria-label="Note date"></div>
+        <textarea id="tkNoteTxt" placeholder="What happened?" aria-label="Note"></textarea>
+        <div class="row"><button type="button" class="btn" data-tk="note-add">Add</button><button type="button" class="btn secondary" data-tk="note-cancel">Cancel</button>
+          <span class="hint">${nLinks ? `Also added to the timeline of ${nLinks} linked record${nLinks !== 1 ? 's' : ''}.` : 'Link a record to also log it on its timeline.'}</span></div>
       </div>
-      <div class="field"><label>Linked record</label><input class="tk-input" list="crmRecList" data-tf="linkedId" value="${escAttr(t.linkedId)}" placeholder="Search by code or name (optional)" autocomplete="off">
-        <div class="tk-linkinfo" id="tkLinkInfo"></div></div>
-    </div><div id="tkDyn"></div>`;
-  panel.hidden = false; bd.hidden = false;
-  refreshTaskPanel(true);
+      ${list ? `<div class="tk-notelist">${list}</div>` : ''}</div>
+    <div class="tk-foot">${foot}</div>`;
 }
-/* re-draws only the parts that change without the user typing in them (status, link info, notes), so focus is never lost */
-function refreshTaskPanel(){
-  if(!taskPanel) return;
-  const t = panelTask(); if(!t){ closeTaskPanel(); return; }
+/* re-draws only the parts the user is not typing in (header state, field values, links, notes), so focus is never lost */
+function tkRefresh(force){
+  if(!taskPanel && !actionPanel) return;
+  if(taskPanel ? !panelTask() : !actionPanelValid()){ closeTaskPanel(); return; }
   const dyn = document.getElementById('tkDyn'); if(!dyn) return;
-  const isNew = taskPanel.mode === 'new';
-  if(!isNew){   // keep the open fields in step with edits made elsewhere (e.g. the list's inline due date)
-    document.querySelectorAll('#tkBody [data-tf]').forEach(el => { if(document.activeElement !== el){ const v = t[el.dataset.tf]; if(v !== undefined && el.value !== v) el.value = v; } });
-    const ow = document.querySelector('#tkBody [data-tf="owner"]');
-    if(ow && t.owner && document.activeElement !== ow && ![...ow.options].some(o => o.value === t.owner)) ow.innerHTML = userOptions(t.owner);
+  const o = tkObj(), isNew = tkIsNew(), a = taskPanel ? 'tf' : 'af', ae = document.activeElement;
+  if(!isNew){   // keep the open fields in step with edits made elsewhere (e.g. the list's inline due date, the Actions tab)
+    document.querySelectorAll(`#tkPanel [data-${a}]`).forEach(el => {
+      if(ae === el) return;
+      const v = o[el.dataset[a]]; if(v === undefined) return;
+      if(el.value !== String(v)) el.value = v;
+    });
+    const ow = document.querySelector('#tkPanel select[data-tf="owner"]');
+    if(ow && o.owner && ae !== ow && ![...ow.options].some(x => x.value === o.owner)) ow.innerHTML = userOptions(o.owner);
+    const desc = document.getElementById('tkDesc'); if(desc && ae !== desc && desc.value !== (o.description || '')) desc.value = o.description || '';
+    const tick = document.getElementById('tkTick');
+    if(tick){
+      const done = taskPanel ? o.status === 'done' : (o.status === 'Done' || archiving.has(o));
+      tick.classList.toggle('checked', done); tick.setAttribute('aria-checked', done ? 'true' : 'false');
+      if(!taskPanel) tick.dataset.idx = state.actions.indexOf(o);
+      document.getElementById('tkHead').classList.toggle('done', done);
+    }
   }
-  const info = document.getElementById('tkLinkInfo'), li = linkedInfo(t);
-  if(info && !info.classList.contains('err')) info.innerHTML = li ? `${escHtml(li.name || '')}${li.lost ? ' (lost lead)' : ''}${li.missing ? 'Record no longer exists' : ''} ${li.d && !li.lost ? `<button class="link-btn" data-crm="rec" data-id="${isNew ? '' : t.id}">Open record</button>` : ''}` : 'Not linked to a record.';
-  const keep = document.getElementById('tkNoteTxt'), kv = keep ? keep.value : '', kf = keep && document.activeElement === keep;
-  let html = '';
-  if(isNew) html = `<div class="tk-form"><div class="tkf-err" id="tkErr"></div></div><div class="tk-actions"><button class="btn secondary" data-crm="panel-close">Cancel</button><button class="btn" data-crm="panel-create">Create task</button></div>`;
-  else {
-    const done = t.status === 'done';
-    const when = s => s ? new Date(s).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-    const notes = t.notes.slice().sort((a, b) => a.created - b.created);
-    html = `<div class="tk-status"><div class="cbx${done ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="${done ? 'Reopen' : 'Mark done'}">${CHECK_SVG}</div>
-        <div><strong>${done ? 'Done' : 'Open'}</strong>${done ? `<div class="sub">Completed ${escHtml(when(t.completedAt))}${t.completedBy ? ' by ' + escHtml(t.completedBy) : ''}</div>` : ''}
-        <div class="sub">Created ${escHtml(when(t.createdAt))}${t.createdBy ? ' by ' + escHtml(t.createdBy) : ''}</div></div></div>
-      <div class="stage-label-row">Notes (${notes.length})</div>
-      <div class="tk-notes">${notes.length ? notes.map(n => `<div class="tk-note"><span class="meta">${escHtml(n.author || 'Someone')} · ${escHtml(when(n.created ? new Date(n.created).toISOString() : ''))}</span>${escHtml(n.text)}</div>`).join('') : '<div class="tkr-empty">No notes yet.</div>'}</div>
-      <div class="tk-addnote"><textarea id="tkNoteTxt" placeholder="Add note…${t.linkedId ? ' (also logged on the record\'s timeline)' : ''}"></textarea>
-        <div style="margin-top:8px;"><button class="btn" data-crm="panel-note">Add note</button></div></div>
-      <div class="tk-actions"><button class="btn del" data-crm="panel-delete">Delete task</button><span class="sub" style="font-size:11px;color:var(--muted);">Notes never change a task's due date or status.</span></div>`;
+  autosizeTa(document.getElementById('tkTitle')); autosizeTa(document.getElementById('tkDesc'));
+  const links = document.getElementById('tkLinks'), lh = tkLinksHtml();
+  if(links.dataset.sig !== lh){ links.innerHTML = lh; links.dataset.sig = lh; }
+  tkRenderPicker(false);
+  const nf = document.getElementById('tkNoteTxt'), nd = document.getElementById('tkNoteDate'), kv = nf ? nf.value : '', kd = nd ? nd.value : '', kf = nf && ae === nf;
+  const html = tkDynHtml();
+  if(dyn.dataset.sig !== html){   // an unchanged block is left alone, so a click on its button is not lost to a re-render
+    dyn.innerHTML = html; dyn.dataset.sig = html;
+    const n2 = document.getElementById('tkNoteTxt'), d2 = document.getElementById('tkNoteDate');
+    if(n2 && kv){ n2.value = kv; if(kf) n2.focus(); } if(d2 && kd) d2.value = kd;
   }
-  if(dyn.dataset.sig !== html){ dyn.innerHTML = html; dyn.dataset.sig = html; }   // an unchanged block is left alone, so a click on its button is not lost to the blur re-render
-  const nt = document.getElementById('tkNoteTxt'); if(nt && kv){ nt.value = kv; if(kf) nt.focus(); }
 }
+function tkAfterChange(){ if(tkIsNew()) tkRefresh(); else { render(); saveState(); tkSaved(); } }
+function tkSetLinks(codes){ tkObj().linkedIds = migrateLinkedIds({ linkedIds: codes }); tkAfterChange(); }
+function tkTogglePick(code, on){
+  const root = linkedRoot(code), links = recLinks(tkObj()).filter(c => linkedRoot(c) !== root);
+  if(on) links.push(code); tkSetLinks(links);
+}
+function tkAddNote(){
+  const o = tkObj(), box = document.getElementById('tkNoteTxt'), dt = document.getElementById('tkNoteDate'); if(!o || tkIsNew() || !box) return;
+  const ok = taskPanel ? addTaskNote(o, box.value, dt && dt.value) : addActionNote(o, box.value, dt && dt.value);
+  if(!ok){ box.focus(); return; }
+  box.value = ''; tkUi.noteOpen = false; render(); saveState(); tkSaved();
+}
+async function tkArchiveAction(){
+  const r = actionPanel && actionPanel.ref; if(!r || tkIsNew()) return;
+  const ok = await showConfirm('Archive this action?', `“${r.action}” moves to Archived without being completed. You can restore it from the Actions tab.`);
+  if(!ok || !state.actions.includes(r)) return;
+  state.archivedActions.unshift(state.actions.splice(state.actions.indexOf(r), 1)[0]);
+  closeTaskPanel(); render(); saveState();
+}
+function tkCreate(){
+  const err = document.getElementById('tkErr');
+  if(taskPanel){
+    const d = taskPanel.draft;
+    if(!String(d.title).trim()){ err.textContent = 'Give the task a title.'; document.getElementById('tkTitle').focus(); return; }
+    const nt = createTask(d); closeTaskPanel(); render(); saveState(); showToast(`${nt.id} created`);
+  } else if(actionPanel){
+    const r = actionPanel.ref;
+    if(!String(r.action).trim()){ err.textContent = 'Give the action a title.'; document.getElementById('tkTitle').focus(); return; }
+    r.action = r.action.trim(); state.actions.push(r); closeTaskPanel(); render(); saveState(); showToast('Action added');
+  }
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-tk]'); if(!b || !(taskPanel || actionPanel)) return;
+  const a = b.dataset.tk;
+  if(a === 'pick-toggle'){ tkUi.pickOpen = !tkUi.pickOpen; if(tkUi.pickOpen) tkUi.pickQ = ''; b.setAttribute('aria-expanded', tkUi.pickOpen ? 'true' : 'false'); tkRenderPicker(true); }
+  else if(a === 'chip-open') openRecordByCode(b.dataset.code);
+  else if(a === 'chip-x') tkSetLinks(recLinks(tkObj()).filter(c => c !== b.dataset.code));
+  else if(a === 'note-toggle'){
+    tkUi.noteOpen = !tkUi.noteOpen; const f = document.getElementById('tkNoteForm'); if(f) f.hidden = !tkUi.noteOpen;
+    if(tkUi.noteOpen){ const t = document.getElementById('tkNoteTxt'); if(t) t.focus(); }
+  }
+  else if(a === 'note-cancel'){ tkUi.noteOpen = false; const f = document.getElementById('tkNoteForm'); if(f) f.hidden = true; }
+  else if(a === 'note-add') tkAddNote();
+  else if(a === 'create') tkCreate();
+  else if(a === 'act-archive') tkArchiveAction();
+});
+document.addEventListener('change', (e) => {
+  const el = e.target; if(!el.dataset || el.dataset.tk !== 'pick' || !(taskPanel || actionPanel)) return;
+  tkTogglePick(el.dataset.code, el.checked);
+});
+document.addEventListener('input', (e) => {
+  const el = e.target; if(!(taskPanel || actionPanel) || !el) return;
+  if(el.dataset && el.dataset.tk === 'pick-q'){ tkUi.pickQ = el.value; tkRenderPicker(false); return; }
+  if(el.id === 'tkDesc'){
+    const o = tkObj(); if(!o) return; o.description = el.value; autosizeTa(el);
+    if(!tkIsNew()){ saveState(); clearTimeout(tkSavedTimer); tkSavedTimer = setTimeout(tkSaved, 600); }
+  } else if(el.id === 'tkTitle'){
+    autosizeTa(el);
+    if(taskPanel && taskPanel.mode === 'new') taskPanel.draft.title = el.value;
+    else if(actionPanel && actionPanel.isNew) actionPanel.ref.action = el.value;
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if(!(taskPanel || actionPanel) || !e.target) return;
+  if(e.key === 'Enter' && e.target.id === 'tkTitle'){ e.preventDefault(); e.target.blur(); }   // the title wraps but is one line of text: Enter commits it
+  else if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'tkNoteTxt'){ e.preventDefault(); tkAddNote(); }
+});
 function panelFieldChange(el){
   const f = el.dataset.tf, isNew = taskPanel.mode === 'new', t = panelTask(); if(!t) return;
-  const info = document.getElementById('tkLinkInfo'); if(info) info.classList.remove('err');
   let v = el.value;
-  if(f === 'title'){ v = v.trim(); if(!v && !isNew){ el.value = t.title; return; } }
-  if(f === 'linkedId'){
-    const code = normLinked(v);
-    if(v.trim() === '') v = '';
-    else if(!code || !activeRecordCodes().some(r => r.code === code)){
-      el.value = t.linkedId; if(info){ info.textContent = 'Pick an active lead, sale or project from the list (e.g. L-101).'; info.classList.add('err'); } return;
-    } else { v = code; el.value = code; }
-  }
+  if(f === 'title'){ v = v.trim(); if(!v && !isNew){ el.value = t.title; autosizeTa(el); return; } el.value = v; autosizeTa(el); }
   t[f] = v;
-  if(!isNew){ render(); saveState(); }
-  else refreshTaskPanel();
+  tkAfterChange();
 }
 document.addEventListener('change', (e) => { if(e.target.dataset && e.target.dataset.tf && taskPanel) panelFieldChange(e.target); });
-document.addEventListener('input', (e) => { if(e.target.dataset && e.target.dataset.tf === 'title' && taskPanel && taskPanel.mode === 'new') taskPanel.draft.title = e.target.value; });
 async function deleteTask(id){
   const t = findTask(id); if(!t) return;
   const ok = await showConfirm(`Delete ${t.id}?`, `“${t.title}” and its ${t.notes.length} note${t.notes.length !== 1 ? 's' : ''} will be permanently removed. Notes already logged on a record's timeline stay there. To keep the task, mark it done instead.`);
@@ -4798,15 +5093,6 @@ document.addEventListener('click', (e) => {
   else if(a === 'tk-form-add'){ const f = b.closest('.tkr-form'); if(f) submitRecordTaskForm(f); }
   else if(a === 'tk-form-cancel'){ const f = b.closest('.tkr-form'); if(f){ delete taskForms[f.dataset.key]; delete taskDrafts[f.dataset.key]; render(); } }
   else if(a === 'panel-close') closeTaskPanel();
-  else if(a === 'panel-create'){
-    const d = taskPanel && taskPanel.draft, err = document.getElementById('tkErr'); if(!d) return;
-    if(!String(d.title).trim()){ err.textContent = 'Give the task a title.'; const el = document.querySelector('#tkBody [data-tf="title"]'); if(el) el.focus(); return; }
-    const nt = createTask(d); closeTaskPanel(); render(); saveState(); showToast(`${nt.id} created`);
-  }
-  else if(a === 'panel-note'){
-    const tk = taskPanel && taskPanel.mode === 'edit' && findTask(taskPanel.id), box = document.getElementById('tkNoteTxt');
-    if(tk && box && addTaskNote(tk, box.value)){ box.value = ''; render(); saveState(); }
-  }
   else if(a === 'panel-delete'){ if(taskPanel) deleteTask(taskPanel.id); }
   else if(a === 'opt-add'){ const list = state.taskOptions[b.dataset.kind]; list.push(b.dataset.kind === 'type' ? { id: newOptId('type'), name: 'New type', contact: false } : { id: newOptId('priority'), name: 'New priority' }); renumberStages(list); render(); saveState(); }
   else if(a === 'opt-up' || a === 'opt-down'){
@@ -4815,16 +5101,13 @@ document.addEventListener('click', (e) => {
   }
   else if(a === 'opt-del') deleteTaskOption(b.dataset.kind, id);
 });
-document.addEventListener('keydown', (e) => {   // Ctrl/Cmd+Enter in the note box adds the note
-  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'tkNoteTxt'){ const b = document.querySelector('#tkDyn [data-crm="panel-note"]'); if(b) b.click(); }
-});
 
 /* ---------- Today tab ----------
    Two separate lists of what is due today: CRM tasks (state.crmTasks) and Actions (state.actions). The stores are never merged and
    every behaviour is the existing one: ticking calls completeTask() / the Actions "toggle-done" handler, a CRM row opens the task
    side panel, an Action row opens the same panel in action mode.
    Actions have no id, so the panel holds the action object itself. They also already have a free-text `notes` column, so the new
-   note thread is stored in `noteLog` (same shape as a task's notes) and the new link in `linkedId`. Neither is added to existing
+   note thread is stored in `noteLog` (same shape as a task's notes) and the links in `linkedIds`. Neither is added to existing
    actions: both are read defensively and only written when used. */
 const todayUi = { scope: 'mine', od: { crm: false, act: false }, key: '' };
 const actUi = { colsOpen: false };
@@ -4832,22 +5115,18 @@ function todayScopeKey(){ return STORAGE_PREFIX + 'business-tracker-today-scope:
 function loadTodayScope(){ try{ todayUi.scope = localStorage.getItem(todayScopeKey()) === 'all' ? 'all' : 'mine'; }catch(e){ todayUi.scope = 'mine'; } }
 function setTodayScope(v){ todayUi.scope = v === 'all' ? 'all' : 'mine'; try{ localStorage.setItem(todayScopeKey(), todayUi.scope); }catch(e){} renderToday(); }
 function sameUser(a, b){ return String(a == null ? '' : a).trim().toLowerCase() === String(b == null ? '' : b).trim().toLowerCase(); }
-function actLinked(r){ return normLinked(r && r.linkedId); }
+function actLinks(r){ return recLinks(r); }
 function actNotes(r){ return Array.isArray(r.noteLog) ? r.noteLog : []; }
 function dateLabel(d){ return d.toLocaleDateString('en-GB', { weekday: 'long' }) + ' ' + d.getDate() + ' ' + d.toLocaleDateString('en-GB', { month: 'long' }) + ' ' + d.getFullYear(); }
 const cmpText = (a, b) => String(a).localeCompare(String(b), undefined, { sensitivity: 'base' });
 
-/* an action note is kept on the action and, when it is linked, also written to that record's timeline (never counts as a contact) */
-function addActionNote(r, text){
+/* an action note is kept on the action and also written to every linked record's timeline (never counts as a contact) */
+function addActionNote(r, text, date){
   text = String(text || '').trim(); if(!text) return false;
-  const now = Date.now();
+  const now = Date.now(); date = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : fmt(new Date());
   if(!Array.isArray(r.noteLog)) r.noteLog = [];
-  r.noteLog.push({ id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 5), text, created: now, author: meName() });
-  const d = dealRecord(linkedRoot(actLinked(r)));
-  if(d){
-    d.rec.comms = Array.isArray(d.rec.comms) ? d.rec.comms : [];
-    d.rec.comms.push({ date: fmt(new Date()), note: 'Action note: ' + r.action + ' — ' + text, created: now, src: 'action', noContact: true });
-  }
+  r.noteLog.push({ id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 5), text, created: now, author: meName(), date });
+  logNoteToTimelines(r, text, date, now, { taskTitle: r.action }, false);
   return true;
 }
 
@@ -4877,22 +5156,22 @@ function todayData(today){
 }
 
 function todayTaskRow(t, over){
-  const li = linkedInfo(t), done = t.status === 'done';
+  const done = t.status === 'done';
   return `<div class="td-row${fadingTasks.has(t.id) ? ' fade-row' : ''}" data-crm="open" data-id="${t.id}">
       <div class="cbx${done ? ' checked' : ''}" data-crm="tick" data-id="${t.id}" title="${done ? 'Completed' : 'Mark done'}">${CHECK_SVG}</div>
       <span class="td-title" title="${escAttr(t.id + ' · ' + t.title)}">${escHtml(t.title)}</span>
       <span class="td-meta">${typeIcon(t.typeId)}${prioPill(t.priorityId)}
-        ${li ? `<button class="link-btn${li.missing || li.lost ? ' dim' : ''}" data-crm="rec" data-id="${t.id}" title="${escAttr(linkedText(t))}">${escHtml(linkedText(t))}</button>` : ''}
+        ${linkSummaryHtml(t, `data-crm="rec" data-id="${t.id}"`)}
         ${todayUi.scope === 'all' ? `<span>${escHtml(t.owner || 'Unassigned')}</span>` : ''}
         ${over ? `<span class="td-due">Due ${escHtml(fmtDisplay(toDate(t.dueDate)))}</span>` : ''}</span></div>`;
 }
 function todayActionRow(x, over){
-  const r = x.r, arch = archiving.has(r), code = actLinked(r), li = code ? linkedInfo({ linkedId: code }) : null;
+  const r = x.r, arch = archiving.has(r);
   return `<div class="td-row${arch ? ' archiving' : ''}" data-today="act-open" data-idx="${x.i}">
       <div class="cbx${arch ? ' checked' : ''}" data-action="toggle-done" data-idx="${x.i}" title="Complete &amp; archive">${CHECK_SVG}</div>
       <span class="td-title">${escHtml(r.action || '(untitled action)')}</span>
       <span class="td-meta"><span>${escHtml(r.owner || 'No owner')}</span>
-        ${li ? `<button class="link-btn${li.missing || li.lost ? ' dim' : ''}" data-today="act-rec" data-idx="${x.i}" title="${escAttr(linkedText({ linkedId: code }))}">${escHtml(linkedText({ linkedId: code }))}</button>` : ''}
+        ${linkSummaryHtml(r, `data-today="act-rec" data-idx="${x.i}"`)}
         ${over ? `<span class="td-due">Due ${escHtml(fmtDisplay(toDate(r.deadline)))}</span>` : ''}</span></div>`;
 }
 function todaySection(key, title, addLabel, addAction, emptyLabel, main, over, rowFn, live){
@@ -4925,85 +5204,14 @@ setInterval(checkTodayRollover, 30000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) checkTodayRollover(); });
 window.addEventListener('focus', checkTodayRollover);
 
-/* ---- action side panel (same panel element as a task) ---- */
-function openActionPanel(ref){ if(!ref || !state.actions.includes(ref)) return; taskPanel = null; actionPanel = { ref, isNew: false }; renderActionPanel(); }
-function openNewAction(){
-  taskPanel = null;
-  const ref = Object.assign(newRowFor('actions'), { action: '', owner: meName() || 'TBC', deadline: fmt(new Date()) });   // due today by default
-  actionPanel = { ref, isNew: true }; renderActionPanel();
-  setTimeout(() => { const el = document.querySelector('#tkBody [data-af="action"]'); if(el) el.focus(); }, 30);
-}
-function actionPanelValid(){ return !!actionPanel && (actionPanel.isNew || state.actions.includes(actionPanel.ref)); }
-function renderActionPanel(){
-  const r = actionPanel.ref;
-  document.getElementById('tkTitleBar').textContent = actionPanel.isNew ? 'New action' : 'Action';
-  document.getElementById('tkBody').innerHTML = `<div class="tk-form">
-      <div class="field"><label>Action</label><input class="tk-input" data-af="action" value="${escAttr(r.action)}" placeholder="What needs doing?"></div>
-      <div class="tk-grid">
-        <div><label>Owner</label><input class="tk-input" list="ownersList" data-af="owner" value="${escAttr(r.owner || '')}"></div>
-        <div><label>+ Owner</label><input class="tk-input" list="ownersList" data-af="owner2" value="${escAttr(r.owner2 || '')}" placeholder="optional"></div>
-        <div><label>Deadline</label><input type="date" class="tk-input" data-af="deadline" value="${escAttr(r.deadline || '')}"></div>
-        <div><label>Date raised</label><input type="date" class="tk-input" data-af="dateRaised" value="${escAttr(r.dateRaised || '')}"></div>
-        <div><label>Priority</label><select class="tk-input" data-af="priority">${[0, 1, 2, 3].map(p => `<option value="${p}"${Number(r.priority) === p ? ' selected' : ''}>${p}</option>`).join('')}</select></div>
-        <div><label>Status</label><select class="tk-input" data-af="status">${['Not Started', 'In Progress', 'Waiting', 'Done'].map(s => `<option${r.status === s ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
-      </div>
-      <div class="field"><label>Summary note</label><input class="tk-input" data-af="notes" value="${escAttr(r.notes || '')}"></div>
-      <div class="field"><label>Linked record</label><input class="tk-input" list="crmRecList" data-af="linkedId" value="${escAttr(actLinked(r))}" placeholder="Search by code or name (optional)" autocomplete="off">
-        <div class="tk-linkinfo" id="tkLinkInfo"></div></div>
-    </div><div id="tkDyn"></div>`;
-  document.getElementById('tkPanel').hidden = false; document.getElementById('tkBackdrop').hidden = false;
-  refreshActionPanel();
-}
-/* re-draws only the parts the user is not typing in (link info, status block, notes) so focus is never lost */
-function refreshActionPanel(){
-  if(!actionPanel) return;
-  if(!actionPanelValid()){ closeTaskPanel(); return; }
-  const dyn = document.getElementById('tkDyn'); if(!dyn) return;
-  const r = actionPanel.ref, isNew = actionPanel.isNew;
-  if(!isNew) document.querySelectorAll('#tkBody [data-af]').forEach(el => {   // follow edits made elsewhere (e.g. the Actions tab)
-    if(document.activeElement === el) return;
-    const v = el.dataset.af === 'linkedId' ? actLinked(r) : String(r[el.dataset.af] == null ? '' : r[el.dataset.af]);
-    if(el.value !== v) el.value = v;
-  });
-  const info = document.getElementById('tkLinkInfo'), code = actLinked(r), li = code ? linkedInfo({ linkedId: code }) : null;
-  if(info && !info.classList.contains('err')) info.innerHTML = li ? `${escHtml(li.name || '')}${li.lost ? ' (lost lead)' : ''}${li.missing ? 'Record no longer exists' : ''} ${li.d && !li.lost ? '<button class="link-btn" data-today="act-rec-panel">Open record</button>' : ''}` : 'Not linked to a record.';
-  const keep = document.getElementById('actNoteTxt'), kv = keep ? keep.value : '', kf = keep && document.activeElement === keep;
-  if(isNew){
-    const h = `<div class="tk-form"><div class="tkf-err" id="actErr"></div></div><div class="tk-actions"><button class="btn secondary" data-crm="panel-close">Cancel</button><button class="btn" data-today="act-create">Create action</button></div>`;
-    if(dyn.dataset.sig !== h){ dyn.innerHTML = h; dyn.dataset.sig = h; }
-    return;
-  }
-  const idx = state.actions.indexOf(r), arch = archiving.has(r);
-  const when = ms => ms ? new Date(ms).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-  const notes = actNotes(r).slice().sort((a, b) => a.created - b.created);
-  const html = `<div class="tk-status"><div class="cbx${arch ? ' checked' : ''}" data-action="toggle-done" data-idx="${idx}" title="Complete &amp; archive">${CHECK_SVG}</div>
-      <div><strong>${escHtml(r.status || 'Not Started')}</strong><div class="sub">Tick to complete and archive</div></div></div>
-    <div class="stage-label-row">Notes (${notes.length})</div>
-    <div class="tk-notes">${notes.length ? notes.map(n => `<div class="tk-note"><span class="meta">${escHtml(n.author || 'Someone')} · ${escHtml(when(n.created))}</span>${escHtml(n.text)}</div>`).join('') : '<div class="tkr-empty">No notes yet.</div>'}</div>
-    <div class="tk-addnote"><textarea id="actNoteTxt" placeholder="Add note…${code ? ' (also logged on the record\'s timeline)' : ''}"></textarea>
-      <div style="margin-top:8px;"><button class="btn" data-today="act-note">Add note</button></div></div>`;
-  if(dyn.dataset.sig !== html){ dyn.innerHTML = html; dyn.dataset.sig = html; }
-  const nt = document.getElementById('actNoteTxt'); if(nt && kv){ nt.value = kv; if(kf) nt.focus(); }
-}
-document.addEventListener('change', (e) => {
+document.addEventListener('change', (e) => {   // Action panel fields (title, status, priority, owner, due date, …)
   const el = e.target, f = el.dataset && el.dataset.af; if(!f || !actionPanel) return;
-  const r = actionPanel.ref, isNew = actionPanel.isNew, info = document.getElementById('tkLinkInfo'); if(info) info.classList.remove('err');
+  const r = actionPanel.ref, isNew = actionPanel.isNew;
   let v = el.value;
-  if(f === 'action'){ v = v.trim(); if(!v && !isNew){ el.value = r.action; return; } }
+  if(f === 'action'){ v = v.trim(); if(!v && !isNew){ el.value = r.action; autosizeTa(el); return; } el.value = v; autosizeTa(el); }
   if(f === 'priority') v = Number(v);
-  if(f === 'linkedId'){
-    const code = normLinked(v);
-    if(v.trim() === '') v = '';
-    else if(!code || !activeRecordCodes().some(x => x.code === code)){
-      el.value = actLinked(r); if(info){ info.textContent = 'Pick an active lead, sale or project from the list (e.g. L-101).'; info.classList.add('err'); } return;
-    } else { v = code; el.value = code; }
-    if(v === '' && !r.linkedId){ refreshActionPanel(); return; }   // nothing to clear: keep the action without a linkedId field
-  }
   r[f] = v;
-  if(!isNew){ render(); saveState(); } else refreshActionPanel();
-});
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'actNoteTxt'){ const b = document.querySelector('#tkDyn [data-today="act-note"]'); if(b) b.click(); }
+  tkAfterChange();
 });
 
 /* ---- Actions tab: optional Linked record column ---- */
@@ -5012,9 +5220,9 @@ document.addEventListener('change', (e) => {
   if(d.alink !== undefined){
     const r = state.actions[Number(d.alink)]; if(!r) return;
     const v = el.value.trim(), code = normLinked(v);
-    if(!v){ if(r.linkedId) r.linkedId = ''; }
-    else if(!code || !activeRecordCodes().some(x => x.code === code)){ el.value = actLinked(r); setSaveStatus('Pick an active lead, sale or project from the list (e.g. L-101).'); return; }
-    else r.linkedId = code;
+    if(!v){ r.linkedIds = []; }
+    else if(!code || !activeRecordCodes().some(x => x.code === code)){ el.value = actLinks(r)[0] || ''; setSaveStatus('Pick an active lead, sale or project from the list (e.g. L-101).'); return; }
+    else r.linkedIds = [code];
     render(); saveState();
   }
   else if(d.acol){
@@ -5035,17 +5243,7 @@ document.addEventListener('click', (e) => {
   else if(a === 'act-open'){ const inner = e.target.closest('input,select,textarea,button,.cbx,a'); if(inner && inner !== b) return; openActionPanel(state.actions[Number(b.dataset.idx)]); }
   else if(a === 'act-rec' || a === 'act-rec-panel'){
     const r = a === 'act-rec' ? state.actions[Number(b.dataset.idx)] : (actionPanel && actionPanel.ref);
-    const d = r && dealRecord(linkedRoot(actLinked(r))); if(d && !d.lost) openDetail(d.pl, d.rec.id);
-  }
-  else if(a === 'act-note'){
-    const box = document.getElementById('actNoteTxt');
-    if(actionPanel && !actionPanel.isNew && box && addActionNote(actionPanel.ref, box.value)){ box.value = ''; render(); saveState(); }
-  }
-  else if(a === 'act-create'){
-    const r = actionPanel && actionPanel.ref, err = document.getElementById('actErr'); if(!r) return;
-    if(!String(r.action).trim()){ err.textContent = 'Give the action a title.'; const el = document.querySelector('#tkBody [data-af="action"]'); if(el) el.focus(); return; }
-    r.action = r.action.trim(); if(!r.linkedId) delete r.linkedId;
-    state.actions.push(r); closeTaskPanel(); render(); saveState(); showToast('Action added');
+    const l = r && linkedInfos(r).find(i => i.d && !i.lost); if(l) openRecordByCode(l.code);
   }
   else if(a === 'act-cols'){ actUi.colsOpen = !actUi.colsOpen; renderActions(); }
 });
@@ -5159,7 +5357,7 @@ function brandPanelSync(){
   const body = document.body;
   const open = ['drPanel', 'lpPanel', 'tkPanel'].map(id => document.getElementById(id)).filter(p => p && !p.hidden && p.offsetWidth > 0);
   if(!open.length){ body.classList.remove('bt-panel-open', 'bt-pill-hide'); return; }
-  const w = Math.max(...open.map(p => p.offsetWidth));
+  const w = Math.max(...open.map(p => p.offsetWidth + (parseFloat(getComputedStyle(p).right) || 0)));   // the panel's real width plus its gap from the window edge
   const bar = document.getElementById('brandBar'), pill = document.getElementById('brandPill'), main = document.querySelector('.main');
   const vw = document.documentElement.clientWidth;
   const inset = vw - bar.getBoundingClientRect().right + (parseFloat(getComputedStyle(main).paddingRight) || 0);   // the pill's normal gap from the window edge
@@ -5390,7 +5588,7 @@ function newRowFor(tab){
     case 'network': return { name:'New contact', role:'', category:'', notes:'' };
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
-    case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'' };
+    case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'', linkedIds:[], description:'', notesMigrated:true, descNoteIds:[] };
     case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', contacts:[], source:'', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', stageId:firstStageId('lead'), lost:false, projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
