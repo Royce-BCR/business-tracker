@@ -5953,7 +5953,7 @@ function newRowFor(tab){
     case 'admin': return { item:'New item', category:'', status:'Not Started', notes:'' };
     case 'milestones': return { stage:'New stage', status:'Not Started', actions:'' };
     case 'actions': return { dateRaised: fmt(new Date()), action:'New action', owner:'TBC', owner2:'', deadline:'', priority:2, status:'Not Started', notes:'', linkedIds:[], description:'', notesMigrated:true, descNoteIds:[] };
-    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', contacts:[], source:'', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', stageId:firstStageId('lead'), lost:false, projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
+    case 'leads': return { id:0, leadType:'Residential', contact:'New lead', company:'', phone:'', email:'', contacts:[], source:'', notes:'', budget:'', decisionMaker:'', timeline:'', competition:'', stageId:firstStageId('lead'), lost:false, createdAt:fmt(new Date()), projectName:'', address:'', postcode:'', postcodeManual:false, estValue:'', tierId:(state.settings && tierById(state.settings.defaultTierId) ? state.settings.defaultTierId : ''), tierManual:false, comms:[] };
     case 'transactions': return { date: fmt(new Date()), description:'', category:'Other', moneyIn:0, moneyOut:0, linkedCode:'' };
     default: return {};
   }
