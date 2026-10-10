@@ -163,14 +163,20 @@
   body.bt-panel-open .brandbar-in { transform: translateX(calc(-1 * max(0px, var(--bt-panel-w, 0px) + 16px - var(--bt-inset, 0px)))); }
   body.bt-panel-open.bt-pill-hide .brandbar-in { visibility: hidden; }
   .brand-pill {
-    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 9px; height: 34px; max-width: 100%;
+    flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 9px; height: 34px; max-width: 100%;
     padding: 0 16px 0 5px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
     color: var(--ink); white-space: nowrap; cursor: default; user-select: none;
   }
-  .brand-pill.no-mark { padding-left: 16px; }
   .brand-pill.full-only { padding: 0 14px; }
-  .brand-pill img { display: block; height: 24px; width: auto; max-width: 160px; object-fit: contain; }
-  .brand-pill .bp-name { font-size: 16px; line-height: 1; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+  .brand-pill img { display: block; flex: 0 0 auto; height: 24px; width: auto; max-width: 160px; object-fit: contain; }
+  .brand-pill .bp-name { font-size: 16px; line-height: 1; overflow: hidden; text-overflow: ellipsis; max-width: 260px; min-width: 0; }
+  .brand-pill.no-mark { padding-left: 16px; }
+  /* Hide brand: no row, no gap; the save message goes back to its original fixed corner */
+  .brandbar.off { height: 0; margin-bottom: 32px; padding-top: 0; padding-bottom: 0; background: none; }
+  .brandbar.off .brandbar-in { transform: none !important; visibility: visible !important; }
+  .brandbar.off .brand-pill { display: none; }
+  .brandbar.off .save-status { position: fixed; top: 14px; right: 18px; z-index: 30; display: block; max-width: calc(100vw - 36px); background: rgba(255,255,255,0.82); backdrop-filter: blur(4px); border: 1px solid var(--line); border-radius: 20px; padding: 4px 12px; }
+  .brandbar.off .save-status:empty { display: none; }
   @media (max-width: 700px) { body.bt-panel-open .brandbar-in { visibility: hidden; } }
   .panel { display: none; animation: fade 0.18s ease; }
   .panel.active { display: block; }
@@ -647,11 +653,14 @@
   body.logged-out .sidebar, body.logged-out .main, body.logged-out .save-status, body.logged-out .mobile-bar, body.logged-out .sidebar-backdrop { display: none !important; }
   .login-overlay { position: fixed; inset: 0; background: var(--ink); display: flex; overflow-y: auto; z-index: 200; }
   .login-stack { margin: auto; padding: 24px 0; display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
-  .login-brand { display: flex; align-items: center; justify-content: center; gap: 12px; max-width: calc(100% - 32px); color: #f4f2ed; text-align: center; }
+  .login-brand { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: calc(100% - 32px); color: #f4f2ed; text-align: center; }
+  .login-brand:empty { display: none; }
+  .login-brand .lb-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; max-width: 100%; }
+  .login-brand .lb-tag { font-size: 14px; line-height: 1.4; color: #cfcabf; overflow-wrap: anywhere; }
   .login-brand img { display: block; max-width: 100%; object-fit: contain; }
   .login-brand img.lb-full { max-height: 72px; max-width: 300px; }
   .login-brand img.lb-badge { height: 44px; width: auto; max-width: 120px; }
-  .login-brand .lb-name { font-size: 30px; line-height: 1.1; overflow-wrap: anywhere; }
+  .login-brand .lb-name { font-size: 30px; line-height: 1.1; overflow-wrap: anywhere; min-width: 0; }
   .login-overlay.hidden { display: none; }
   .login-box { background: #fff; border-radius: 16px; padding: 32px 34px; width: 340px; max-width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
   .login-box h1 { font-family: var(--serif); font-weight: 600; font-size: 26px; margin: 0 0 2px; letter-spacing: -0.3px; }
@@ -700,6 +709,12 @@
   .br-card input[type=text], .br-card select { border: 1px solid var(--line); background: #fff; padding: 8px 10px; font-size: 13px; border-radius: 8px; }
   .br-card input[type=text]:hover, .br-card select:hover { border-color: var(--stone-deep); }
   .br-card input[type=text]:disabled, .br-card select:disabled { background: #faf8f4; color: var(--ink); opacity: 1; }
+  .br-seg { display: flex; flex-wrap: wrap; }
+  .br-pv .br-empty { font-size: 12px; color: #aaa59a; }
+  .br-seg button:disabled { cursor: default; }
+  .br-more { margin: 18px 0 0; border-top: 1px solid var(--line); padding-top: 4px; }
+  .br-more > summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--slate); padding: 10px 0; list-style: revert; }
+  .br-more > summary:focus-visible { outline: 2px solid var(--oak); outline-offset: 2px; }
   .br-sample { margin-top: 8px; font-size: 24px; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
   .br-logos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
   .br-slot-label { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 5px; }
@@ -886,6 +901,8 @@
     .sidebar.open { transform: translateX(0); }
     .main { --px: 16px; margin-left: 0; margin-top: 52px; padding: 0 var(--px) 100px var(--px); }
     .brandbar { top: 52px; }
+    .brandbar.off { margin-bottom: 20px; }
+    .brandbar.off .save-status { top: 62px; right: 12px; }
     .page-head h2 { font-size: 23px; }
     .kpi-row { grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; }
     .assumptions-grid, .assumptions-grid.two, .milestone-grid, .qual-grid { grid-template-columns: 1fr !important; }
@@ -5033,8 +5050,10 @@ document.addEventListener('click', (e) => {
   else if(a === 'act-cols'){ actUi.colsOpen = !actUi.colsOpen; renderActions(); }
 });
 
-/* ---------- branding (Settings → General): name, font, logos, colours; shown in the brand pill and on the login screen ---------- */
+/* ---------- branding (Settings → General): display mode, name, font, logos, colours; shown in the brand pill and on the login screen ---------- */
 const BRAND_DEFAULT_NAME = 'Brookwood Rural';
+const BRAND_NAME_MAX = 40;
+const BRAND_MODES = [['name', 'Name only'], ['logo', 'Logo only'], ['both', 'Logo and name'], ['hidden', 'Hide brand']];
 const BRAND_FONTS = [   // each stack ends in Georgia / system fonts so nothing breaks offline
   { name: 'Cormorant Garamond', desc: 'refined serif',       weight: 600, stack: "'Cormorant Garamond', Georgia, 'Times New Roman', serif" },
   { name: 'Playfair Display',   desc: 'high-contrast serif', weight: 600, stack: "'Playfair Display', Georgia, 'Times New Roman', serif" },
@@ -5053,7 +5072,7 @@ const BRAND_COLOURS = [['primary', 'Primary'], ['secondary', 'Secondary'], ['acc
 const BRAND_CACHE_KEY = STORAGE_PREFIX + 'business-tracker-branding';   // the login screen has no data yet, so it reads this copy
 const BRAND_IMG_RE = /^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+\/]+=*$/;
 function defaultBranding(){
-  return { name: BRAND_DEFAULT_NAME, tagline: '', font: BRAND_FONTS[0].name,
+  return { mode: 'name', name: BRAND_DEFAULT_NAME, tagline: '', font: BRAND_FONTS[0].name,
     logos: { fullStd: '', fullRev: '', badgeStd: '', badgeRev: '' },
     colours: { primary: '#1c1f22', secondary: '#a8763e', accent: '#3f6b4f' } };
 }
@@ -5062,63 +5081,78 @@ function normHex(v){
   let h = m[1].toLowerCase(); if(h.length === 3) h = h.split('').map(c => c + c).join('');
   return '#' + h;
 }
-/* idempotent; used by defaultState() and mergeDefaults() so old backups (no branding) and hand-edited ones load cleanly */
+/* idempotent; used by defaultState() and mergeDefaults() so old backups (no branding, or branding with no mode) and hand-edited ones load cleanly.
+   No saved mode: 'both' if any logo is uploaded (keeps today's look), otherwise 'name'. A saved blank name stays blank; only a missing name gets the default. */
 function normaliseBranding(b){
   const d = defaultBranding(); b = (b && typeof b === 'object') ? b : {};
   const lg = (b.logos && typeof b.logos === 'object') ? b.logos : {}, cl = (b.colours && typeof b.colours === 'object') ? b.colours : {};
   const out = {
-    name: typeof b.name === 'string' ? b.name.slice(0, 60) : d.name,
+    mode: '',
+    name: typeof b.name === 'string' ? b.name.slice(0, BRAND_NAME_MAX) : d.name,
     tagline: typeof b.tagline === 'string' ? b.tagline.slice(0, 100) : '',
     font: BRAND_FONTS.some(f => f.name === b.font) ? b.font : d.font,
     logos: {}, colours: {}
   };
   BRAND_SLOTS.forEach(s => { const u = lg[s.key]; out.logos[s.key] = (typeof u === 'string' && u.length < 3000000 && BRAND_IMG_RE.test(u)) ? u : ''; });
   BRAND_COLOURS.forEach(([k]) => { out.colours[k] = normHex(cl[k]) || d.colours[k]; });
+  out.mode = BRAND_MODES.some(m => m[0] === b.mode) ? b.mode : (BRAND_SLOTS.some(s => out.logos[s.key]) ? 'both' : 'name');
   return out;
 }
 function brandFont(name){ return BRAND_FONTS.find(f => f.name === name) || BRAND_FONTS[0]; }
-function brandName(b){ return (b && String(b.name || '').trim()) || BRAND_DEFAULT_NAME; }
+function brandName(b){ return String((b && b.name) || '').trim(); }
 function brandNameStyle(b){ const f = brandFont(b && b.font); return `font-family:${f.stack};font-weight:${f.weight}`; }
-/* the pill: Badge (Standard) + name, else the Full logo (Standard) alone, else the name */
-function brandPillParts(b){
-  const lg = b.logos || {}, name = brandName(b);
-  const nm = `<span class="bp-name" style="${brandNameStyle(b)}">${escHtml(name)}</span>`;
-  if(lg.badgeStd) return { cls: 'brand-pill', html: `<img src="${escHtml(lg.badgeStd)}" alt="">${nm}` };
-  if(lg.fullStd) return { cls: 'brand-pill full-only', html: `<img src="${escHtml(lg.fullStd)}" alt="${escHtml(name)}">` };
-  return { cls: 'brand-pill no-mark', html: nm };
+/* which parts a surface shows: a logo (mode logo / both, if the right version is uploaded) and/or the name (mode name / both, or as the fallback when no logo fits) */
+function brandShow(b, logo){
+  const m = b.mode, name = brandName(b);
+  return { logo: (m === 'logo' || m === 'both') ? logo : '', name: name && (m === 'name' || m === 'both' || (m === 'logo' && !logo)) ? name : '' };
 }
-/* the login screen: Reversed Full logo, else Reversed Badge + name, else the name (light) — b needs only name, font, logos.fullRev / badgeRev */
+/* the pill (light background): Standard logos only — Badge, else Full. null = nothing to show, so the row collapses */
+function brandPillParts(b){
+  if(b.mode === 'hidden') return null;
+  const lg = b.logos || {}, isBadge = !!lg.badgeStd, sh = brandShow(b, lg.badgeStd || lg.fullStd);
+  if(!sh.logo && !sh.name) return null;
+  const img = sh.logo ? `<img src="${escHtml(sh.logo)}" alt="${sh.name ? '' : escHtml(brandName(b))}">` : '';
+  const nm = sh.name ? `<span class="bp-name" style="${brandNameStyle(b)}">${escHtml(sh.name)}</span>` : '';
+  const cls = !sh.logo ? 'brand-pill no-mark' : (isBadge && sh.name) ? 'brand-pill' : 'brand-pill full-only';
+  return { cls, html: img + nm };
+}
+/* the login screen (dark background): Reversed logos only — Full, else Badge. '' = nothing, as before branding existed. b needs mode, name, tagline, font, logos.fullRev / badgeRev */
 function brandLoginHtml(b){
-  const lg = b.logos || {}, name = brandName(b);
-  if(lg.fullRev) return `<img class="lb-full" src="${escHtml(lg.fullRev)}" alt="${escHtml(name)}">`;
-  return (lg.badgeRev ? `<img class="lb-badge" src="${escHtml(lg.badgeRev)}" alt="">` : '') + `<span class="lb-name" style="${brandNameStyle(b)}">${escHtml(name)}</span>`;
+  if(b.mode === 'hidden') return '';
+  const lg = b.logos || {}, sh = brandShow(b, lg.fullRev || lg.badgeRev);
+  const img = sh.logo ? `<img class="${lg.fullRev ? 'lb-full' : 'lb-badge'}" src="${escHtml(sh.logo)}" alt="${sh.name ? '' : escHtml(brandName(b))}">` : '';
+  const nm = sh.name ? `<span class="lb-name" style="${brandNameStyle(b)}">${escHtml(sh.name)}</span>` : '';
+  if(!img && !nm) return '';
+  const tag = (sh.name && String(b.tagline || '').trim()) ? `<div class="lb-tag">${escHtml(String(b.tagline).trim())}</div>` : '';   // under the name, login screen only
+  return `<div class="lb-row">${img}${nm}</div>${tag}`;
 }
 function renderLoginBrand(b){
   const el = document.getElementById('loginBrand'); if(!el) return;
   if(!b){
     let c = null; try{ c = JSON.parse(localStorage.getItem(BRAND_CACHE_KEY) || 'null'); }catch(e){}
-    b = normaliseBranding(c && typeof c === 'object' ? { name: c.name, font: c.font, logos: { fullRev: c.fullRev, badgeRev: c.badgeRev } } : null);   // no cache yet: default name, default font
+    b = normaliseBranding(c && typeof c === 'object' ? { mode: c.mode, name: c.name, tagline: c.tagline, font: c.font, logos: { fullRev: c.fullRev, badgeRev: c.badgeRev } } : null);   // no cache yet: default name, default font
   }
   el.innerHTML = brandLoginHtml(b);
 }
 let _brandSig = '', _brandPillSig = '';
 function applyBranding(){
   const b = state && state.branding; if(!b) return;
-  const parts = brandPillParts(b), pillSig = parts.cls + parts.html;
-  const pill = document.getElementById('brandPill');
-  if(pill && pillSig !== _brandPillSig){ _brandPillSig = pillSig; pill.className = parts.cls; pill.innerHTML = parts.html; }
-  const cache = JSON.stringify({ name: b.name, font: b.font, fullRev: b.logos.fullRev, badgeRev: b.logos.badgeRev });
+  const parts = brandPillParts(b), pillSig = parts ? parts.cls + parts.html : '';
+  const pill = document.getElementById('brandPill'), bar = document.getElementById('brandBar');
+  if(pill && pillSig !== _brandPillSig){ _brandPillSig = pillSig; pill.className = parts ? parts.cls : 'brand-pill'; pill.innerHTML = parts ? parts.html : ''; }
+  if(bar) bar.classList.toggle('off', !parts);
+  const cache = JSON.stringify({ mode: b.mode, name: b.name, tagline: b.tagline, font: b.font, fullRev: b.logos.fullRev, badgeRev: b.logos.badgeRev });
   if(cache !== _brandSig){   // refreshed after every data load / change so the login screen can use it next time
     _brandSig = cache;
     try{ localStorage.setItem(BRAND_CACHE_KEY, cache); }catch(e){}
     renderLoginBrand();
   }
-  const sample = document.getElementById('brSample');
-  if(sample){ sample.style.cssText = brandNameStyle(b); sample.textContent = brandName(b); }
+  const none = '<span class="br-empty">Nothing shown</span>';
   const pv = document.getElementById('brPvPill');
-  if(pv) pv.innerHTML = `<div class="${parts.cls}">${parts.html}</div>`;
-  const pl = document.getElementById('brPvLogin');
-  if(pl) pl.innerHTML = brandLoginHtml(b);
+  if(pv) pv.innerHTML = parts ? `<div class="${parts.cls}">${parts.html}</div>` : none;
+  const pl = document.getElementById('brPvLogin'), lh = brandLoginHtml(b);
+  if(pl){ pl.innerHTML = lh; pl.style.display = lh ? '' : 'none'; const e = document.getElementById('brPvLoginNone'); if(e) e.style.display = lh ? 'none' : ''; }
+  requestAnimationFrame(brandPanelSync);   // pill width may have changed
 }
 /* the pill slides clear of any open right-hand panel (record drawer, lead / supplier panel, task / action panel) */
 function brandPanelSync(){
@@ -5134,6 +5168,7 @@ function brandPanelSync(){
   body.classList.toggle('bt-pill-hide', vw - w - 16 - pill.offsetWidth < main.getBoundingClientRect().left + 8);   // no room left of the panel: hide rather than sit under the sidebar
   body.classList.add('bt-panel-open');
 }
+let brMoreOpen = null;   // null = follow the mode (closed for Name only, open otherwise); true / false once the user toggles it
 function renderBranding(){
   const el = document.getElementById('brandingCard'); if(!el || !state || !state.branding) return;
   const ae = document.activeElement;
@@ -5150,31 +5185,37 @@ function renderBranding(){
         <input type="text" value="${hx}" maxlength="7" spellcheck="false" autocomplete="off" data-br-hex="${k}" aria-label="${label} hex colour"${dis}>
         <span class="br-swatch-dot" id="brDot-${k}" style="background:${hx}"></span></div>
       <div class="br-err" id="brColErr-${k}"></div></div>`; };
+  const moreOpen = brMoreOpen === null ? b.mode !== 'name' : brMoreOpen;
   el.innerHTML = `
     ${ed ? '' : '<p class="br-note">Only admins can change the branding.</p>'}
+    <div class="br-f"><label id="brModeLbl">Show brand as</label>
+      <div class="view-toggle br-seg" role="group" aria-labelledby="brModeLbl" style="margin-bottom:14px;">${BRAND_MODES.map(([k, l]) => `<button type="button" data-br-mode="${k}" aria-pressed="${b.mode === k}" class="${b.mode === k ? 'active' : ''}"${dis}>${l}</button>`).join('')}</div></div>
     <div class="br-grid">
-      <div class="br-f"><label for="brName">Business name</label><input type="text" id="brName" data-br="name" maxlength="60" value="${escHtml(b.name)}" placeholder="${escHtml(BRAND_DEFAULT_NAME)}"${dis}></div>
+      <div class="br-f"><label for="brName">Business name</label><input type="text" id="brName" data-br="name" maxlength="${BRAND_NAME_MAX}" value="${escHtml(b.name)}" placeholder="${escHtml(BRAND_DEFAULT_NAME)}"${dis}></div>
       <div class="br-f"><label for="brTag">Tagline (optional)</label><input type="text" id="brTag" data-br="tagline" maxlength="100" value="${escHtml(b.tagline)}"${dis}>
-        <div class="lp-hint">Stored for quotes and documents. Not shown in the app yet.</div></div>
+        <div class="lp-hint">Shown under the name on the login screen only.</div></div>
     </div>
     <div class="br-f"><label for="brFont">Name font</label>
-      <select id="brFont" data-br="font"${dis}>${BRAND_FONTS.map(f => `<option value="${escHtml(f.name)}" style="font-family:${f.stack}"${f.name === b.font ? ' selected' : ''}>${escHtml(f.name)} — ${f.desc}</option>`).join('')}</select>
-      <div class="br-sample" id="brSample"></div></div>
-
-    <div class="br-h">Full logo <small>name or wordmark · PNG, JPEG, WebP or SVG · shown up to 600×200</small></div>
-    <div class="br-logos">${slot(BRAND_SLOTS[0])}${slot(BRAND_SLOTS[1])}</div>
-    <div class="br-h">Badge or mark <small>icon only · PNG, JPEG, WebP or SVG · shown up to 160×160</small></div>
-    <div class="br-logos">${slot(BRAND_SLOTS[2])}${slot(BRAND_SLOTS[3])}</div>
-
-    <div class="br-h">Brand colours</div>
-    <div class="br-cols">${BRAND_COLOURS.map(colour).join('')}</div>
-    <p class="br-note" style="margin:10px 0 0;">Used on quotes and documents. App theming comes later.</p>
+      <select id="brFont" data-br="font"${dis}>${BRAND_FONTS.map(f => `<option value="${escHtml(f.name)}" style="font-family:${f.stack}"${f.name === b.font ? ' selected' : ''}>${escHtml(f.name)} — ${f.desc}</option>`).join('')}</select></div>
 
     <div class="br-h">Preview</div>
     <div class="br-preview">
       <div><div class="br-slot-label">Badge at the top of every page</div><div class="br-pv paper" id="brPvPill"></div></div>
-      <div><div class="br-slot-label">Login screen</div><div class="br-pv dark"><div class="login-brand" id="brPvLogin"></div></div></div>
-    </div>`;
+      <div><div class="br-slot-label">Login screen</div><div class="br-pv dark"><div class="login-brand" id="brPvLogin"></div><span class="br-empty" id="brPvLoginNone" style="display:none">Nothing shown</span></div></div>
+    </div>
+
+    <details class="br-more" id="brMore"${moreOpen ? ' open' : ''}>
+      <summary>Logos and colours${b.mode === 'name' ? ' (add later)' : ''}</summary>
+      <div class="br-h" style="margin-top:10px;">Full logo <small>name or wordmark · PNG, JPEG, WebP or SVG · shown up to 600×200</small></div>
+      <div class="br-logos">${slot(BRAND_SLOTS[0])}${slot(BRAND_SLOTS[1])}</div>
+      <div class="br-h">Badge or mark <small>icon only · PNG, JPEG, WebP or SVG · shown up to 160×160</small></div>
+      <div class="br-logos">${slot(BRAND_SLOTS[2])}${slot(BRAND_SLOTS[3])}</div>
+      <p class="br-note" style="margin:10px 0 0;">Standard logos are used on light backgrounds (the top badge), Reversed logos on the dark login screen.</p>
+
+      <div class="br-h">Brand colours</div>
+      <div class="br-cols">${BRAND_COLOURS.map(colour).join('')}</div>
+      <p class="br-note" style="margin:10px 0 0;">Used on quotes and documents. App theming comes later.</p>
+    </details>`;
   applyBranding();
 }
 /* upload: raster images (≤ 2 MB) are shrunk on a canvas, keeping transparency; SVGs (≤ 300 KB) are cleaned of scripts / on* attributes */
@@ -5233,7 +5274,7 @@ async function handleBrandLogo(key, file){
 document.addEventListener('input', (e) => {
   const el = e.target, d = el.dataset; if(!d || !isAdmin() || !state) return;
   const b = state.branding;
-  if(d.br === 'name' || d.br === 'tagline'){ b[d.br] = el.value.slice(0, d.br === 'name' ? 60 : 100); applyBranding(); saveState(); }
+  if(d.br === 'name' || d.br === 'tagline'){ b[d.br] = el.value.slice(0, d.br === 'name' ? BRAND_NAME_MAX : 100); applyBranding(); saveState(); }
   else if(d.brCol !== undefined || d.brHex !== undefined){
     const k = d.brCol !== undefined ? d.brCol : d.brHex, hx = normHex(el.value);
     const hexEl = document.querySelector(`[data-br-hex="${k}"]`), colEl = document.querySelector(`[data-br-col="${k}"]`), er = document.getElementById('brColErr-' + k);
@@ -5256,10 +5297,15 @@ document.addEventListener('change', (e) => {
   }
 });
 document.addEventListener('click', (e) => {
-  const rm = e.target.closest('[data-br-remove]'); if(!rm || !isAdmin() || !state) return;
+  const sm = e.target.closest('#brMore > summary'); if(sm){ brMoreOpen = !sm.parentNode.open; return; }   // remember a manual open / close until the mode changes
+  if(!isAdmin() || !state) return;
+  const md = e.target.closest('[data-br-mode]');
+  if(md){ state.branding.mode = normaliseBranding({ mode: md.dataset.brMode }).mode; brMoreOpen = null; renderBranding(); saveState(); return; }
+  const rm = e.target.closest('[data-br-remove]'); if(!rm) return;
   state.branding.logos[rm.dataset.brRemove] = '';
   renderBranding(); saveState();
 });
+
 
 /* ---------- Settings: secondary menu (sections), the last one used is remembered on this device ---------- */
 const SET_SECTIONS = [
